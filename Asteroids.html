@@ -1,0 +1,1472 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title></title>
+
+
+        <script type="text/javascript">
+
+
+            txt = "<game>";
+            txt += "<level>";
+            txt += "<asteroid>1</asteroid>";
+            txt += "</level>";
+            txt += "<level>";
+            txt += "<asteroid>2</asteroid>";
+            txt += "</level>";
+            txt += "<level>";
+            txt += "<asteroid>3</asteroid>";
+            txt += "</level>";
+            txt += "<level>";
+            txt += "<asteroid>4</asteroid>";
+            txt += "</level>";
+            txt += "<level>";
+            txt += "<asteroid>5</asteroid>";
+            txt += "</level>";
+            txt += "<level>";
+            txt += "<asteroid>6</asteroid>";
+            txt += "</level>";
+            txt += "</game>";
+
+
+            if (window.DOMParser) {
+                parser = new DOMParser();
+                xmlDoc = parser.parseFromString(txt, "text/xml");
+            }
+            else // Internet Explorer
+            {
+                xmlDoc = new ActiveXObject("Microsoft.XMLDOM");
+                xmlDoc.async = false;
+                xmlDoc.loadXML(txt);
+            }
+
+
+
+
+            var ITEMS = [
+                "BROWN",
+                "BLUE",
+                "RED",
+                "YELLOW",
+                "GREEN"
+            ];
+
+
+
+            var ITEM_ASTEROID_BROWN = 0;
+            var ITEM_ASTEROID_BLUE = 1;
+            var ITEM_ASTEROID_RED = 2;
+            var ITEM_ASTEROID_YELLOW = 3;
+            var ITEM_ASTEROID_GREEN = 4;
+
+
+            var INVENTORY_ITEM_ID = 0;
+            var INVENTORY_ITEM_AMOUNT = 1;
+            var INVENTORY_ITEM_NAME = 2;
+
+
+
+            var FPS = 60;
+
+            var LEVEL = 1;
+            var MAX_LEVEL=100;
+
+            var SCREEN_W = 800;
+            var SCREEN_H = 600;
+
+            var CAMx, CAMy;
+            var MINICAMx, MINICAMy;
+
+            var Bullets = [];
+            var Asteroids = [];
+            var Stars = [];
+            var Structures = [];
+            var Novas = [];
+            var Particles = [];
+            var ScrollText=[];
+
+
+
+
+            //IMAGES=============================================
+            //        var Starimg = new Image();
+            //        Starimg.src = "gfx/Star.png";
+            //IMAGES=============================================
+
+
+            var MX=0;
+            var MY=0;
+
+
+            var Key = {
+                _pressed: {},
+
+                LEFT: 37,
+                UP: 38,
+                RIGHT: 39,
+                DOWN: 40,
+                CTRL: 17,
+                SHIFT: 16,
+
+
+                isDown: function (keyCode) {
+                    return this._pressed[keyCode];
+                },
+
+                onKeydown: function (event) {
+                    this._pressed[event.keyCode] = true;
+                },
+
+                onKeyup: function (event) {
+                    delete this._pressed[event.keyCode];
+                }
+            };
+
+
+
+
+
+
+            var player = {
+                color: "#FF0",
+                x: SCREEN_W / 2,
+                y: SCREEN_H / 2,
+                spx: 0,
+                spy: 0,
+                agility: 3,
+                acc: 0.1,
+                maxspeed: 5,
+                width: 32,
+                height: 24,
+                rotation: 0,
+                colAngle:0,
+                shootDelay: 0,
+                health: 100,
+                maxhealth: 100,
+                shield: 100,
+                maxshield: 100,
+                dmgDelay: 0,
+                score: 0,
+                credits: 0,
+                laserlvl: 1,
+                laserUPCost: 250,
+                agilityUPCost: 50,
+                MaxspeedUPCost: 50,
+                BlastNovaCD: 0,
+                
+                ComboAmount:0,
+                ComboDelay:150,
+                ComboMsh:0,
+                ComboVec:{X:0,Y:0},
+                
+                XPAmount:0,
+                XPGatheredForNextLevel:0,
+                XPRequiredForNextLevel:0,
+                Level:1,
+                MAX_LEVEL:99, 
+                XP_INCREMENT:500,
+                
+                Inventory: [],  //[ITEM ID,AMOUNT,NAME]
+
+
+                addInventoryItem: function (Amount, ItemID) {
+                    var found = false;
+
+                    for (var id in this.Inventory) {
+
+                        if (this.Inventory[id][INVENTORY_ITEM_ID] == ItemID) {
+                            this.Inventory[id][INVENTORY_ITEM_AMOUNT] += Amount;
+                            found = true;
+                        }
+
+
+                    }
+
+                    if (!found) {
+                        this.Inventory.push([ItemID, Amount, ITEMS[ItemID]]);
+                    }
+
+
+                },
+
+                update: function () {
+                    if (Key.isDown(Key.UP)) {
+                        if (Math.abs(this.spx) < this.maxspeed) this.spx += Math.cos(this.rotation * Math.PI / 180) * this.acc;
+                        if (Math.abs(this.spx) > this.maxspeed) this.spx -= Math.cos(this.rotation * Math.PI / 180) * this.acc;
+
+                        if (Math.abs(this.spy) < this.maxspeed) this.spy += Math.sin(this.rotation * Math.PI / 180) * this.acc;
+                        if (Math.abs(this.spy) > this.maxspeed) this.spy -= Math.sin(this.rotation * Math.PI / 180) * this.acc;
+                    }
+
+                    if (Key.isDown(Key.DOWN)) {
+                        this.spx *= -1;
+                        this.spy *= -1;
+
+                        if (Math.abs(this.spx) < this.maxspeed) this.spx += Math.cos(this.rotation * Math.PI / 180) * this.acc;
+                        if (Math.abs(this.spx) > this.maxspeed) this.spx -= Math.cos(this.rotation * Math.PI / 180) * this.acc;
+
+                        if (Math.abs(this.spy) < this.maxspeed) this.spy += Math.sin(this.rotation * Math.PI / 180) * this.acc;
+                        if (Math.abs(this.spy) > this.maxspeed) this.spy -= Math.sin(this.rotation * Math.PI / 180) * this.acc;
+
+                        this.spx *= -1;
+                        this.spy *= -1;
+                    }
+
+                    if (Key.isDown(Key.LEFT)) this.rotation -= this.agility;
+                    if (Key.isDown(Key.RIGHT)) this.rotation += this.agility;
+                    
+                    
+                    if (this.rotation > 360) this.rotation = 0;
+                    if (this.rotation < 0) this.rotation = 360;
+                    
+                    /*
+                    var dx = this.x - MX;
+                    var dy = this.y - MY;
+                    this.colAngle = Math.atan2(dy, dx);
+                    
+                    this.colAngle= this.colAngle*180/Math.PI;
+                    
+                    if(this.colAngle<0) this.colAngle+=360;
+                  
+                    this.colAngle = this.colAngle-180;
+                    
+                    this.rotation=this.colAngle;
+                    */
+                    
+                    
+
+                    if (Key.isDown(Key.CTRL) && this.shootDelay < gameTime) {
+                        this.shoot();
+                        this.shootDelay = gameTime + 50;
+                    }
+
+                    if (Key.isDown(Key.SHIFT) && this.BlastNovaCD < gameTime) {
+                        var b = new BlastNova(this.x, this.y);
+                        Novas.push(b);
+                        this.BlastNovaCD = gameTime + 3000;
+                    }
+
+
+                    if (this.dmgDelay < gameTime) this.color = "#FF0";
+                    if (this.dmgDelay + 3000 < gameTime) this.shield += 1;
+                    
+                    
+                    if (this.ComboMsh<gameTime)
+                    {
+                        if (this.ComboAmount>1){
+                            
+                            var red=(Math.random()*(255-0)).toFixed(0);
+                            var green=(Math.random()*(255-0)).toFixed(0);
+                            //var blue=(Math.random()*(255-0)).toFixed(0);
+                            var blue=0;
+                            var rgb="rgb("+red+","+green+","+blue+")";
+                            var a = new scrollText(this.ComboVec.X, this.ComboVec.Y,rgb, 2500,this.ComboAmount+" X COMBO");
+                            
+                            ScrollText.push(a);
+                            
+                        }
+                        this.ComboAmount=0;
+                        
+                    }
+
+                    if (this.shield > this.maxshield) this.shield = this.maxshield;
+
+
+                    this.x += this.spx;
+                    this.y += this.spy;
+
+                    CAMx = this.x - SCREEN_W / 2;
+                    CAMy = this.y - SCREEN_H / 2;
+
+
+                    if (this.x > SCREEN_W) this.x = 0;
+                    if (this.x < 0) this.x = SCREEN_W;
+
+                    if (this.y > SCREEN_H) this.y = 0;
+                    if (this.y < 0) this.y = SCREEN_H;
+
+
+
+
+                },
+
+                shoot: function () {
+
+
+                    var lrotation = []
+                    for (var i = 0; i < this.laserlvl; i++) {
+                        lrotation.push(this.rotation + (i * 20));
+                        if (i > 0) lrotation.push(this.rotation + (i * -20));
+                    }
+
+
+                    var lx = this.x;
+                    var ly = this.y;
+                    var lspeed = Math.sqrt((Math.pow(this.spx, 2) + Math.pow(this.spy, 2))) * 1.5;
+                    if (lspeed < 5) lspeed = 5;
+
+
+                    for (var i = 0; i < lrotation.length; i++) {
+                        Bullets.push(bullet({
+                            rotation: lrotation[i],
+                            x: lx,
+                            y: ly,
+                            speed: lspeed
+                        }));
+                    }
+                },
+                
+                CalculateLevelProgress: function ()
+                {
+
+                    var xpToCurrentLevel=0; 
+
+                    xpToCurrentLevel = 0.5*this.Level*(this.Level-1)*this.XP_INCREMENT;
+
+                    this.XPGatheredForNextLevel = this.XPAmount - xpToCurrentLevel;
+
+                    this.XPRequiredForNextLevel = this.Level * this.XP_INCREMENT;
+
+                },
+
+                draw: function (offsetx, offsety) {
+                    ctx.save();
+                    ctx.fillStyle = this.color;
+                    ctx.translate(this.x - offsetx, this.y - offsety);
+                    ctx.rotate(this.rotation * Math.PI / 180);
+
+                    //                ctx.beginPath();
+                    //                ctx.moveTo(this.width / 2, 0);
+                    //                ctx.lineTo(-this.width / 2, -this.height / 2);
+                    //                ctx.lineTo(-this.width / 2, this.height / 2);
+                    //                ctx.fill();
+
+                    ctx.beginPath();
+                    ctx.strokeStyle = "#0F0";
+                    ctx.moveTo(this.width / 2, 0);
+                    ctx.lineTo(-this.width / 2, -this.height / 2);
+                    ctx.lineTo(-this.width / 2, this.height / 2);
+                    ctx.lineTo(this.width / 2, 0)
+                    ctx.stroke();
+
+                    // ctx.fillRect(-this.width/2, -this.height/2, this.width, this.height);
+                    ctx.restore();
+                    ctxMinimap.save();
+                    ctxMinimap.fillStyle = "#0F0";
+                    ctxMinimap.translate((this.x * 200) / 5000, (this.y * 200) / 5000);
+                    ctxMinimap.fillRect(-8, -8, 8, 8);
+
+
+                    ctxMinimap.restore();
+
+
+                }
+            };
+
+
+            function bullet(I) {
+                I.active = true;
+                I.color = "#FF0";
+                I.spx = 0;
+                I.spy = 0;
+                I.acc = 0.07;
+                I.width = 2;
+                I.height = 2;
+                I.dead = Date.now() + 2500;
+
+
+
+                I.update = function () {
+
+                    this.spx = Math.cos(this.rotation * Math.PI / 180) * this.speed;
+                    this.spy = Math.sin(this.rotation * Math.PI / 180) * this.speed;
+
+                    if (this.x > SCREEN_W) this.x = 0;
+                    if (this.x < 0) this.x = SCREEN_W;
+
+                    if (this.y > SCREEN_H) this.y = 0;
+                    if (this.y < 0) this.y = SCREEN_H;
+
+
+                    this.x += this.spx;
+                    this.y += this.spy;
+
+
+                    if (this.dead < gameTime) this.active = false;
+
+                };
+
+
+                I.draw = function (offsetx, offsety) {
+
+                    ctx.save();
+                    ctx.fillStyle = this.color;
+                    ctx.translate(this.x - offsetx, this.y - offsety);
+
+                    ctx.fillRect(-this.width / 2, -this.height / 2, this.width, this.height);
+                    ctx.restore();
+                };
+
+                return I;
+            }
+
+
+            function star(I) {
+                I.active = true;
+                I.color = "#FFF";
+                I.spx = 0;
+                I.spy = 0;
+                I.width = 2;
+                I.height = 2;
+
+
+
+                I.update = function () {
+
+                    this.spx = (player.spx * -1) * this.speed;
+                    this.spy = (player.spy * -1) * this.speed;
+
+                    if (this.x > 1000) this.x = (Math.random() * (-100 - -10)) + -10;
+                    if (this.x < -200) this.x = (Math.random() * (950 - 900)) + 900;
+
+                    if (this.y > 1000) this.y = (Math.random() * (-100 - -10)) + -10;
+                    if (this.y < -200) this.y = (Math.random() * (950 - 900)) + 900;
+
+
+                    this.x += this.spx;
+                    this.y += this.spy;
+
+
+                };
+
+
+                I.draw = function () {
+
+                    ctx.save();
+                    ctx.fillStyle = this.color;
+                    ctx.strokeStyle = this.color;
+                    ctx.translate(this.x, this.y);
+
+
+                    if (this.speed < 0.2) {
+
+                        ctx.drawImage(Starimg, -2, -2);
+
+                    } else {
+
+                        ctx.fillRect(-this.width / 2, -this.height / 2, this.width, this.height);
+
+                    }
+
+
+
+                    ctx.restore();
+                };
+
+                return I;
+            }
+
+
+            function asteroid(x, y, rotation, radius, health, kind,strength) {
+                this.active = true;
+                this.Start = true;
+                this.color = "#0F0";
+                this.spx = 0;
+                this.spy = 0;
+                this.acc = 0.1;
+                this.width = 20;
+                this.height = 20;
+                this.collisionCD = 0;
+                this.collision = false;
+                this.oldx = 0;
+                this.oldy = 0;
+                this.speed = 1;
+                this.x = x;
+                this.y = y;
+                this.rotation = rotation;
+                this.radius = radius;
+                this.strength=strength;
+                this.health = health;
+                this.maxhealth = health;
+                this.kind = kind;
+                this.NovaImmune = true;
+                this.NovaDmgDelay = Date.now() + 1500;
+                this.innerRotation = 0;
+                this.momentum = (70 - this.radius) * 0.02;
+                //this.momentum = this.momentum*0.02;
+                this.momentum = Math.random() * (this.momentum - (-this.momentum)) + (-this.momentum);
+
+
+
+
+                this.update = function () {
+
+                    //                switch (this.kind) {
+                    //                    case ITEM_ASTEROID_BROWN:
+                    //                        this.color = "#A55";
+                    //                        break;
+                    //                    case ITEM_ASTEROID_BLUE:
+                    //                        this.color = "#00F";
+                    //                        break;
+                    //                    case ITEM_ASTEROID_GREEN:
+                    //                        this.color = "#0F0";
+                    //                        break;
+                    //                    case ITEM_ASTEROID_YELLOW:
+                    //                        this.color = "#FF0";
+                    //                        break;
+                    //                    case ITEM_ASTEROID_RED:
+                    //                        this.color = "#F00";
+                    //                        break;
+                    //                    default:
+                    //                        this.color = "#FFF";
+                    //                        break;
+                    //                }
+
+                    var healthP = this.health * 100 / this.maxhealth;
+                    var diff = Math.abs(healthP - 100);
+                    var diff2 = Math.abs(healthP - 50);
+                    diff = parseInt(diff * 255 / 50);
+                    diff2 = parseInt(healthP * 255 / 50);
+
+                    if (healthP >= 50) this.color = "rgb(" + diff + ",255,0)";
+                    if (healthP < 50) this.color = "rgb( 255 ," +diff2+ ",0)";
+
+
+
+                    this.oldx = this.x;
+                    this.oldy = this.y;
+
+                    this.speed = (60 - this.radius) * 0.04;
+
+                    this.spx = Math.cos(this.rotation) * this.speed;
+                    this.spy = Math.sin(this.rotation) * this.speed;
+
+                    if (this.x > SCREEN_W + this.radius) this.x = 0 - this.radius;
+                    if (this.x < 0 - this.radius) this.x = SCREEN_W + this.radius;
+
+                    if (this.y > SCREEN_H + this.radius) this.y = 0 - this.radius;
+                    if (this.y < 0 - this.radius) this.y = SCREEN_H + this.radius;
+
+                    this.innerRotation += this.momentum;
+
+                    this.x += this.spx;
+                    this.y += this.spy;
+
+                    if (this.health <= 0) {
+                        if (this.radius > 30) {
+                            var iX = this.radius / 10;
+                            for (var i = 0; i < iX; i++) {
+
+                                var x = this.x;
+                                var y = this.y;
+                                var rotation = ((Math.random() * (360 - 0)) + 0) * Math.PI / 180;
+                                var radius = (Math.random() * ((this.radius / 2) - 10)) + 10;
+                                var health = radius *(this.strength*0.2);
+                                var kind = this.kind;
+
+                                var a = new asteroid(x, y, rotation, radius, health, kind,radius);
+
+                                Asteroids.push(a);
+
+
+                            }
+                        }
+
+                        //player.addInventoryItem(1, this.kind);
+                        
+                        player.ComboAmount++;
+                        player.ComboVec.X=this.x;
+                        player.ComboVec.Y=this.y;
+                        player.ComboMsh=gameTime+player.ComboDelay;
+                            
+                        
+                        GiveXP(this.radius);
+                        GiveScore(this.radius);
+                        this.active = false;
+                    }
+
+                    if (Math.abs((Math.sqrt((Math.pow(Math.abs(this.x - player.x), 2) + Math.pow(Math.abs(this.y - player.y), 2))))) > 1000) {
+                        // this.active=false;
+
+                    }
+
+                    var lColAst = this.collision;
+
+                    if (lColAst) {
+                        if (Math.abs((Math.sqrt((Math.pow(Math.abs(this.x - lColAst.x), 2) + Math.pow(Math.abs(this.y - lColAst.y), 2)))) - this.radius) > lColAst.radius) {
+                            this.Start = false;
+                            //this.color=this.OColor;
+                        } else {
+
+                        }
+                    }
+
+                    if (this.NovaDmgDelay < gameTime) this.NovaImmune = false;
+
+                };
+
+
+
+                this.draw = function (offsetx, offsety) {
+
+                    ctx.save();
+                    ctx.fillStyle = this.color;
+                    ctx.translate(this.x - offsetx, this.y - offsety);
+
+                    //                ctx.beginPath();
+                    //                ctx.arc(0, 0, this.radius, 0, Math.PI * 2, true);
+                    //                ctx.closePath();
+                    //                ctx.fill();
+
+                    //                ctx.strokeStyle = "#F44";
+                    //                ctx.beginPath();
+                    //                ctx.arc(0, 0, this.radius, 0, Math.PI * 2, true);
+                    //                ctx.closePath();
+                    //                ctx.stroke();
+
+                    if (this.radius > 25) {
+                        for (var i = 0; i < 12; i++) {
+                            ctx.strokeStyle = this.color;
+                            ctx.beginPath();
+                            ctx.moveTo((Math.cos(((30 * i) + this.innerRotation) * Math.PI / 180)) * this.radius, Math.sin(((30 * i) + this.innerRotation) * Math.PI / 180) * this.radius);
+                            ctx.lineTo((Math.cos(((30 * (i + 1)) + this.innerRotation) * Math.PI / 180)) * this.radius, Math.sin(((30 * (i + 1)) + this.innerRotation) * Math.PI / 180) * this.radius);
+                            ctx.closePath();
+                            ctx.stroke();
+                        }
+                    } else {
+                        for (var i = 0; i < 6; i++) {
+                            ctx.strokeStyle = this.color;
+                            ctx.beginPath();
+                            ctx.moveTo((Math.cos(((60 * i) + this.innerRotation) * Math.PI / 180)) * this.radius, Math.sin(((60 * i) + this.innerRotation) * Math.PI / 180) * this.radius);
+                            ctx.lineTo((Math.cos(((60 * (i + 1)) + this.innerRotation) * Math.PI / 180)) * this.radius, Math.sin(((60 * (i + 1)) + this.innerRotation) * Math.PI / 180) * this.radius);
+                            ctx.closePath();
+                            ctx.stroke();
+                        }
+                    }
+
+                    ctx.restore();
+
+                    ctxMinimap.save();
+                    ctxMinimap.fillStyle = this.color;
+                    ctxMinimap.translate((this.x * 200) / 5000, (this.y * 200) / 5000);
+                    ctxMinimap.fillRect(-2, -2, 2, 2);
+                    ctxMinimap.restore();
+
+                };
+
+            }
+
+            function structur(I) {
+
+                I.active = true;
+                I.Start = true;
+                I.color = "#777";
+                I.width = 200;
+                I.height = 200;
+                I.health = 100;
+
+
+                I.draw = function (offsetx, offsety) {
+
+                    ctx.save();
+                    ctx.fillStyle = this.color;
+                    ctx.translate(this.x - offsetx, this.y - offsety);
+                    ctx.fillRect(-this.width / 2, -this.height / 2, this.width, this.height);
+                    ctx.restore();
+
+
+                    ctxMinimap.save();
+                    ctxMinimap.fillStyle = this.color;
+                    ctxMinimap.translate((this.x * 200) / 5000, (this.y * 200) / 5000);
+                    ctxMinimap.fillRect(-16, -16, 16, 16);
+                    ctxMinimap.restore();
+
+
+                };
+
+                return I;
+
+            }
+
+            function BlastNova(x, y) {
+
+                this.x = x;
+                this.y = y;
+                this.radius = 0;
+                this.maxradius = this.radius;
+                this.active = true;
+
+
+                this.update = function () {
+                    this.radius += 7;
+
+                    if (this.radius > 300) {
+                        this.active = false;
+                    }
+                }
+
+
+
+                this.draw = function (offsetx, offsety) {
+                    ctx.save();
+                    ctx.translate(this.x - offsetx, this.y - offsety);
+                    ctx.strokeStyle = "#FFF";
+                    ctx.beginPath();
+                    ctx.arc(0, 0, this.radius, 0, Math.PI * 2, true);
+                    ctx.closePath();
+                    ctx.stroke();
+                    ctx.restore();
+                }
+
+            }
+
+            function particle(x, y, spx, spy, w, h, color, lifeTime) {
+                this.active = true;
+                this.color = color;
+                this.spx = spx;
+                this.spy = spy;
+                this.width = w;
+                this.height = h;
+                this.x = x;
+                this.y = y;
+                this.dead = Date.now() + lifeTime;
+
+
+
+                this.update = function () {
+
+
+                    this.x += this.spx;
+                    this.y += this.spy;
+
+
+
+                    if (this.dead < gameTime) {
+                        this.active = false;
+                    }
+
+
+                };
+
+
+                this.draw = function () {
+
+                    ctx.save();
+                    ctx.fillStyle = this.color;
+                    ctx.strokeStyle = this.color;
+                    ctx.translate(this.x, this.y);
+                    ctx.fillRect(-this.width / 2, -this.height / 2, this.width, this.height);
+                    ctx.restore();
+                };
+
+
+            }
+            
+            function scrollText(x, y, color, lifeTime,text) {
+                this.active = true;
+                this.color = color;
+                this.x = x;
+                this.y = y;
+                this.text=text;
+                this.dead = Date.now() + lifeTime;
+                this.rotation=0;
+
+
+
+                this.update = function () {
+                    
+                    this.rotation++;
+                    
+                    this.y += Math.sin(this.rotation)*0.5;
+                    
+
+                    if (this.dead < gameTime) {
+                        this.active = false;
+                    }
+
+                };
+
+
+                this.draw = function () {
+
+                    ctx.save();
+                    ctx.fillStyle = this.color;
+                    ctx.strokeStyle = "#FF0";
+                    //ctx.translate(this.x, this.y);
+                    ctx.font="30px impact";
+                    ctx.fillText(this.text,this.x,this.y); 
+                    //ctx.strokeText(this.text,this.x,this.y); 
+                    ctx.restore();
+                };
+
+
+            }
+
+
+            //input
+            window.addEventListener('keyup', function (event) { Key.onKeyup(event); }, false);
+            window.addEventListener('keydown', function (event) { Key.onKeydown(event); }, false);
+            window.addEventListener('mousemove', MouseMove, false);
+            
+            
+            function MouseMove(event){
+                MX=event.x ;
+                MY=event.y ;
+                
+                var lcanvas = document.getElementById("main");
+
+                MX -= lcanvas.offsetLeft;
+                MY -= lcanvas.offsetTop;
+
+                      
+            }
+            
+            
+            
+
+            function laserUP() {
+                if (player.credits > player.laserUPCost) {
+                    player.laserlvl += 1;
+                    player.credits -= player.laserUPCost;
+                    player.laserUPCost += player.laserUPCost * 0.5;
+                }
+            }
+
+            function agilityUP() {
+                if (player.credits > player.agilityUPCost) {
+                    player.agility += 1;
+                    player.credits -= player.agilityUPCost;
+                    player.agilityUPCost += player.agilityUPCost * 0.5;
+                }
+            }
+
+            function MaxspeedUP() {
+                if (player.credits > player.MaxspeedUPCost) {
+                    player.maxspeed += 1;
+                    player.credits -= player.MaxspeedUPCost;
+                    player.MaxspeedUPCost += player.MaxspeedUPCost * 0.5;
+                }
+            }
+
+            function GiveScore(Amount) {
+                player.score += Amount;
+                player.credits += Amount * 0.5;
+            }
+
+            function GiveCredits(Amount) {
+                player.credits += Amount;
+            }
+            
+ 
+            
+            function GiveXP(Amount){
+                
+                player.XPAmount += Amount;
+                player.CalculateLevelProgress();
+
+                while (player.XPGatheredForNextLevel >= player.XPRequiredForNextLevel && player.Level < player.MAX_LEVEL)
+                {
+                    player.Level++;
+
+                    player.CalculateLevelProgress();
+                }
+            }
+            
+            function ScoreKill(killer){
+                
+                killer.CalculateLevelProgress();
+          
+            }
+
+
+            function bounce(ball1, ball2) {
+                var dx = ball1.x - ball2.x;
+                var dy = ball1.y - ball2.y;
+                var ColAngle = Math.atan2(dy, dx);
+
+                //  if (ColAngle<0) ColAngle=(Math.abs(ColAngle)+Math.PI);
+
+
+                if ((ball2.x - ball1.x) * (ball1.spx - ball2.spx) + (ball2.y - ball1.y) * (ball1.spy - ball2.spy) > 0) {
+
+                    ball1.x = ball1.oldx;
+                    ball1.y = ball1.oldy;
+
+                    ball2.x = ball2.oldx;
+                    ball2.y = ball2.oldy;
+
+                    ball1.rotation = ball1.rotation - ColAngle;
+                    ball2.rotation = ball2.rotation - ColAngle;
+                }
+
+
+
+
+            }
+
+            function INIT_LEVEL(lvl) {
+
+             
+                                
+                var maxLvl=xmlDoc.getElementsByTagName("level").length;
+                
+                
+                if (lvl<MAX_LEVEL){
+                 
+                    //var ast = xmlDoc.getElementsByTagName("level")[lvl].childNodes[0].childNodes[0].nodeValue;
+                    var ast=(Math.random()*(10-2))+2;
+                    
+                    for (var i = 0; i < ast; i++) {
+
+                        var x = (Math.random() * (SCREEN_W - 0)) + 0;
+                        var y = (Math.random() * (SCREEN_H - 0)) + 0;
+                        var rotation = ((Math.random() * (360 - 0)) + 0) * Math.PI / 180;
+                        var radius = (Math.random() * (70 - 60)) + 60;
+                        var health = (radius*5)*lvl*0.6;
+                        var kind = parseInt((Math.random() * 4).toFixed(0));
+
+
+                        var a = new asteroid(x, y, rotation, radius, health, kind,lvl);
+
+                        Asteroids.push(a);
+
+                    }
+                }
+
+            }
+
+
+
+
+
+
+            function init() {
+
+                //            for (var i = 0; i < 10; i++) {
+
+                //                var x = (Math.random() * (SCREEN_W - 0)) + 0;
+                //                var y = (Math.random() * (SCREEN_H - 0)) + 0;
+                //                var rotation = ((Math.random() * (360 - 0)) + 0) * Math.PI / 180;
+                //                var radius = (Math.random() * (70 - 10)) + 10;
+                //                var health = radius;
+                //                var kind = parseInt((Math.random() * 4).toFixed(0));
+
+
+                //                var a = new asteroid(x, y, rotation, radius, health, kind);
+
+                //                Asteroids.push(a);
+
+                //            }
+
+
+                player.CalculateLevelProgress();
+                INIT_LEVEL(LEVEL);
+
+
+                //            for (var i = 0; i < 60; i++) {
+
+                //                if (i < 55) {
+                //                    Stars.push(star({
+                //                        x: (Math.random() * (1000 - 0)) + 0,
+                //                        y: (Math.random() * (1000 - 0)) + 0,
+
+                //                        speed: (Math.random() * (0.5 - 0.3)) + 0.2
+
+                //                    }));
+                //                } else {
+                //                    Stars.push(star({
+                //                        x: (Math.random() * (1000 - 0)) + 0,
+                //                        y: (Math.random() * (1000 - 0)) + 0,
+
+                //                        speed: (Math.random() * (0.03 - 0.01)) + 0.01
+
+                //                    }));
+                //                }
+
+                //            }
+
+
+                setInterval(update, 1000 / FPS);
+            }
+
+
+
+
+
+            function update() {
+
+                gameTime = Date.now();
+
+                if (Asteroids.length == 0) { LEVEL++; INIT_LEVEL(LEVEL); }
+
+                player.update();
+
+
+                for (var key in Asteroids) {
+                    var lMainAst = Asteroids[key];
+
+                    for (var key1 in Asteroids) {
+                        var lChildAst = Asteroids[key1];
+
+                        if (lChildAst != lMainAst) {
+
+                            //var lol=abs((Math.sqrt((Math.pow(Math.abs(lMainAst.x-lChildAst.x), 2)+Math.pow(Math.abs(lMainAst.y-lChildAst.y), 2))))-lChildAst.radius);
+
+                            if (Math.abs((Math.sqrt((Math.pow(Math.abs(lMainAst.x - lChildAst.x), 2) + Math.pow(Math.abs(lMainAst.y - lChildAst.y), 2)))) - lChildAst.radius) < lMainAst.radius) {
+
+
+                                lChildAst.collision = lMainAst;
+                                // lChildAst.color="#F00";
+
+                                if (!lChildAst.Start && !lMainAst.Start) {
+                                    bounce(lChildAst, lMainAst);
+                                }
+
+
+                            }
+
+
+
+                        }
+                    }
+
+                }
+
+
+
+
+
+                Asteroids.forEach(function (asteroid) {
+                    Bullets.forEach(function (bullet) {
+
+                        if (Math.sqrt((Math.pow(Math.abs(bullet.x - asteroid.x), 2) + Math.pow(Math.abs(bullet.y - asteroid.y), 2))) < asteroid.radius) {
+                            for (var i = 0; i < 5; i++) {
+
+                                var dx = bullet.x - asteroid.x;
+                                var dy = bullet.y - asteroid.y;
+                                var ColAngle = Math.atan2(dy, dx);
+                                var rndAngle = (Math.random() * (0.8 - (-0.8)) + (-0.8))
+                                var rndSpeed = (Math.random() * (5 - 2) + 2)
+
+
+                                var p = new particle(bullet.x, bullet.y, Math.cos(ColAngle - rndAngle) * rndSpeed, Math.sin(ColAngle - rndAngle) * rndSpeed, 2, 2, "#0FF", 700);
+                                Particles.push(p);
+                            }
+
+                            asteroid.health -= 10;
+                            bullet.active = false;
+                        }
+                    });
+
+                    Novas.forEach(function (BlastNova) {
+
+                        if (!asteroid.NovaImmune) {
+                            if (Math.sqrt((Math.pow(Math.abs(BlastNova.x - asteroid.x), 2) + Math.pow(Math.abs(BlastNova.y - asteroid.y), 2))) - BlastNova.radius < asteroid.radius) {
+
+                                asteroid.health -= 200;
+
+                            }
+                        }
+                    });
+
+
+                });
+
+
+                Asteroids.forEach(function (asteroid) {
+                    if (Math.sqrt((Math.pow(Math.abs(player.x - asteroid.x), 2) + Math.pow(Math.abs(player.y - asteroid.y), 2))) < asteroid.radius) {
+                        if (player.dmgDelay < gameTime) {
+                            if (player.shield > 0) {
+                                player.shield -= 10;
+                                player.color = "#FFF";
+                                player.dmgDelay = gameTime + 150;
+
+
+                            } else {
+                                player.health -= 10;
+                                player.color = "#FFF";
+                                player.dmgDelay = gameTime + 150;
+                            }
+
+                        } 
+                    }
+
+                });
+
+
+
+
+                Bullets.forEach(function (bullet) {
+                    bullet.update();
+
+                    Bullets = Bullets.filter(function (bullet) {
+                        return bullet.active;
+                    });
+
+
+                });
+
+                Asteroids.forEach(function (asteroid) {
+                    asteroid.update();
+
+                    Asteroids = Asteroids.filter(function (asteroid) {
+                        return asteroid.active;
+                    });
+                });
+
+                Stars.forEach(function (star) {
+                    star.update();
+
+                });
+
+                Novas.forEach(function (BlastNova) {
+                    BlastNova.update();
+
+                    Novas = Novas.filter(function (BlastNova) {
+                        return BlastNova.active;
+                    });
+                });
+
+                Particles.forEach(function (particle) {
+                    particle.update();
+
+                    Particles = Particles.filter(function (particle) {
+                        return particle.active;
+                    });
+                });
+
+                ScrollText.forEach(function (scrollText) {
+                    scrollText.update();
+
+                    ScrollText = ScrollText.filter(function (scrollText) {
+                        return scrollText.active;
+                    });
+                });
+
+                draw();
+            }
+
+
+
+
+            function draw() {
+
+
+                ctx = document.getElementById('main').getContext('2d');
+                ctxMinimap = document.getElementById('minimap').getContext('2d');
+
+
+                ctxMinimap.clearRect(0, 0, 200, 200); //CLS MINIMAP
+
+
+                ctx.fillStyle = "#000";
+                ctx.fillRect(0, 0, SCREEN_W, SCREEN_H); //CLS
+                
+                              
+                ctx.strokeStyle = "#FFF";
+                ctx.beginPath();
+                ctx.arc(MX, MY, 8, 0, Math.PI * 2, true);
+                ctx.closePath();
+                ctx.stroke();
+                
+            
+                
+              
+              
+
+                //                ctx.strokeStyle="#0F0";
+                //                ctx.strokeRect(0-CAMx, 0-CAMy, SCREEN_W, SCREEN_H);
+                //                ctx.strokeStyle="#000";
+
+                ctx.fillStyle = "#000";
+                ctx.font = "8pt impact";
+                
+               
+           
+
+
+                //ctx.fillText( "Score: "+player.health,5,460);
+
+                //                ctx.fillStyle="#0F0";
+                //                ctx.fillRect(5, 460, (player.health*100)/player.maxhealth, 15);
+                //                ctx.fillStyle="#000";
+                //                ctx.strokeRect(5,460,100,15);
+
+
+                document.getElementById('shield').style.width = (player.shield * SCREEN_W) / player.maxshield + "px";
+                document.getElementById('health').style.width = (player.health * SCREEN_W) / player.maxhealth + "px";
+               
+               
+                document.getElementById('XPBar').style.width = (player.XPGatheredForNextLevel * SCREEN_W) / player.XPRequiredForNextLevel + "px";
+                document.getElementById('XPText').innerHTML = player.XPGatheredForNextLevel.toFixed(0)+" / "+player.XPRequiredForNextLevel+" - Level: "+ player.Level;
+            
+
+                document.getElementById('score').innerHTML = "SCORE: " + player.score.toFixed(0) + " CREDITS: " + player.credits.toFixed(0);
+                document.getElementById('laserUPCost').innerHTML = player.laserUPCost.toFixed(0) + " CR";
+                document.getElementById('agilityUPCost').innerHTML = player.agilityUPCost.toFixed(0) + " CR";
+                document.getElementById('MaxspeedUPCost').innerHTML = player.MaxspeedUPCost.toFixed(0) + " CR";
+                
+                
+               
+
+
+                //            document.getElementById('debug').innerHTML = "";
+                //            invtbl = document.createElement('table');
+
+                //            for (var id in player.Inventory) {
+                //                var TR = document.createElement('tr');
+
+                //                var tdinvITEM = document.createElement('td');
+                //                var tdinvNAME = document.createElement('td');
+
+
+                //                tdinvITEM.innerHTML = player.Inventory[id][1];
+                //                tdinvNAME.innerHTML = player.Inventory[id][2];
+
+
+                //                TR.appendChild(tdinvITEM);
+                //                TR.appendChild(tdinvNAME);
+
+                //                invtbl.appendChild(TR);
+
+                //                //document.getElementById('debug').innerHTML +="- Inv - ITEM ID:"+player.Inventory[id][0]+" - Amount: "+player.Inventory[id][1]+"<br/>";
+                //            }
+                //            invtbl.setAttribute("id", "INVENTORY_TABLE");
+                //            document.getElementById('debug').appendChild(invtbl);
+
+                Stars.forEach(function (star) {
+                    star.draw();
+
+                });
+
+                Bullets.forEach(function (bullet) {
+                    bullet.draw(0, 0);
+                });
+
+                Asteroids.forEach(function (asteroid) {
+                    asteroid.draw(0, 0);
+                });
+
+                Structures.forEach(function (structur) {
+                    structur.draw(0, 0);
+                });
+
+                Novas.forEach(function (BlastNova) {
+                    BlastNova.draw(0, 0);
+                });
+
+                Particles.forEach(function (particle) {
+                    particle.draw();
+
+                });
+                
+                ScrollText.forEach(function (scrollText) {
+                    scrollText.draw();
+
+                });
+
+
+
+
+                player.draw(0, 0);
+
+
+
+            }
+        
+        
+        
+            /*
+            //HTML UI=====================================================================
+            $(document).ready(function(){
+                $('#shop').click( function(){
+                
+                    if( $('#fade').is(':checked'))      $('#buy').fadeToggle();
+                
+                    if ( $('#slide').is(':checked'))    $('#buy').slideToggle();              
+                
+                    if ( $('#hide').is(':checked'))     $('#buy').toggle();              
+                   
+                });
+                                
+            });
+            //HTML UI=====================================================================
+             */
+        </script>
+        <style>
+            #wrapper
+            {
+                margin: auto;
+                width: 800px;
+            }
+            #main
+            {
+                margin: auto;
+            }
+
+            #score
+            {
+                font-family: impact;
+                font-size: large;
+            }
+
+            #health
+            {
+                background-color: green;
+                color: white;
+                height: 25px;
+                margin: auto;
+                font-family: impact;
+                font-size: large;
+                text-align: center;
+            }
+            #shield
+            {
+                background-color: blue;
+                color: white;
+                height: 25px;
+                margin: auto;
+                font-family: impact;
+                font-size: large;
+                text-align: center;
+            }
+
+            #XPBar
+            {
+                background-color: hotpink;
+                color: white;
+                height: 25px;
+                margin: auto;
+                font-family: impact;
+                font-size: large;
+                position:relative;
+                margin-left: 0px;
+
+
+                top:0px;
+                left:0px;
+            }
+
+            #XPText
+            {
+                color: white;
+                width:800px;
+                height: 25px;
+                margin: auto;
+                font-family: impact;
+                font-size: large;
+                text-indent: 10px;
+                margin-left: 0px;
+
+                position: relative;
+
+                top:-25px;
+                left:0px;
+            }
+
+            #XPBarBack
+            {
+                background-color: darkviolet;
+                width:800px;
+                color: black;
+                height: 25px;
+                margin: auto;
+                font-family: impact;
+                font-size: large;
+            }
+
+            #buy
+            {
+                background-color: lightgray;
+                width: 180px;
+                height: 480px;
+                position: absolute;
+                top: 5px;
+                right: 20px;
+            }
+
+            #debug
+            {
+                font-family: arial;
+                font-size: large;
+            }
+
+
+            #minimap
+            {
+                position: absolute;
+                border: 1px solid black;
+                top: 10px;
+                left: 10px;
+            }
+
+            #INVENTORY_TABLE
+            {
+                border-collapse: collapse;
+            }
+            #INVENTORY_TABLE td
+            {
+                border: 1px solid black;
+                width: 32px;
+                height: 32px;
+                text-align: center;
+            }
+            .shopbtn
+            {
+                float: left;
+            }
+        </style>
+    </head>
+    <body onload="init()">
+        <div id="wrapper">
+            <canvas id="main" width="800" height="600">
+            </canvas>
+            <div id="shield">
+                SHIELDS</div>
+            <div id="health">
+                HEALTH</div>
+            <div id="XPBarBack">
+                <div id="XPBar">
+                </div>
+
+                <div id="XPText">
+                </div>
+            </div>
+
+            <div id="score">
+            </div>
+        </div>
+        <div id="MinimapPanel">
+            <canvas id="minimap" width="200" height="200"></canvas>
+        </div>
+        <div id="buy">
+            <input class="shopbtn" id="laserUPbtn" type="button" value="Upgrade laser" onclick="laserUP();" />
+            <div id="laserUPCost">
+            </div>
+            <br />
+            <input class="shopbtn" id="shipAgibtn" type="button" value="Upgrade Ship Agility"
+                   onclick="agilityUP();" />
+            <div id="agilityUPCost">
+            </div>
+            <br />
+            <input class="shopbtn" id="shipAgibtn" type="button" value="Upgrade Ship MaxSpeed"
+                   onclick="MaxspeedUP();" />
+            <div id="MaxspeedUPCost">
+            </div>
+            <br />
+            <br />
+            <br />
+            <br />
+            <br />
+            <br />
+            <br />
+            <input type="button" value="CHEAT CREDITS" onclick="GiveCredits(1000000);" />
+        </div>
+
+        <div id="debug">
+
+
+        </div>
+    </body>
+</html>
