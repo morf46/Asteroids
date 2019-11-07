@@ -2055,8 +2055,9 @@
             this.health = 0;
             this.maxHealth = 0;
 
-            this.lifetime = -1;
+            this.TimeToLife = -1;
             this.spawnTime = World.GameTime;
+            this.Age = 0;
 
         }
 
@@ -2065,8 +2066,11 @@
         }
 
         update(delta) {
-            if (this.lifetime > 0) {
-                if (this.spawnTime + this.lifetime < World.GameTime) {
+
+            this.Age = World.GameTime - this.spawnTime;
+
+            if (this.TimeToLife > 0) {
+                if (this.Age > this.TimeToLife) {
                     this.Destroy();
                 }
             }
@@ -2265,7 +2269,7 @@
 
             this.RegisterPostUpdate = true;
 
-            this.lifetime = 3000;
+            this.TimeToLife = 3000;
         }
 
         CreateCollionBody() {
@@ -2465,19 +2469,27 @@
 
     class SinusCurveMonster extends Monster {
 
+        constructor(location) {
+            super(location);
+            this.Velocity = new Vector2(0, 200);
+            this.frequency = 100;
+            this.magnitude = 90;
+            this.OffsetX = this.Location.x;
+        }
+
+        UpdateMovement(delta) {
 
 
-        UpdateMovement() {
 
-
-            var Lifetime = World.GameTime - this.spawnTime;
 
             /*
             X = this.position.X + this.speed.X;
             Y = ((float)Math.Sin(X / this.ratio) * this.height) + this.offsetY;
             */
+            var LocalLocation = this.Location.clone();
+            LocalLocation.addScaled(this.Velocity, delta);
 
-            this.Location = new Vector2(Math.cos(this.Location.y / 2) + 200, this.Location.y + this.Velocity.y);
+            this.Location = new Vector2((Math.sin(LocalLocation.y / this.frequency) * this.magnitude) + this.OffsetX, LocalLocation.y);
 
         }
 
@@ -2561,6 +2573,8 @@
         let TargetLocation = new Vector2(400, 0);
         SpawnEnemyLine(OriginLocation, TargetLocation, 50, SinusCurveMonster);
 
+
+        SpawnEnemyLine(new Vector2(200,0),new Vector2(200,-1000), 50, SinusCurveMonster);
 
         var xxPlayer = new Player(new Vector2(20, 20));
         World.RegisterEntity(xxPlayer);

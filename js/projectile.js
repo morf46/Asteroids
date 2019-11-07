@@ -11,7 +11,7 @@ class Projectile extends Monster {
 
         this.RegisterPostUpdate = true;
 
-        this.lifetime = 3000;
+        this.TimeToLife = 3000;
     }
 
     CreateCollionBody() {

@@ -19,8 +19,9 @@ class Entity {
         this.health = 0;
         this.maxHealth = 0;
 
-        this.lifetime = -1;
+        this.TimeToLife = -1;
         this.spawnTime = World.GameTime;
+        this.Age = 0;
 
     }
 
@@ -29,8 +30,11 @@ class Entity {
     }
 
     update(delta) {
-        if (this.lifetime > 0) {
-            if (this.spawnTime + this.lifetime < World.GameTime) {
+
+        this.Age = World.GameTime - this.spawnTime
+
+        if (this.TimeToLife > 0) {
+            if (this.Age > this.TimeToLife) {
                 this.Destroy();
             }
         }

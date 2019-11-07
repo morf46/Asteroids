@@ -101,6 +101,8 @@ function InitGame() {
     SpawnEnemyLine(OriginLocation, TargetLocation, 50, SinusCurveMonster);
 
 
+    SpawnEnemyLine(new Vector2(200,0),new Vector2(200,-1000), 50, SinusCurveMonster);
+
     var xxPlayer = new Player(new Vector2(20, 20));
     World.RegisterEntity(xxPlayer);
 
