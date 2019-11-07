@@ -7,7 +7,7 @@
 export function getRandomInt(min, max) {
     min = Math.ceil(min);
     max = Math.floor(max);
-    return Math.floor(Math.random() * (max - min)) + min; 
+    return Math.floor(Math.random() * (max - min)) + min;
 }
 
 /**
@@ -19,4 +19,15 @@ export function getRandomInt(min, max) {
 
 export function getRandomfloat(min, max) {
     return Math.random() * (max - min) + min;
-  }
+}
+
+/**
+ * Convert Radians to Degrees
+ * 
+ * @param {Number} radians 
+ * @return {Number} Degrees
+ */
+export function radiansToDegrees(radians) {
+    var pi = Math.PI;
+    return radians * (180 / pi);
+}

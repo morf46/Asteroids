@@ -1,5 +1,7 @@
 "use strict";
 
+import { radiansToDegrees } from "./mathutils";
+
 /******************************************************
  ************** Simple ES6 Vector2 Class  **************
  ******************************************************
@@ -52,6 +54,11 @@
 	 MORF CHANGES:
 	 Add function - addScaled(v,s)
 	 Add function - Lerp(v,f)
+	 Add function - crossProduct(v)
+	 Add function - setDirection(angle, dist)
+	 add function - findLookAtRotation(v)
+	 add function - findLookatRotationDegrees(v)
+	 add function - Distance(v)
 	 
  */
 
@@ -143,6 +150,53 @@ class Vector2 {
 
 		return this;
 	}
+
+	/**
+	 * Sets vectors x and y from direction
+	 * 
+	 * @param {*} angle in Degrees
+	 * @param {*} dist length of the vector
+	 */
+	setDirection(angle, dist) {
+		dist = dist || 1;
+
+		this.x = dist * Math.cos(angle / 360 * Math.PI * 2);
+		this.y = dist * Math.sin(angle / 360 * Math.PI * 2);
+
+		return this;
+	};
+
+	/**
+	 * Distance to other vector2
+	 * @param {Vector2} v 
+	 * @return {Number} distance
+	 */
+	Distance(v) {
+		var dx = v.x - this.x;
+		var dy = v.y - this.y;
+		return Math.sqrt(dx * dx + dy * dy);
+	};
+
+	/**
+	 * Find a rotation to point at Target location.
+	 * @param {Vector2} v Vector2 to look at 
+	 * @return {Number} Angle in radians
+	 */
+	findLookAtRotation(v) {
+		cross = this.crossProduct(v);
+		dot = this.dotProduct(v);
+		return Math.atan2(cross, dot)
+	}
+
+	/**
+	 * Find a rotation to point at Target location.
+	 * @param {Vector2} v Vector2 to look at
+	 * @return The angle in Degrees
+	 */
+	findLookAtRotationDegrees(v) {
+		return radiansToDegrees(this.findLookAtRotation(v));
+	}
+
 
 	/**
 	 * Move the Vector2 towards the given Vector2 by the given amount.
@@ -249,9 +303,19 @@ class Vector2 {
 	}
 
 	/**
+	 * Return the cross product of the current Vector2 and another Vector2.
+	 * 
+	 * @param {Vector2} v  The Other Vector2
+	 * @return {Vector2}	 The current Vector2. Useful for daisy-chaining calls.
+	 */
+	crossProduct(v) {
+		return (this.x * v.y) - (this.y * v.x);
+	}
+
+	/**
 	 * Return the dot product of the current Vector2 and another Vector2.
 	 * @param  {Vector2} v   The other Vector2 we should calculate the dot product with.
-	 * @return {Vector2}	 The current Vector2. Useful for daisy-chaining calls.
+	 * @return {Number}	 This schould be an number
 	 */
 	dotProduct(v) {
 		return (this.x * v.x) + (this.y * v.y);

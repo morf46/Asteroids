@@ -5,6 +5,8 @@ import Player from './player';
 import World from './world';
 import { getRandomfloat, getRandomInt } from './mathutils';
 import Key from './input';
+import { SCREEN_H, SCREEN_W, SpawnEnemyLine } from './GameplayStatics';
+import SinusCurveMonster from './Ai/SinusCurveMonster';
 
 
 
@@ -78,28 +80,26 @@ function GameLoop(TimeStamp) {
         World.ctx.stroke();
     }
 
-    
+
 
     requestAnimationFrame(GameLoop);
 }
 
 
-const SCREEN_W = 800;
-const SCREEN_H = 600;
+
 
 function InitGame() {
 
     InitStars();
 
 
-    for (let i = 0; i < 20; i++) {
-        let x = getRandomfloat(0, SCREEN_W);
-        let y = getRandomfloat(0, SCREEN_H);
-        let monster = new Monster(new Vector2(x, y));
-        World.RegisterEntity(monster);
 
 
-    }
+
+    let OriginLocation = new Vector2(800, 0);
+    let TargetLocation = new Vector2(400, 0);
+    SpawnEnemyLine(OriginLocation, TargetLocation, 50, SinusCurveMonster);
+
 
     var xxPlayer = new Player(new Vector2(20, 20));
     World.RegisterEntity(xxPlayer);

@@ -6,6 +6,7 @@ import Weapon from "./weapons/weapon";
 import BaseProjectileWeapon from "./weapons/baseprojectile";
 import World from "./world";
 import { getRandomfloat } from "./mathutils";
+import { SpawnEnemyLine } from "./GameplayStatics";
 
 
 
@@ -33,19 +34,14 @@ class Player extends Monster {
 
         this.Velocity = new Vector2(0, 0);
         this.PositionLevel += 1 * delta;
-        console.log(this.PositionLevel);
+
         if (Math.floor(this.PositionLevel) % 10 === 0) {
 
             //add 1 to avoid modulus 0
             this.PositionLevel += 1;
-            for (let i = 0; i < 20; i++) {
-                let x = getRandomfloat(0, 800);
-                let y = getRandomfloat(100, -200);
-                let monster = new Monster(new Vector2(x, y));
-                World.RegisterEntity(monster);
-
-
-            }
+            let TargetLocation = new Vector2(0, 0);
+            TargetLocation.setDirection(0, 2000);
+            SpawnEnemyLine(new Vector2(200, 0), TargetLocation, 20);
         }
 
         if (Key.isDown(Key.UP)) {

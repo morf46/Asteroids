@@ -28,13 +28,13 @@ class Monster extends Entity {
     update(delta) {
 
         super.update(delta);
-
-        this.Location.addScaled(this.Velocity, delta);
-
+        this.UpdateMovement(delta);
         this.UpdateRootBody();
 
-        
+    }
 
+    UpdateMovement(delta) {
+        this.Location.addScaled(this.Velocity, delta);
     }
 
     UpdateRootBody() {
