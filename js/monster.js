@@ -1,21 +1,33 @@
 import Entity from "./entity";
 import Vector2 from "./vector";
+import MovementComponent from "./Ai/MovementComponent";
 
 
 
 class Monster extends Entity {
 
-    constructor(location) {
-        super();
-        this.Location = location.clone();
-        this.Velocity = new Vector2(0, 100);
+    constructor(props) {
+        super(props);
+
         this.RootBody = this.CreateCollionBody();
         this.RootBody.Outer = this;
-        this.team = 8;
+        this.team = props.team || 8;
 
         this.maxHealth = 30;
         this.health = this.maxHealth;
 
+        this.MovementComponent = this.CreateMovementComponent(props);
+
+    }
+
+
+    CreateMovementComponent(props) {
+        if (props.MovementComponent) {
+            return new props.MovementComponent({ Outer: this, ...props.MovementConfig });
+        } else {
+
+            return new MovementComponent({ Outer: this});
+        }
     }
 
     /**
@@ -34,7 +46,8 @@ class Monster extends Entity {
     }
 
     UpdateMovement(delta) {
-        this.Location.addScaled(this.Velocity, delta);
+        this.MovementComponent.UpdateMovement(delta);
+
     }
 
     UpdateRootBody() {

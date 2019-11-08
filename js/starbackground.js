@@ -3,15 +3,17 @@ import Vector2 from './vector';
 import { getRandomfloat } from './mathutils';
 
 
+/**
+ * Background star 
+ * extra props size
+ */
 class StarBackGround extends Entity {
 
 
-    constructor(x, y, speed, size) {
-        super();
-        this.Location = new Vector2(x, y);
-        this.Velocity = new Vector2(0, speed);
-        this.width = size;
-        this.height = size;
+    constructor(props) {
+        super(props);
+        this.width = props.size;
+        this.height = props.size;
 
     }
 

@@ -1,20 +1,21 @@
 import Monster from "./monster";
 import Vector2 from "./vector";
 import Key from "./input";
-import Projectile from "./projectile";
-import Weapon from "./weapons/weapon";
 import BaseProjectileWeapon from "./weapons/baseprojectile";
-import World from "./world";
 import { getRandomfloat } from "./mathutils";
-import { SpawnEnemyLine } from "./GameplayStatics";
+import chroma from 'chroma-js';
+
+
+
 
 
 
 class Player extends Monster {
 
-    constructor(location) {
+    constructor(props) {
 
-        super(location);
+        super(props);
+
         this.RegisterPostUpdate = true;
         this.team = 0;
 
@@ -33,16 +34,6 @@ class Player extends Monster {
     update(delta) {
 
         this.Velocity = new Vector2(0, 0);
-        this.PositionLevel += 1 * delta;
-
-        if (Math.floor(this.PositionLevel) % 10 === 0) {
-
-            //add 1 to avoid modulus 0
-            this.PositionLevel += 1;
-            let TargetLocation = new Vector2(0, 0);
-            TargetLocation.setDirection(0, 2000);
-            SpawnEnemyLine(new Vector2(200, 0), TargetLocation, 20);
-        }
 
         if (Key.isDown(Key.UP)) {
             this.Velocity.addScaled(new Vector2(0, -1), this.InputStrength);
@@ -95,6 +86,25 @@ class Player extends Monster {
 
     CreateCollionBody() {
         return this.World.collisions.createPolygon(this.Location.x, this.Location.y, [[0, 0], [16, 32], [-16, 32]]);
+    }
+
+
+
+    render(delta) {
+        const ctx = this.World.ctx;
+        ctx.save();
+        //module import for rollup
+        ctx.fillStyle = chroma('#f0f').darken(Math.sin(this.Age)).hex();
+        ctx.strokeStyle = '#f0f';
+
+        ctx.beginPath();
+        ctx.translate(this.Location.x, this.Location.y);
+        ctx.lineTo(16, 32);
+        ctx.lineTo(-16, 32);
+        ctx.lineTo(0, 0);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
     }
 
 }

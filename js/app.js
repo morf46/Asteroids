@@ -5,8 +5,12 @@ import Player from './player';
 import World from './world';
 import { getRandomfloat, getRandomInt } from './mathutils';
 import Key from './input';
-import { SCREEN_H, SCREEN_W, SpawnEnemyLine } from './GameplayStatics';
-import SinusCurveMonster from './Ai/SinusCurveMonster';
+
+import GameMode from './GameMode';
+import { SpawnEnemyLine, SCREEN_H, SCREEN_W, DefaultEnemyProps, SinusCurveDefaultProps } from './GameplayStatics';
+
+
+
 
 
 
@@ -39,20 +43,11 @@ function GameLoop(TimeStamp) {
 
 
     //Update
-    World.EntityList.forEach(entity => {
-        if (!entity.PendingDestroy) {
-            entity.update(delta);
-        }
-    });
+    GameMode.Update(delta);
+    World.Update(delta);
 
-    //Update Collision
-    World.collisions.update();
-    //POST update
-    World.EntityListPostUpdate.forEach(entity => {
-        if (!entity.PendingDestroy) {
-            entity.postUpdate(delta);
-        }
-    });
+    //Post update
+    World.PostUpdate(delta);
 
     //Draw
     //clear screen  CLS
@@ -90,6 +85,9 @@ function GameLoop(TimeStamp) {
 
 function InitGame() {
 
+
+
+
     InitStars();
 
 
@@ -98,14 +96,14 @@ function InitGame() {
 
     let OriginLocation = new Vector2(800, 0);
     let TargetLocation = new Vector2(400, 0);
-    SpawnEnemyLine(OriginLocation, TargetLocation, 50, SinusCurveMonster);
+    SpawnEnemyLine(OriginLocation, TargetLocation, 50, Monster, SinusCurveDefaultProps);
 
 
-    SpawnEnemyLine(new Vector2(200,0),new Vector2(200,-1000), 50, SinusCurveMonster);
+    SpawnEnemyLine(new Vector2(200, 0), new Vector2(200, -1000), 50, Monster, SinusCurveDefaultProps);
 
-    var xxPlayer = new Player(new Vector2(20, 20));
+    var xxPlayer = new Player({ location: new Vector2(400, 500) });
     World.RegisterEntity(xxPlayer);
-
+    GameMode.RegisterPlayerPawn(xxPlayer);
 
     function InitStars() {
         for (let i = 0; i < 60; i++) {
@@ -117,7 +115,11 @@ function InitGame() {
                 size = getRandomInt(4, 8);
                 speed = getRandomfloat(50, 80) / size;
             }
-            let Star = new StarBackGround(x, y, speed, size);
+            let Star = new StarBackGround({
+                location: new Vector2(x, y),
+                velocity: new Vector2(0, speed),
+                size: size
+            });
             World.RegisterEntity(Star);
         }
     }

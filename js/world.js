@@ -2,6 +2,7 @@ import Collisions from "./collisions/Collisions.mjs";
 
 
 
+
 class _World {
 
 
@@ -11,6 +12,8 @@ class _World {
         this.collisions = new Collisions();
         this.collisionResults = this.collisions.createResult();
         this.GameTime = 0;
+
+
     }
 
 
@@ -43,6 +46,28 @@ class _World {
      */
     UpdateGameTime(TimeStamp) {
         this.GameTime = TimeStamp;
+    }
+
+
+    Update(delta) {
+       
+
+        this.EntityList.forEach(entity => {
+            if (!entity.PendingDestroy) {
+                entity.update(delta);
+            }
+        });
+    }
+
+    PostUpdate(delta) {
+        //Update Collision
+        this.collisions.update();
+        //POST update
+        this.EntityListPostUpdate.forEach(entity => {
+            if (!entity.PendingDestroy) {
+                entity.postUpdate(delta);
+            }
+        });
     }
 
 }

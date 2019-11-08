@@ -6,20 +6,21 @@ class Entity {
 
 
 
-    constructor() {
-        this.Location = new Vector2(0, 0);
-        this.Velocity = new Vector2(0, 0);
+    constructor(props) {
+
+        this.Location = props.location ? props.location.clone() : new Vector2(0, 0);
+        this.Velocity = props.velocity ? props.velocity.clone() : new Vector2(0, 0);
         this.World = World;
         this.RootBody = null;
         this.PendingDestroy = false;
         this.RegisterPostUpdate = false;
-        this.team = 0;
+        this.team = props.team || 0;
 
 
-        this.health = 0;
-        this.maxHealth = 0;
+        this.maxHealth = props.maxHealth || 0;
+        this.health = props.health || this.maxHealth;
 
-        this.TimeToLife = -1;
+        this.TimeToLife = props.timetolife || -1;
         this.spawnTime = World.GameTime;
         this.Age = 0;
 

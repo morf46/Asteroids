@@ -5,8 +5,8 @@ import Vector2 from "./vector";
 
 class Projectile extends Monster {
 
-    constructor(location) {
-        super(location);
+    constructor(props) {
+        super(props);
 
 
         this.RegisterPostUpdate = true;

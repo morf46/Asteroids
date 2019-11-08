@@ -18,8 +18,10 @@ class BaseProjectileWeapon extends Weapon {
 
 
     HandleFireWeapon() {
-        let P = new Projectile(this.Outer.Location);
-        P.SetVelocity(new Vector2(0, getRandomfloat(-550, -450)).add(this.Outer.Velocity.clone().multiply(0.16)));
+        let P = new Projectile({
+            location: this.Outer.Location,
+            velocity: new Vector2(0, getRandomfloat(-550, -450)).add(this.Outer.Velocity.clone().multiply(0.16))
+        });
         P.team = this.Outer.team;
         World.RegisterEntity(P);
     }
