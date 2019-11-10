@@ -34,8 +34,7 @@ export function SpawnEnemyLine(Location, TargetLocation, Padding, ClassToSpawn =
     for (let i = 0; i < Count; i++) {
         let LocalProps = { location: LocalLocation };
         LocalProps = { ...LocalProps, ...InProps };
-        let monster = new ClassToSpawn(LocalProps);
-        World.RegisterEntity(monster);
+        World.SpawnEntity(ClassToSpawn, LocalProps);
         LocalLocation.moveTowards(TargetLocation, Padding);
     }
 

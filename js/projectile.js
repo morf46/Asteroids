@@ -1,7 +1,8 @@
 
 import Monster from "./monster";
 import Vector2 from "./vector";
-
+import colormap from 'colormap';
+import { lerp } from "./mathutils";
 
 class Projectile extends Monster {
 
@@ -11,11 +12,27 @@ class Projectile extends Monster {
 
         this.RegisterPostUpdate = true;
 
-        this.TimeToLife = 3000;
+        this.TimeToLife = 1200;
+
+        this.ColorMap = colormap({
+            colormap: 'summer',
+            nshades: 20,
+            format: 'hex',
+            alpha: 1
+        })
+        this.BaseColor = this.ColorMap[0];
     }
 
     CreateCollionBody() {
         return this.World.collisions.createCircle(this.Location.x, this.Location.y, 2);
+    }
+
+    update(delta) {
+        super.update(delta);
+        let factor = this.Age / this.TimeToLife;
+        this.BaseColor = this.ColorMap[
+            Math.floor(lerp(0, this.ColorMap.length, factor))
+        ];
     }
 
     postUpdate(delta) {
@@ -32,6 +49,19 @@ class Projectile extends Monster {
             }
         }
 
+    }
+
+    render(delta) {
+
+
+        const ctx = this.World.ctx;
+        ctx.save();
+        ctx.translate(this.Location.x, this.Location.y);
+        ctx.beginPath();
+        ctx.fillStyle = this.BaseColor;
+        ctx.arc(0, 0, 2, 0, 2 * Math.PI)
+        ctx.fill();
+        ctx.restore();
     }
 }
 

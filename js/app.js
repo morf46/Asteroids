@@ -8,6 +8,7 @@ import Key from './input';
 
 import GameMode from './GameMode';
 import { SpawnEnemyLine, SCREEN_H, SCREEN_W, DefaultEnemyProps, SinusCurveDefaultProps } from './GameplayStatics';
+import Asteroid from './monsters/asteroid';
 
 
 
@@ -15,6 +16,7 @@ import { SpawnEnemyLine, SCREEN_H, SCREEN_W, DefaultEnemyProps, SinusCurveDefaul
 
 
 const DebugBVH = false;
+const DebugShapes = false;
 
 var lastFrameTimeMs = 0;
 var maxFPS = 60;
@@ -61,10 +63,12 @@ function GameLoop(TimeStamp) {
     });
 
     // Draw Debug collisons
-    World.ctx.strokeStyle = '#f00';
-    World.ctx.beginPath();
-    World.collisions.draw(World.ctx);
-    World.ctx.stroke();
+    if (DebugShapes) {
+        World.ctx.strokeStyle = '#f00';
+        World.ctx.beginPath();
+        World.collisions.draw(World.ctx);
+        World.ctx.stroke();
+    }
 
     //draw BVH
     if (DebugBVH) {
@@ -91,19 +95,8 @@ function InitGame() {
     InitStars();
 
 
-
-
-
-    let OriginLocation = new Vector2(800, 0);
-    let TargetLocation = new Vector2(400, 0);
-    SpawnEnemyLine(OriginLocation, TargetLocation, 50, Monster, SinusCurveDefaultProps);
-
-
-    SpawnEnemyLine(new Vector2(200, 0), new Vector2(200, -1000), 50, Monster, SinusCurveDefaultProps);
-
-    var xxPlayer = new Player({ location: new Vector2(400, 500) });
-    World.RegisterEntity(xxPlayer);
-    GameMode.RegisterPlayerPawn(xxPlayer);
+    var newPlayer = World.SpawnEntity(Player, { location: new Vector2(400, 500) })
+    GameMode.RegisterPlayerPawn(newPlayer);
 
     function InitStars() {
         for (let i = 0; i < 60; i++) {
@@ -115,12 +108,13 @@ function InitGame() {
                 size = getRandomInt(4, 8);
                 speed = getRandomfloat(50, 80) / size;
             }
-            let Star = new StarBackGround({
+
+            World.SpawnEntity(StarBackGround, {
                 location: new Vector2(x, y),
                 velocity: new Vector2(0, speed),
                 size: size
             });
-            World.RegisterEntity(Star);
+
         }
     }
 }

@@ -6,7 +6,7 @@
         {
             "label": "Bundle javascript",
             "type": "shell",
-            "command": "node_modules/.bin/rollup.cmd js/app.js --file bundle.js --format iife",
+            "command": "node_modules/.bin/rollup.cmd -c",
             "problemMatcher": [],
             "group": {
                 "kind": "build",

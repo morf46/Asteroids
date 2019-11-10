@@ -8,7 +8,7 @@ class Monster extends Entity {
 
     constructor(props) {
         super(props);
-
+        this.vertexes = this.CreateRandomPolygon();
         this.RootBody = this.CreateCollionBody();
         this.RootBody.Outer = this;
         this.team = props.team || 8;
@@ -26,12 +26,21 @@ class Monster extends Entity {
             return new props.MovementComponent({ Outer: this, ...props.MovementConfig });
         } else {
 
-            return new MovementComponent({ Outer: this});
+            return new MovementComponent({ Outer: this });
         }
     }
 
+
     /**
-     * @returns Collision Body
+     * Create Random Poylgon
+     * @return {Number|Array}Vertexes array
+     */
+    CreateRandomPolygon() {
+        return [];
+    }
+
+    /**
+     * @return Collision Body
      */
     CreateCollionBody() {
         return this.World.collisions.createCircle(this.Location.x, this.Location.y, 10);
@@ -53,6 +62,7 @@ class Monster extends Entity {
     UpdateRootBody() {
         this.RootBody.x = this.Location.x;
         this.RootBody.y = this.Location.y;
+        this.RootBody.angle = this.Rotation;
     }
 
     postUpdate(delta) {
@@ -66,7 +76,14 @@ class Monster extends Entity {
     }
 
     render(delta) {
-
+        const ctx = this.World.ctx;
+        ctx.save();
+        ctx.translate(this.Location.x, this.Location.y);
+        ctx.beginPath();
+        ctx.fillStyle = this.BaseColor;
+        ctx.arc(0, 0, 10, 0, 2 * Math.PI)
+        ctx.fill();
+        ctx.restore();
     }
 
     takeDamage(amount) {

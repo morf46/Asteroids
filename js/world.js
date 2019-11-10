@@ -16,7 +16,19 @@ class _World {
 
     }
 
-
+    /**
+     * Spawns entity and registers it ot the world
+     * 
+     * @param {Class} ClassToSpawn 
+     * @param {Object} props 
+     * @return Spawned Entity
+     */
+    SpawnEntity(ClassToSpawn, props) {
+        let newEntity = new ClassToSpawn(props);
+        this.RegisterEntity(newEntity);
+        newEntity.BeginPlay();
+        return newEntity;
+    }
 
     RegisterEntity(NewEntity) {
         this.EntityList.push(NewEntity);
@@ -50,7 +62,7 @@ class _World {
 
 
     Update(delta) {
-       
+
 
         this.EntityList.forEach(entity => {
             if (!entity.PendingDestroy) {

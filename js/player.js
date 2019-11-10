@@ -94,7 +94,7 @@ class Player extends Monster {
         const ctx = this.World.ctx;
         ctx.save();
         //module import for rollup
-        ctx.fillStyle = chroma('#f0f').darken(Math.sin(this.Age)).hex();
+        ctx.fillStyle = chroma('green').darken(Math.sin(this.Age * 0.002)).hex();
         ctx.strokeStyle = '#f0f';
 
         ctx.beginPath();

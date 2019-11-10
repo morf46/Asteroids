@@ -1,6 +1,7 @@
 import Entity from './entity';
 import Vector2 from './vector';
-import { getRandomfloat } from './mathutils';
+import { getRandomfloat, lerp } from './mathutils';
+import chroma from 'chroma-js';
 
 
 /**
@@ -17,6 +18,15 @@ class StarBackGround extends Entity {
 
     }
 
+    BeginPlay() {
+
+        super.BeginPlay();
+
+        let factor = this.width / 5;
+        let lerpValue = lerp(0, 0.5, factor);
+        this.BaseColor = chroma('#fff').darken(lerpValue).hex();
+    }
+
     update(delta) {
 
         this.Location.addScaled(this.Velocity, delta);
@@ -29,8 +39,8 @@ class StarBackGround extends Entity {
     render(delta) {
         const ctx = this.World.ctx;
         ctx.save();
-        ctx.fillStyle = '#fff';
-        ctx.strokeStyle = '#fff';
+        ctx.fillStyle = this.BaseColor;
+        
         ctx.translate(this.Location.x, this.Location.y);
         ctx.fillRect(-this.width / 2, -this.height / 2, this.width, this.height);
         ctx.restore();

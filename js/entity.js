@@ -10,8 +10,12 @@ class Entity {
 
         this.Location = props.location ? props.location.clone() : new Vector2(0, 0);
         this.Velocity = props.velocity ? props.velocity.clone() : new Vector2(0, 0);
+        /*Rotation in Radians */
+        this.Rotation = 0;
+
         this.World = World;
         this.RootBody = null;
+        this.vertexes = [];
         this.PendingDestroy = false;
         this.RegisterPostUpdate = false;
         this.team = props.team || 0;
@@ -24,6 +28,15 @@ class Entity {
         this.spawnTime = World.GameTime;
         this.Age = 0;
 
+
+
+        this.BaseColor = "#fff";
+        this.StrokeColor = "#fff";
+    }
+
+
+    BeginPlay(){
+        
     }
 
     preUpdate(delta) {

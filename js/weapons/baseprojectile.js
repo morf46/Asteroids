@@ -4,6 +4,7 @@ import Projectile from "../projectile";
 import Vector2 from "../vector";
 import { getRandomfloat } from "../mathutils";
 
+
 /**
  * Projectile shoots "Upwards"
  */
@@ -12,6 +13,7 @@ class BaseProjectileWeapon extends Weapon {
     constructor() {
         super();
 
+   
 
     }
 
@@ -25,6 +27,8 @@ class BaseProjectileWeapon extends Weapon {
         P.team = this.Outer.team;
         World.RegisterEntity(P);
     }
+
+ 
 }
 
 export default BaseProjectileWeapon;
