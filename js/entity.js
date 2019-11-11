@@ -13,6 +13,8 @@ class Entity {
         /*Rotation in Radians */
         this.Rotation = 0;
 
+        this.radius = 0;
+
         this.World = World;
         this.RootBody = null;
         this.vertexes = [];
@@ -35,8 +37,8 @@ class Entity {
     }
 
 
-    BeginPlay(){
-        
+    BeginPlay() {
+
     }
 
     preUpdate(delta) {
@@ -103,10 +105,10 @@ class Entity {
      */
     IsInWorldBounds() {
 
-        if (this.Location.x < -400
-            || this.Location.x > 1200
-            || this.Location.y < -400
-            || this.Location.y > 1000) {
+        if (this.Location.x < -2000
+            || this.Location.x > 2000
+            || this.Location.y < -2000
+            || this.Location.y > 2000) {
             return false;
         }
 

@@ -59,7 +59,8 @@ import { radiansToDegrees } from "./mathutils";
 	 add function - findLookAtRotation(v)
 	 add function - findLookatRotationDegrees(v)
 	 add function - Distance(v)
-	 
+	 add function - Rotate2d(r)
+	 add fucntion - getAngle()
  */
 
 class Vector2 {
@@ -332,6 +333,29 @@ class Vector2 {
 		angle += Math.PI / 2;
 		if (angle < 0) angle += Math.PI * 2;
 		return angle;
+	}
+
+	/**
+	 * Return Angle in radians
+	 * 
+	 * @return {Number} Vector angle in Radians
+	 */
+	getAngle() {
+		return Math.atan2(this.y, this.x);
+	}
+
+	/**
+	 * Rotate Vector by radians
+	 * @param {number} r Magnitude in Radians
+	 * @return {Vector2}	The current Vector2. Useful for daisy-chaining calls.
+	 */
+	rotate2D(r) {
+
+		var cos = Math.cos(r);
+		var sin = Math.sin(r);
+		this.x = cos * this.x - sin * this.y
+		this.y = sin * this.x + cos * this.y
+		return this;
 	}
 
 	/**

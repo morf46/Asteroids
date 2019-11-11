@@ -7,6 +7,8 @@ import CosineCurveMovementComponent from "./Ai/CosineCurveMovement";
 
 const SINE_VERCTICAL_DOWN = 1;
 const SINE_HORIZONTAL = 2;
+const LINE_X = 3;
+
 
 class _GameMode {
 
@@ -40,7 +42,7 @@ class _GameMode {
 
 
     SpawnNextEnemySet() {
-        let SetID = getRandomInt(1, 3);
+        let SetID = getRandomInt(1, 4);
         switch (SetID) {
             case SINE_VERCTICAL_DOWN:
                 {
@@ -52,7 +54,7 @@ class _GameMode {
             case SINE_HORIZONTAL:
                 {
                     let IsSpawnLeft = getRandomBool();
-                    let randomY = getRandomfloat(100, 500)
+                    let randomY = getRandomfloat(100, 500);
                     let OriginLocation = IsSpawnLeft ? new Vector2(-400, randomY) : new Vector2(1200, randomY);
                     let TargetLocation = IsSpawnLeft ? new Vector2(0, randomY) : new Vector2(800, randomY);
                     let LocalVelocity = IsSpawnLeft ? new Vector2(200, 0) : new Vector2(-200, 0)
@@ -60,6 +62,28 @@ class _GameMode {
                         MovementComponent: CosineCurveMovementComponent, velocity: LocalVelocity
                     });
 
+                }
+                break;
+            case LINE_X:
+                {
+                    let IsSpawnLeft = getRandomBool();
+                    let randomY = getRandomfloat(-100, -400);
+                    let OriginLocation, TargetLocation, LocalVelocity;
+                    let magnitudeX = getRandomfloat(100, 200);
+                    let magnitudeY = getRandomfloat(100, 200);
+
+                    if (IsSpawnLeft) {
+                        OriginLocation = new Vector2(1200, randomY);
+                        TargetLocation = new Vector2(OriginLocation.x - getRandomfloat(100, 400), randomY + getRandomfloat(100, 300));
+                        LocalVelocity = new Vector2(magnitudeX * -1, magnitudeY);
+
+                    } else {
+                        OriginLocation = new Vector2(-400, randomY);
+                        TargetLocation = new Vector2(OriginLocation.x + getRandomfloat(100, 400), randomY + getRandomfloat(100, 300));
+                        LocalVelocity = new Vector2(magnitudeX, magnitudeY);
+                    }
+
+                    SpawnEnemyLine(OriginLocation, TargetLocation, 40, Asteroid, { velocity: LocalVelocity });
                 }
                 break;
             default:

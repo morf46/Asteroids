@@ -9,6 +9,7 @@ class _World {
     constructor() {
         this.EntityList = [];
         this.EntityListPostUpdate = [];
+        this.ParticleList = [];
         this.collisions = new Collisions();
         this.collisionResults = this.collisions.createResult();
         this.GameTime = 0;
@@ -37,11 +38,17 @@ class _World {
         }
     }
 
+    RegisterParticle(NewParticle){
+        this.ParticleList.push(NewParticle);
+    }
+
 
     UnregisterInactiveEntitys() {
         console.log("GC run");
         this.EntityList = this.EntityList.filter(x => x.PendingDestroy === false);
         this.EntityListPostUpdate = this.EntityListPostUpdate.filter(x => x.PendingDestroy === false);
+        this.ParticleList = this.ParticleList.filter(x => x.PendingDestroy === false);
+
     }
 
 
@@ -69,6 +76,8 @@ class _World {
                 entity.update(delta);
             }
         });
+
+        
     }
 
     PostUpdate(delta) {

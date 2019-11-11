@@ -61,6 +61,12 @@ function GameLoop(TimeStamp) {
             entity.render(delta);
         }
     });
+    World.ParticleList.forEach(particle => {
+        if (!particle.PendingDestroy) {
+            particle.update(delta);
+            particle.render(delta);
+        }
+    });
 
     // Draw Debug collisons
     if (DebugShapes) {
@@ -94,6 +100,7 @@ function InitGame() {
 
     InitStars();
 
+  //  World.SpawnEntity(Asteroid, { location: new Vector2(400, 300), maxhealth:10000500 })
 
     var newPlayer = World.SpawnEntity(Player, { location: new Vector2(400, 500) })
     GameMode.RegisterPlayerPawn(newPlayer);

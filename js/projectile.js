@@ -3,6 +3,7 @@ import Monster from "./monster";
 import Vector2 from "./vector";
 import colormap from 'colormap';
 import { lerp } from "./mathutils";
+import ParticleEmitter from "./particle/particleemitter";
 
 class Projectile extends Monster {
 
@@ -21,6 +22,10 @@ class Projectile extends Monster {
             alpha: 1
         })
         this.BaseColor = this.ColorMap[0];
+
+        this.ImpactFX = ParticleEmitter;
+
+        this.DamageDealt = 5;
     }
 
     CreateCollionBody() {
@@ -41,7 +46,10 @@ class Projectile extends Monster {
             for (const otherBody of potentials) {
                 if (this.RootBody.collides(otherBody, this.World.collisionResults)) {
                     if (this.team !== otherBody.Outer.team) {
-                        otherBody.Outer.takeDamage(10);
+                        otherBody.Outer.takeDamage(this.DamageDealt);
+                        let Direction = new Vector2(this.World.collisionResults.overlap_x, this.World.collisionResults.overlap_y).multiply(-1);
+                        let FX = new ParticleEmitter({ location: this.Location, direction: Direction })
+                        FX.Activate();
                         this.Destroy();
                         break;
                     }

@@ -19,7 +19,7 @@ class Asteroid extends Monster {
         this.HealthChromaScale = chroma.scale(["#fff", this.LowHealthColor]).mode('lab');
 
 
-        this.maxHealth = 70;
+        this.maxHealth = props.maxhealth || 70;
         this.health = this.maxHealth;
     }
 
@@ -32,7 +32,7 @@ class Asteroid extends Monster {
     }
 
     CreateRandomPolygon() {
-        let Radius = getRandomfloat(15, 40);
+        this.radius = getRandomfloat(15, 40);
         let Center = new Vector2(0, 0);
         let ArrayVertexes = [];
         let RandomAngles = [];
@@ -46,8 +46,8 @@ class Asteroid extends Monster {
 
         for (let i = 0; i < numVertexes; i++) {
 
-            let x = Center.x + Radius * Math.cos(RandomAngles[i]);
-            let y = Center.y + Radius * Math.sin(RandomAngles[i]);
+            let x = Center.x + this.radius * Math.cos(RandomAngles[i]);
+            let y = Center.y + this.radius * Math.sin(RandomAngles[i]);
 
             ArrayVertexes.push([x, y]);
         }

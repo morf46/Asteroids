@@ -1,6 +1,154 @@
 (function () {
   'use strict';
 
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  function _defineProperties(target, props) {
+    for (var i = 0; i < props.length; i++) {
+      var descriptor = props[i];
+      descriptor.enumerable = descriptor.enumerable || false;
+      descriptor.configurable = true;
+      if ("value" in descriptor) descriptor.writable = true;
+      Object.defineProperty(target, descriptor.key, descriptor);
+    }
+  }
+
+  function _createClass(Constructor, protoProps, staticProps) {
+    if (protoProps) _defineProperties(Constructor.prototype, protoProps);
+    if (staticProps) _defineProperties(Constructor, staticProps);
+    return Constructor;
+  }
+
+  function _defineProperty(obj, key, value) {
+    if (key in obj) {
+      Object.defineProperty(obj, key, {
+        value: value,
+        enumerable: true,
+        configurable: true,
+        writable: true
+      });
+    } else {
+      obj[key] = value;
+    }
+
+    return obj;
+  }
+
+  function ownKeys(object, enumerableOnly) {
+    var keys = Object.keys(object);
+
+    if (Object.getOwnPropertySymbols) {
+      var symbols = Object.getOwnPropertySymbols(object);
+      if (enumerableOnly) symbols = symbols.filter(function (sym) {
+        return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+      });
+      keys.push.apply(keys, symbols);
+    }
+
+    return keys;
+  }
+
+  function _objectSpread2(target) {
+    for (var i = 1; i < arguments.length; i++) {
+      var source = arguments[i] != null ? arguments[i] : {};
+
+      if (i % 2) {
+        ownKeys(source, true).forEach(function (key) {
+          _defineProperty(target, key, source[key]);
+        });
+      } else if (Object.getOwnPropertyDescriptors) {
+        Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
+      } else {
+        ownKeys(source).forEach(function (key) {
+          Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
+        });
+      }
+    }
+
+    return target;
+  }
+
+  function _inherits(subClass, superClass) {
+    if (typeof superClass !== "function" && superClass !== null) {
+      throw new TypeError("Super expression must either be null or a function");
+    }
+
+    subClass.prototype = Object.create(superClass && superClass.prototype, {
+      constructor: {
+        value: subClass,
+        writable: true,
+        configurable: true
+      }
+    });
+    if (superClass) _setPrototypeOf(subClass, superClass);
+  }
+
+  function _getPrototypeOf(o) {
+    _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) {
+      return o.__proto__ || Object.getPrototypeOf(o);
+    };
+    return _getPrototypeOf(o);
+  }
+
+  function _setPrototypeOf(o, p) {
+    _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) {
+      o.__proto__ = p;
+      return o;
+    };
+
+    return _setPrototypeOf(o, p);
+  }
+
+  function _assertThisInitialized(self) {
+    if (self === void 0) {
+      throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+    }
+
+    return self;
+  }
+
+  function _possibleConstructorReturn(self, call) {
+    if (call && (typeof call === "object" || typeof call === "function")) {
+      return call;
+    }
+
+    return _assertThisInitialized(self);
+  }
+
+  function _superPropBase(object, property) {
+    while (!Object.prototype.hasOwnProperty.call(object, property)) {
+      object = _getPrototypeOf(object);
+      if (object === null) break;
+    }
+
+    return object;
+  }
+
+  function _get(target, property, receiver) {
+    if (typeof Reflect !== "undefined" && Reflect.get) {
+      _get = Reflect.get;
+    } else {
+      _get = function _get(target, property, receiver) {
+        var base = _superPropBase(target, property);
+
+        if (!base) return;
+        var desc = Object.getOwnPropertyDescriptor(base, property);
+
+        if (desc.get) {
+          return desc.get.call(receiver);
+        }
+
+        return desc.value;
+      };
+    }
+
+    return _get(target, property, receiver || target);
+  }
+
   /**
    * Returns random integer, maximum is exclusive and the minimum is inclusive.
    * 
@@ -8,11 +156,10 @@
    * @param {number} max - Maximum - exclusive
    */
   function getRandomInt(min, max) {
-      min = Math.ceil(min);
-      max = Math.floor(max);
-      return Math.floor(Math.random() * (max - min)) + min;
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min)) + min;
   }
-
   /**
    * Return a random float.
    * The returned value is no lower than (and may possibly equal) min, and is less than (and not equal) max
@@ -21,43 +168,38 @@
    */
 
   function getRandomfloat(min, max) {
-      return Math.random() * (max - min) + min;
+    return Math.random() * (max - min) + min;
   }
-
   /**
    * Returns a random bool
    * @return {Boolean} 
    */
+
   function getRandomBool() {
-      return Math.round(Math.random()) === 1 ? true : false;
+    return Math.round(Math.random()) === 1 ? true : false;
   }
-
-
-
   /**
    * Convert Radians to Degrees
    * 
    * @param {Number} radians 
    * @return {Number} Degrees
    */
+
   function radiansToDegrees(radians) {
-      var pi = Math.PI;
-      return radians * (180 / pi);
+    var pi = Math.PI;
+    return radians * (180 / pi);
   }
-
-
-
-
   /**
    *linear interpolate between two values 
    * @param {number} value2 
    * @param {number} amount 
    * @param {number} value1 
    */
+
   function lerp(value1, value2, amount) {
-      amount = amount < 0 ? 0 : amount;
-      amount = amount > 1 ? 1 : amount;
-      return value1 + (value2 - value1) * amount;
+    amount = amount < 0 ? 0 : amount;
+    amount = amount > 1 ? 1 : amount;
+    return value1 + (value2 - value1) * amount;
   }
 
   /******************************************************
@@ -117,374 +259,431 @@
   	 add function - findLookAtRotation(v)
   	 add function - findLookatRotationDegrees(v)
   	 add function - Distance(v)
-  	 
+  	 add function - Rotate2d(r)
+  	 add fucntion - getAngle()
    */
 
-  class Vector2 {
-  	// Constructor
-  	constructor(inX, inY) {
-  		if (typeof inX != "number")
-  			throw new Error("Invalid x value.");
-  		if (typeof inY != "number")
-  			throw new Error("Invalid y value.");
+  var Vector2 =
+  /*#__PURE__*/
+  function () {
+    // Constructor
+    function Vector2(inX, inY) {
+      _classCallCheck(this, Vector2);
 
-  		// Store the (x, y) coordinates
-  		this.x = inX;
-  		this.y = inY;
-  	}
+      if (typeof inX != "number") throw new Error("Invalid x value.");
+      if (typeof inY != "number") throw new Error("Invalid y value."); // Store the (x, y) coordinates
 
-  	/**
-  	 * Add another Vector2 to this Vector2.
-  	 * @param	{Vector2}	v	The Vector2 to add.
-  	 * @return	{Vector2}	The current Vector2. useful for daisy-chaining calls.
-  	 */
-  	add(v) {
-  		this.x += v.x;
-  		this.y += v.y;
-
-  		return this;
-  	}
-
-  	/**
-  	 * Add another vector2 to this Vector2 scaling it first.
-  	 * @param {Vector2} v  the vector2 to add
-  	 * @param {Number} s  the scalar
-  	 * @return {Vector2} The Current vector2.
-  	 */
-  	addScaled(v, s) {
-  		this.x += v.x * s;
-  		this.y += v.y * s;
-  		return this;
-  	}
-
-  	/**
-  	 * Take another Vector2 from this Vector2.
-  	 * @param  {Vector2} v The Vector2 to subtrace from this one.
-  	 * @return {Vector2}   The current Vector2. useful for daisy-chaining calls.
-  	 */
-  	subtract(v) {
-  		this.x -= v.x;
-  		this.y -= v.y;
-
-  		return this;
-  	}
-
-  	/**
-  	 * Divide the current Vector2 by a given value.
-  	 * @param  {Number|Vector2} value The number (or Vector2) to divide by.
-  	 * @return {Vector2}	   The current Vector2. Useful for daisy-chaining calls.
-  	 */
-  	divide(value) {
-  		if (value instanceof Vector2) {
-  			this.x /= value.x;
-  			this.y /= value.y;
-  		}
-  		else if (typeof value == "number") {
-  			this.x /= value;
-  			this.y /= value;
-  		}
-  		else
-  			throw new Error("Can't divide by non-number value.");
-
-  		return this;
-  	}
-
-  	/**
-  	 * Multiply the current Vector2 by a given value.
-  	 * @param  {Number|Vector2} value The number (or Vector2) to multiply the current Vector2 by.
-  	 * @return {Vector2}	   The current Vector2. useful for daisy-chaining calls.
-  	 */
-  	multiply(value) {
-  		if (value instanceof Vector2) {
-  			this.x *= value.x;
-  			this.y *= value.y;
-  		}
-  		else if (typeof value == "number") {
-  			this.x *= value;
-  			this.y *= value;
-  		}
-  		else
-  			throw new Error("Can't multiply by non-number value.");
-
-  		return this;
-  	}
-
-  	/**
-  	 * Sets vectors x and y from direction
-  	 * 
-  	 * @param {*} angle in Degrees
-  	 * @param {*} dist length of the vector
-  	 */
-  	setDirection(angle, dist) {
-  		dist = dist || 1;
-
-  		this.x = dist * Math.cos(angle / 360 * Math.PI * 2);
-  		this.y = dist * Math.sin(angle / 360 * Math.PI * 2);
-
-  		return this;
-  	};
-
-  	/**
-  	 * Distance to other vector2
-  	 * @param {Vector2} v 
-  	 * @return {Number} distance
-  	 */
-  	Distance(v) {
-  		var dx = v.x - this.x;
-  		var dy = v.y - this.y;
-  		return Math.sqrt(dx * dx + dy * dy);
-  	};
-
-  	/**
-  	 * Find a rotation to point at Target location.
-  	 * @param {Vector2} v Vector2 to look at 
-  	 * @return {Number} Angle in radians
-  	 */
-  	findLookAtRotation(v) {
-  		cross = this.crossProduct(v);
-  		dot = this.dotProduct(v);
-  		return Math.atan2(cross, dot)
-  	}
-
-  	/**
-  	 * Find a rotation to point at Target location.
-  	 * @param {Vector2} v Vector2 to look at
-  	 * @return The angle in Degrees
-  	 */
-  	findLookAtRotationDegrees(v) {
-  		return radiansToDegrees(this.findLookAtRotation(v));
-  	}
+      this.x = inX;
+      this.y = inY;
+    }
+    /**
+     * Add another Vector2 to this Vector2.
+     * @param	{Vector2}	v	The Vector2 to add.
+     * @return	{Vector2}	The current Vector2. useful for daisy-chaining calls.
+     */
 
 
-  	/**
-  	 * Move the Vector2 towards the given Vector2 by the given amount.
-  	 * @param  {Vector2} v      The Vector2 to move towards.
-  	 * @param  {Number} amount The distance to move towards the given Vector2.
-  	 */
-  	moveTowards(v, amount) {
-  		// From http://stackoverflow.com/a/2625107/1460422
-  		var dir = new Vector2(
-  			v.x - this.x,
-  			v.y - this.y
-  		).limitTo(amount);
-  		this.x += dir.x;
-  		this.y += dir.y;
+    _createClass(Vector2, [{
+      key: "add",
+      value: function add(v) {
+        this.x += v.x;
+        this.y += v.y;
+        return this;
+      }
+      /**
+       * Add another vector2 to this Vector2 scaling it first.
+       * @param {Vector2} v  the vector2 to add
+       * @param {Number} s  the scalar
+       * @return {Vector2} The Current vector2.
+       */
 
-  		return this;
-  	}
+    }, {
+      key: "addScaled",
+      value: function addScaled(v, s) {
+        this.x += v.x * s;
+        this.y += v.y * s;
+        return this;
+      }
+      /**
+       * Take another Vector2 from this Vector2.
+       * @param  {Vector2} v The Vector2 to subtrace from this one.
+       * @return {Vector2}   The current Vector2. useful for daisy-chaining calls.
+       */
 
-  	/**
-  	 * Rounds the x and y components of this Vector2 down to the next integer.
-  	 * @return	{Vector2}	This Vector2 - useful for diasy-chaining.
-  	 */
-  	floor() {
-  		this.x = Math.floor(this.x);
-  		this.y = Math.floor(this.y);
+    }, {
+      key: "subtract",
+      value: function subtract(v) {
+        this.x -= v.x;
+        this.y -= v.y;
+        return this;
+      }
+      /**
+       * Divide the current Vector2 by a given value.
+       * @param  {Number|Vector2} value The number (or Vector2) to divide by.
+       * @return {Vector2}	   The current Vector2. Useful for daisy-chaining calls.
+       */
 
-  		return this;
-  	}
-  	/**
-  	 * Rounds the x and y components of this Vector2 up to the next integer.
-  	 * @return	{Vector2}	This Vector2 - useful for diasy-chaining.
-  	 */
-  	ceil() {
-  		this.x = Math.ceil(this.x);
-  		this.y = Math.ceil(this.y);
+    }, {
+      key: "divide",
+      value: function divide(value) {
+        if (value instanceof Vector2) {
+          this.x /= value.x;
+          this.y /= value.y;
+        } else if (typeof value == "number") {
+          this.x /= value;
+          this.y /= value;
+        } else throw new Error("Can't divide by non-number value.");
 
-  		return this;
-  	}
-  	/**
-  	 * Rounds the x and y components of this Vector2 to the nearest integer.
-  	 * @return	{Vector2}	This Vector2 - useful for diasy-chaining.
-  	 */
-  	round() {
-  		this.x = Math.round(this.x);
-  		this.y = Math.round(this.y);
+        return this;
+      }
+      /**
+       * Multiply the current Vector2 by a given value.
+       * @param  {Number|Vector2} value The number (or Vector2) to multiply the current Vector2 by.
+       * @return {Vector2}	   The current Vector2. useful for daisy-chaining calls.
+       */
 
-  		return this;
-  	}
+    }, {
+      key: "multiply",
+      value: function multiply(value) {
+        if (value instanceof Vector2) {
+          this.x *= value.x;
+          this.y *= value.y;
+        } else if (typeof value == "number") {
+          this.x *= value;
+          this.y *= value;
+        } else throw new Error("Can't multiply by non-number value.");
 
-  	/**
-  	 * Calculates the 'area' of this Vector2 and returns the result.
-  	 * In other words, returns x * y. Useful if you're using a Vector2 to store 
-  	 * a size.
-  	 * @return {Number} The 'area' of this Vector2.
-  	 */
-  	area() {
-  		return this.x * this.y;
-  	}
+        return this;
+      }
+      /**
+       * Sets vectors x and y from direction
+       * 
+       * @param {*} angle in Degrees
+       * @param {*} dist length of the vector
+       */
 
-  	/**
-  	 * Snaps this Vector2 to an imaginary square grid with the specified sized 
-  	 * squares.
-  	 * @param	{Number}	grid_size	The size of the squares on the imaginary  grid to which to snap.
-  	 * @return	{Vector2}	The current Vector2 - useful for daisy-chaining.
-  	 */
-  	snapTo(grid_size) {
-  		this.x = Math.floor(this.x / grid_size) * grid_size;
-  		this.y = Math.floor(this.y / grid_size) * grid_size;
+    }, {
+      key: "setDirection",
+      value: function setDirection(angle, dist) {
+        dist = dist || 1;
+        this.x = dist * Math.cos(angle / 360 * Math.PI * 2);
+        this.y = dist * Math.sin(angle / 360 * Math.PI * 2);
+        return this;
+      }
+    }, {
+      key: "Distance",
 
-  		return this;
-  	}
+      /**
+       * Distance to other vector2
+       * @param {Vector2} v 
+       * @return {Number} distance
+       */
+      value: function Distance(v) {
+        var dx = v.x - this.x;
+        var dy = v.y - this.y;
+        return Math.sqrt(dx * dx + dy * dy);
+      }
+    }, {
+      key: "findLookAtRotation",
 
-  	/**
-  	 * Limit the length of the current Vector2 to value without changing the
-  	 * direction in which the Vector2 is pointing.
-  	 * @param  {Number} value The number to limit the current Vector2's length to.
-  	 * @return {Vector2}	   The current Vector2. Useful for daisy-chaining calls.
-  	 */
-  	limitTo(value) {
-  		if (typeof value != "number")
-  			throw new Error("Can't limit to non-number value.");
+      /**
+       * Find a rotation to point at Target location.
+       * @param {Vector2} v Vector2 to look at 
+       * @return {Number} Angle in radians
+       */
+      value: function findLookAtRotation(v) {
+        cross = this.crossProduct(v);
+        dot = this.dotProduct(v);
+        return Math.atan2(cross, dot);
+      }
+      /**
+       * Find a rotation to point at Target location.
+       * @param {Vector2} v Vector2 to look at
+       * @return The angle in Degrees
+       */
 
-  		if (this.length > value) {
-  			this.divide(this.length);
-  			this.multiply(value);
-  		}
+    }, {
+      key: "findLookAtRotationDegrees",
+      value: function findLookAtRotationDegrees(v) {
+        return radiansToDegrees(this.findLookAtRotation(v));
+      }
+      /**
+       * Move the Vector2 towards the given Vector2 by the given amount.
+       * @param  {Vector2} v      The Vector2 to move towards.
+       * @param  {Number} amount The distance to move towards the given Vector2.
+       */
 
-  		return this;
-  	}
+    }, {
+      key: "moveTowards",
+      value: function moveTowards(v, amount) {
+        // From http://stackoverflow.com/a/2625107/1460422
+        var dir = new Vector2(v.x - this.x, v.y - this.y).limitTo(amount);
+        this.x += dir.x;
+        this.y += dir.y;
+        return this;
+      }
+      /**
+       * Rounds the x and y components of this Vector2 down to the next integer.
+       * @return	{Vector2}	This Vector2 - useful for diasy-chaining.
+       */
 
-  	/**
-  	 * Like limitTo(), but explicitly sets the length of the Vector2 without changing the direction.
-  	 * In other words, it acts like limitTo, but also scales up small Vector2s to match the specified length.
-  	 * @param	{Number}	value	The length to set the Vector2 to.
-  	 */
-  	setTo(value) {
-  		if (typeof value != "number")
-  			throw new Error("Can't limit to non-number value.");
+    }, {
+      key: "floor",
+      value: function floor() {
+        this.x = Math.floor(this.x);
+        this.y = Math.floor(this.y);
+        return this;
+      }
+      /**
+       * Rounds the x and y components of this Vector2 up to the next integer.
+       * @return	{Vector2}	This Vector2 - useful for diasy-chaining.
+       */
 
-  		this.divide(this.length);
-  		this.multiply(value);
+    }, {
+      key: "ceil",
+      value: function ceil() {
+        this.x = Math.ceil(this.x);
+        this.y = Math.ceil(this.y);
+        return this;
+      }
+      /**
+       * Rounds the x and y components of this Vector2 to the nearest integer.
+       * @return	{Vector2}	This Vector2 - useful for diasy-chaining.
+       */
 
-  		return this;
-  	}
+    }, {
+      key: "round",
+      value: function round() {
+        this.x = Math.round(this.x);
+        this.y = Math.round(this.y);
+        return this;
+      }
+      /**
+       * Calculates the 'area' of this Vector2 and returns the result.
+       * In other words, returns x * y. Useful if you're using a Vector2 to store 
+       * a size.
+       * @return {Number} The 'area' of this Vector2.
+       */
 
-  	/**
-  	 * Return the cross product of the current Vector2 and another Vector2.
-  	 * 
-  	 * @param {Vector2} v  The Other Vector2
-  	 * @return {Vector2}	 The current Vector2. Useful for daisy-chaining calls.
-  	 */
-  	crossProduct(v) {
-  		return (this.x * v.y) - (this.y * v.x);
-  	}
+    }, {
+      key: "area",
+      value: function area() {
+        return this.x * this.y;
+      }
+      /**
+       * Snaps this Vector2 to an imaginary square grid with the specified sized 
+       * squares.
+       * @param	{Number}	grid_size	The size of the squares on the imaginary  grid to which to snap.
+       * @return	{Vector2}	The current Vector2 - useful for daisy-chaining.
+       */
 
-  	/**
-  	 * Return the dot product of the current Vector2 and another Vector2.
-  	 * @param  {Vector2} v   The other Vector2 we should calculate the dot product with.
-  	 * @return {Number}	 This schould be an number
-  	 */
-  	dotProduct(v) {
-  		return (this.x * v.x) + (this.y * v.y);
-  	}
+    }, {
+      key: "snapTo",
+      value: function snapTo(grid_size) {
+        this.x = Math.floor(this.x / grid_size) * grid_size;
+        this.y = Math.floor(this.y / grid_size) * grid_size;
+        return this;
+      }
+      /**
+       * Limit the length of the current Vector2 to value without changing the
+       * direction in which the Vector2 is pointing.
+       * @param  {Number} value The number to limit the current Vector2's length to.
+       * @return {Vector2}	   The current Vector2. Useful for daisy-chaining calls.
+       */
 
-  	/**
-  	 * Calculate the angle, in radians, from north to another Vector2.
-  	 * @param	{Vector2}	v	The other Vector2 to which to calculate the angle.
-  	 * @return	{Vector2}	The current Vector2. Useful for daisy-chaining calls.
-  	 */
-  	angleFrom(v) {
-  		// From http://stackoverflow.com/a/16340752/1460422
-  		var angle = Math.atan2(v.y - this.y, v.x - this.x);
-  		angle += Math.PI / 2;
-  		if (angle < 0) angle += Math.PI * 2;
-  		return angle;
-  	}
+    }, {
+      key: "limitTo",
+      value: function limitTo(value) {
+        if (typeof value != "number") throw new Error("Can't limit to non-number value.");
 
-  	/**
-  	 * Interpolates between this and another vector by given factor
-  	 * @param {*} v The other Vector2
-  	 * @param {*} f the factor
-  	 * @return The Current Vector2
-  	 */
-  	lerp(v, f) {
-  		this.x = this.x + (v.x - this.x) * f;
-  		this.y = this.y + (v.y - this.y) * f;
-  		return this;
-  	}
+        if (this.length > value) {
+          this.divide(this.length);
+          this.multiply(value);
+        }
 
+        return this;
+      }
+      /**
+       * Like limitTo(), but explicitly sets the length of the Vector2 without changing the direction.
+       * In other words, it acts like limitTo, but also scales up small Vector2s to match the specified length.
+       * @param	{Number}	value	The length to set the Vector2 to.
+       */
 
-  	/**
-  	 * Clones the current Vector2.
-  	 * @return {Vector2} A clone of the current Vector2. Very useful for passing around copies of a Vector2 if you don't want the original to be altered.
-  	 */
-  	clone() {
-  		return new Vector2(this.x, this.y);
-  	}
+    }, {
+      key: "setTo",
+      value: function setTo(value) {
+        if (typeof value != "number") throw new Error("Can't limit to non-number value.");
+        this.divide(this.length);
+        this.multiply(value);
+        return this;
+      }
+      /**
+       * Return the cross product of the current Vector2 and another Vector2.
+       * 
+       * @param {Vector2} v  The Other Vector2
+       * @return {Vector2}	 The current Vector2. Useful for daisy-chaining calls.
+       */
 
-  	/*
-  	 * Returns a representation of the current Vector2 as a string.
-  	 * @returns {string} A representation of the current Vector2 as a string.
-  	 */
-  	toString() {
-  		return `(${this.x}, ${this.y})`;
-  	}
+    }, {
+      key: "crossProduct",
+      value: function crossProduct(v) {
+        return this.x * v.y - this.y * v.x;
+      }
+      /**
+       * Return the dot product of the current Vector2 and another Vector2.
+       * @param  {Vector2} v   The other Vector2 we should calculate the dot product with.
+       * @return {Number}	 This schould be an number
+       */
 
-  	/**
-  	 * Whether the Vector2 is equal to another Vector2.
-  	 * @param  {Vector2} v The Vector2 to compare to.
-  	 * @return {boolean}  Whether the current Vector2 is equal to the given Vector2.
-  	 */
-  	equalTo(v) {
-  		return this.x == v.x && this.y == v.y;
-  	}
+    }, {
+      key: "dotProduct",
+      value: function dotProduct(v) {
+        return this.x * v.x + this.y * v.y;
+      }
+      /**
+       * Calculate the angle, in radians, from north to another Vector2.
+       * @param	{Vector2}	v	The other Vector2 to which to calculate the angle.
+       * @return	{Vector2}	The current Vector2. Useful for daisy-chaining calls.
+       */
 
-  	/**
-  	 * Get the unit Vector2 of the current Vector2 - that is a Vector2 poiting in the same direction with a length of 1. Note that this does *not* alter the original Vector2.
-  	 * @return {Vector2} The current Vector2's unit form.
-  	 */
-  	get unitVector2() {
-  		var length = this.length;
-  		return new Vector2(
-  			this.x / length,
-  			this.y / length);
-  	}
+    }, {
+      key: "angleFrom",
+      value: function angleFrom(v) {
+        // From http://stackoverflow.com/a/16340752/1460422
+        var angle = Math.atan2(v.y - this.y, v.x - this.x);
+        angle += Math.PI / 2;
+        if (angle < 0) angle += Math.PI * 2;
+        return angle;
+      }
+      /**
+       * Return Angle in radians
+       * 
+       * @return {Number} Vector angle in Radians
+       */
 
-  	/**
-  	 * Get the length of the current Vector2.
-  	 * @return {Number} The length of the current Vector2.
-  	 */
-  	get length() {
-  		return Math.sqrt((this.x * this.x) + (this.y * this.y));
-  	}
+    }, {
+      key: "getAngle",
+      value: function getAngle() {
+        return Math.atan2(this.y, this.x);
+      }
+      /**
+       * Rotate Vector by radians
+       * @param {number} r Magnitude in Radians
+       * @return {Vector2}	The current Vector2. Useful for daisy-chaining calls.
+       */
 
-  	/**
-  	 * Get the value of the minimum component of the Vector2.
-  	 * @return {Number} The minimum component of the Vector2.
-  	 */
-  	get minComponent() {
-  		if (Math.abs(this.x) < Math.abs(this.y))
-  			return this.x;
-  		return this.y;
-  	}
+    }, {
+      key: "rotate2D",
+      value: function rotate2D(r) {
+        var cos = Math.cos(r);
+        var sin = Math.sin(r);
+        this.x = cos * this.x - sin * this.y;
+        this.y = sin * this.x + cos * this.y;
+        return this;
+      }
+      /**
+       * Interpolates between this and another vector by given factor
+       * @param {*} v The other Vector2
+       * @param {*} f the factor
+       * @return The Current Vector2
+       */
 
-  	/**
-  	 * Get the value of the maximum component of the Vector2.
-  	 * @return {Number} The maximum component of the Vector2.
-  	 */
-  	get maxComponent() {
-  		if (Math.abs(this.x) > Math.abs(this.y))
-  			return this.x;
-  		return this.y;
-  	}
-  }
+    }, {
+      key: "lerp",
+      value: function lerp(v, f) {
+        this.x = this.x + (v.x - this.x) * f;
+        this.y = this.y + (v.y - this.y) * f;
+        return this;
+      }
+      /**
+       * Clones the current Vector2.
+       * @return {Vector2} A clone of the current Vector2. Very useful for passing around copies of a Vector2 if you don't want the original to be altered.
+       */
 
+    }, {
+      key: "clone",
+      value: function clone() {
+        return new Vector2(this.x, this.y);
+      }
+      /*
+       * Returns a representation of the current Vector2 as a string.
+       * @returns {string} A representation of the current Vector2 as a string.
+       */
+
+    }, {
+      key: "toString",
+      value: function toString() {
+        return "(".concat(this.x, ", ").concat(this.y, ")");
+      }
+      /**
+       * Whether the Vector2 is equal to another Vector2.
+       * @param  {Vector2} v The Vector2 to compare to.
+       * @return {boolean}  Whether the current Vector2 is equal to the given Vector2.
+       */
+
+    }, {
+      key: "equalTo",
+      value: function equalTo(v) {
+        return this.x == v.x && this.y == v.y;
+      }
+      /**
+       * Get the unit Vector2 of the current Vector2 - that is a Vector2 poiting in the same direction with a length of 1. Note that this does *not* alter the original Vector2.
+       * @return {Vector2} The current Vector2's unit form.
+       */
+
+    }, {
+      key: "unitVector2",
+      get: function get() {
+        var length = this.length;
+        return new Vector2(this.x / length, this.y / length);
+      }
+      /**
+       * Get the length of the current Vector2.
+       * @return {Number} The length of the current Vector2.
+       */
+
+    }, {
+      key: "length",
+      get: function get() {
+        return Math.sqrt(this.x * this.x + this.y * this.y);
+      }
+      /**
+       * Get the value of the minimum component of the Vector2.
+       * @return {Number} The minimum component of the Vector2.
+       */
+
+    }, {
+      key: "minComponent",
+      get: function get() {
+        if (Math.abs(this.x) < Math.abs(this.y)) return this.x;
+        return this.y;
+      }
+      /**
+       * Get the value of the maximum component of the Vector2.
+       * @return {Number} The maximum component of the Vector2.
+       */
+
+    }, {
+      key: "maxComponent",
+      get: function get() {
+        if (Math.abs(this.x) > Math.abs(this.y)) return this.x;
+        return this.y;
+      }
+    }]);
+
+    return Vector2;
+  }();
   /**
    * Returns a new Vector2 based on an angle and a length.
    * @param	{Number}	angle	The angle, in radians.
    * @param	{Number}	length	The length.
    * @return	{Vector2}	A new Vector2 that represents the (x, y) of the specified angle and length.
    */
+
+
   Vector2.fromBearing = function (angle, length) {
-  	return new Vector2(
-  		length * Math.cos(angle),
-  		length * Math.sin(angle)
-  	);
+    return new Vector2(length * Math.cos(angle), length * Math.sin(angle));
   };
-
-
-
 
   Vector2.zero = new Vector2(0, 0);
   Vector2.one = new Vector2(1, 1);
@@ -492,485 +691,473 @@
   /**
    * @private
    */
-  const branch_pool = [];
-
+  var branch_pool = [];
   /**
    * A branch within a BVH
    * @class
    * @private
    */
-  class BVHBranch {
-  	/**
-  	 * @constructor
-  	 */
-  	constructor() {
-  		/** @private */
-  		this._bvh_parent = null;
 
-  		/** @private */
-  		this._bvh_branch = true;
+  var BVHBranch =
+  /*#__PURE__*/
+  function () {
+    /**
+     * @constructor
+     */
+    function BVHBranch() {
+      _classCallCheck(this, BVHBranch);
 
-  		/** @private */
-  		this._bvh_left = null;
+      /** @private */
+      this._bvh_parent = null;
+      /** @private */
 
-  		/** @private */
-  		this._bvh_right = null;
+      this._bvh_branch = true;
+      /** @private */
 
-  		/** @private */
-  		this._bvh_sort = 0;
+      this._bvh_left = null;
+      /** @private */
 
-  		/** @private */
-  		this._bvh_min_x = 0;
+      this._bvh_right = null;
+      /** @private */
 
-  		/** @private */
-  		this._bvh_min_y = 0;
+      this._bvh_sort = 0;
+      /** @private */
 
-  		/** @private */
-  		this._bvh_max_x = 0;
+      this._bvh_min_x = 0;
+      /** @private */
 
-  		/** @private */
-  		this._bvh_max_y = 0;
-  	}
+      this._bvh_min_y = 0;
+      /** @private */
 
-  	/**
-  	 * Returns a branch from the branch pool or creates a new branch
-  	 * @returns {BVHBranch}
-  	 */
-  	static getBranch() {
-  		if(branch_pool.length) {
-  			return branch_pool.pop();
-  		}
+      this._bvh_max_x = 0;
+      /** @private */
 
-  		return new BVHBranch();
-  	}
+      this._bvh_max_y = 0;
+    }
+    /**
+     * Returns a branch from the branch pool or creates a new branch
+     * @returns {BVHBranch}
+     */
 
-  	/**
-  	 * Releases a branch back into the branch pool
-  	 * @param {BVHBranch} branch The branch to release
-  	 */
-  	static releaseBranch(branch) {
-  		branch_pool.push(branch);
-  	}
 
-  	/**
-  	 * Sorting callback used to sort branches by deepest first
-  	 * @param {BVHBranch} a The first branch
-  	 * @param {BVHBranch} b The second branch
-  	 * @returns {Number}
-  	 */
-  	static sortBranches(a, b) {
-  		return a.sort > b.sort ? -1 : 1;
-  	}
-  }
+    _createClass(BVHBranch, null, [{
+      key: "getBranch",
+      value: function getBranch() {
+        if (branch_pool.length) {
+          return branch_pool.pop();
+        }
+
+        return new BVHBranch();
+      }
+      /**
+       * Releases a branch back into the branch pool
+       * @param {BVHBranch} branch The branch to release
+       */
+
+    }, {
+      key: "releaseBranch",
+      value: function releaseBranch(branch) {
+        branch_pool.push(branch);
+      }
+      /**
+       * Sorting callback used to sort branches by deepest first
+       * @param {BVHBranch} a The first branch
+       * @param {BVHBranch} b The second branch
+       * @returns {Number}
+       */
+
+    }, {
+      key: "sortBranches",
+      value: function sortBranches(a, b) {
+        return a.sort > b.sort ? -1 : 1;
+      }
+    }]);
+
+    return BVHBranch;
+  }();
 
   /**
    * A Bounding Volume Hierarchy (BVH) used to find potential collisions quickly
    * @class
    * @private
    */
-  class BVH {
-  	/**
-  	 * @constructor
-  	 */
-  	constructor() {
-  		/** @private */
-  		this._hierarchy = null;
-
-  		/** @private */
-  		this._bodies = [];
-
-  		/** @private */
-  		this._dirty_branches = [];
-  	}
-
-  	/**
-  	 * Inserts a body into the BVH
-  	 * @param {Circle|Polygon|Point} body The body to insert
-  	 * @param {Boolean} [updating = false] Set to true if the body already exists in the BVH (used internally when updating the body's position)
-  	 */
-  	insert(body, updating = false) {
-  		if(!updating) {
-  			const bvh = body._bvh;
-
-  			if(bvh && bvh !== this) {
-  				throw new Error('Body belongs to another collision system');
-  			}
-
-  			body._bvh = this;
-  			this._bodies.push(body);
-  		}
-
-  		const polygon = body._polygon;
-  		const body_x  = body.x;
-  		const body_y  = body.y;
-
-  		if(polygon) {
-  			if(
-  				body._dirty_coords ||
-  				body.x       !== body._x ||
-  				body.y       !== body._y ||
-  				body.angle   !== body._angle ||
-  				body.scale_x !== body._scale_x ||
-  				body.scale_y !== body._scale_y
-  			) {
-  				body._calculateCoords();
-  			}
-  		}
-
-  		const padding    = body._bvh_padding;
-  		const radius     = polygon ? 0 : body.radius * body.scale;
-  		const body_min_x = (polygon ? body._min_x : body_x - radius) - padding;
-  		const body_min_y = (polygon ? body._min_y : body_y - radius) - padding;
-  		const body_max_x = (polygon ? body._max_x : body_x + radius) + padding;
-  		const body_max_y = (polygon ? body._max_y : body_y + radius) + padding;
-
-  		body._bvh_min_x = body_min_x;
-  		body._bvh_min_y = body_min_y;
-  		body._bvh_max_x = body_max_x;
-  		body._bvh_max_y = body_max_y;
-
-  		let current = this._hierarchy;
-  		let sort    = 0;
-
-  		if(!current) {
-  			this._hierarchy = body;
-  		}
-  		else {
-  			while(true) {
-  				// Branch
-  				if(current._bvh_branch) {
-  					const left            = current._bvh_left;
-  					const left_min_y      = left._bvh_min_y;
-  					const left_max_x      = left._bvh_max_x;
-  					const left_max_y      = left._bvh_max_y;
-  					const left_new_min_x  = body_min_x < left._bvh_min_x ? body_min_x : left._bvh_min_x;
-  					const left_new_min_y  = body_min_y < left_min_y ? body_min_y : left_min_y;
-  					const left_new_max_x  = body_max_x > left_max_x ? body_max_x : left_max_x;
-  					const left_new_max_y  = body_max_y > left_max_y ? body_max_y : left_max_y;
-  					const left_volume     = (left_max_x - left._bvh_min_x) * (left_max_y - left_min_y);
-  					const left_new_volume = (left_new_max_x - left_new_min_x) * (left_new_max_y - left_new_min_y);
-  					const left_difference = left_new_volume - left_volume;
-
-  					const right            = current._bvh_right;
-  					const right_min_x      = right._bvh_min_x;
-  					const right_min_y      = right._bvh_min_y;
-  					const right_max_x      = right._bvh_max_x;
-  					const right_max_y      = right._bvh_max_y;
-  					const right_new_min_x  = body_min_x < right_min_x ? body_min_x : right_min_x;
-  					const right_new_min_y  = body_min_y < right_min_y ? body_min_y : right_min_y;
-  					const right_new_max_x  = body_max_x > right_max_x ? body_max_x : right_max_x;
-  					const right_new_max_y  = body_max_y > right_max_y ? body_max_y : right_max_y;
-  					const right_volume     = (right_max_x - right_min_x) * (right_max_y - right_min_y);
-  					const right_new_volume = (right_new_max_x - right_new_min_x) * (right_new_max_y - right_new_min_y);
-  					const right_difference = right_new_volume - right_volume;
-
-  					current._bvh_sort  = sort++;
-  					current._bvh_min_x = left_new_min_x < right_new_min_x ? left_new_min_x : right_new_min_x;
-  					current._bvh_min_y = left_new_min_y < right_new_min_y ? left_new_min_y : right_new_min_y;
-  					current._bvh_max_x = left_new_max_x > right_new_max_x ? left_new_max_x : right_new_max_x;
-  					current._bvh_max_y = left_new_max_y > right_new_max_y ? left_new_max_y : right_new_max_y;
-
-  					current = left_difference <= right_difference ? left : right;
-  				}
-  				// Leaf
-  				else {
-  					const grandparent  = current._bvh_parent;
-  					const parent_min_x = current._bvh_min_x;
-  					const parent_min_y = current._bvh_min_y;
-  					const parent_max_x = current._bvh_max_x;
-  					const parent_max_y = current._bvh_max_y;
-  					const new_parent   = current._bvh_parent = body._bvh_parent = BVHBranch.getBranch();
-
-  					new_parent._bvh_parent = grandparent;
-  					new_parent._bvh_left   = current;
-  					new_parent._bvh_right  = body;
-  					new_parent._bvh_sort   = sort++;
-  					new_parent._bvh_min_x  = body_min_x < parent_min_x ? body_min_x : parent_min_x;
-  					new_parent._bvh_min_y  = body_min_y < parent_min_y ? body_min_y : parent_min_y;
-  					new_parent._bvh_max_x  = body_max_x > parent_max_x ? body_max_x : parent_max_x;
-  					new_parent._bvh_max_y  = body_max_y > parent_max_y ? body_max_y : parent_max_y;
-
-  					if(!grandparent) {
-  						this._hierarchy = new_parent;
-  					}
-  					else if(grandparent._bvh_left === current) {
-  						grandparent._bvh_left = new_parent;
-  					}
-  					else {
-  						grandparent._bvh_right = new_parent;
-  					}
-
-  					break;
-  				}
-  			}
-  		}
-  	}
-
-  	/**
-  	 * Removes a body from the BVH
-  	 * @param {Circle|Polygon|Point} body The body to remove
-  	 * @param {Boolean} [updating = false] Set to true if this is a temporary removal (used internally when updating the body's position)
-  	 */
-  	remove(body, updating = false) {
-  		if(!updating) {
-  			const bvh = body._bvh;
-
-  			if(bvh && bvh !== this) {
-  				throw new Error('Body belongs to another collision system');
-  			}
-
-  			body._bvh = null;
-  			this._bodies.splice(this._bodies.indexOf(body), 1);
-  		}
-
-  		if(this._hierarchy === body) {
-  			this._hierarchy = null;
-
-  			return;
-  		}
-
-  		const parent       = body._bvh_parent;
-  		const grandparent  = parent._bvh_parent;
-  		const parent_left  = parent._bvh_left;
-  		const sibling      = parent_left === body ? parent._bvh_right : parent_left;
-
-  		sibling._bvh_parent = grandparent;
-
-  		if(sibling._bvh_branch) {
-  			sibling._bvh_sort = parent._bvh_sort;
-  		}
-
-  		if(grandparent) {
-  			if(grandparent._bvh_left === parent) {
-  				grandparent._bvh_left = sibling;
-  			}
-  			else {
-  				grandparent._bvh_right = sibling;
-  			}
-
-  			let branch = grandparent;
-
-  			while(branch) {
-  				const left       = branch._bvh_left;
-  				const left_min_x = left._bvh_min_x;
-  				const left_min_y = left._bvh_min_y;
-  				const left_max_x = left._bvh_max_x;
-  				const left_max_y = left._bvh_max_y;
-
-  				const right       = branch._bvh_right;
-  				const right_min_x = right._bvh_min_x;
-  				const right_min_y = right._bvh_min_y;
-  				const right_max_x = right._bvh_max_x;
-  				const right_max_y = right._bvh_max_y;
-
-  				branch._bvh_min_x = left_min_x < right_min_x ? left_min_x : right_min_x;
-  				branch._bvh_min_y = left_min_y < right_min_y ? left_min_y : right_min_y;
-  				branch._bvh_max_x = left_max_x > right_max_x ? left_max_x : right_max_x;
-  				branch._bvh_max_y = left_max_y > right_max_y ? left_max_y : right_max_y;
-
-  				branch = branch._bvh_parent;
-  			}
-  		}
-  		else {
-  			this._hierarchy = sibling;
-  		}
-
-  		BVHBranch.releaseBranch(parent);
-  	}
-
-  	/**
-  	 * Updates the BVH. Moved bodies are removed/inserted.
-  	 */
-  	update() {
-  		const bodies = this._bodies;
-  		const count  = bodies.length;
-
-  		for(let i = 0; i < count; ++i) {
-  			const body = bodies[i];
-
-  			let update = false;
-
-  			if(!update && body.padding !== body._bvh_padding) {
-  				body._bvh_padding = body.padding;
-  				update = true;
-  			}
-
-  			if(!update) {
-  				const polygon = body._polygon;
-
-  				if(polygon) {
-  					if(
-  						body._dirty_coords ||
-  						body.x       !== body._x ||
-  						body.y       !== body._y ||
-  						body.angle   !== body._angle ||
-  						body.scale_x !== body._scale_x ||
-  						body.scale_y !== body._scale_y
-  					) {
-  						body._calculateCoords();
-  					}
-  				}
-
-  				const x      = body.x;
-  				const y      = body.y;
-  				const radius = polygon ? 0 : body.radius * body.scale;
-  				const min_x  = polygon ? body._min_x : x - radius;
-  				const min_y  = polygon ? body._min_y : y - radius;
-  				const max_x  = polygon ? body._max_x : x + radius;
-  				const max_y  = polygon ? body._max_y : y + radius;
-
-  				update = min_x < body._bvh_min_x || min_y < body._bvh_min_y || max_x > body._bvh_max_x || max_y > body._bvh_max_y;
-  			}
-
-  			if(update) {
-  				this.remove(body, true);
-  				this.insert(body, true);
-  			}
-  		}
-  	}
-
-  	/**
-  	 * Returns a list of potential collisions for a body
-  	 * @param {Circle|Polygon|Point} body The body to test
-  	 * @returns {Array<Body>}
-  	 */
-  	potentials(body) {
-  		const results = [];
-  		const min_x   = body._bvh_min_x;
-  		const min_y   = body._bvh_min_y;
-  		const max_x   = body._bvh_max_x;
-  		const max_y   = body._bvh_max_y;
-
-  		let current       = this._hierarchy;
-  		let traverse_left = true;
-
-  		if(!current || !current._bvh_branch) {
-  			return results;
-  		}
-
-  		while(current) {
-  			if(traverse_left) {
-  				traverse_left = false;
-
-  				let left = current._bvh_branch ? current._bvh_left : null;
-
-  				while(
-  					left &&
-  					left._bvh_max_x >= min_x &&
-  					left._bvh_max_y >= min_y &&
-  					left._bvh_min_x <= max_x &&
-  					left._bvh_min_y <= max_y
-  				) {
-  					current = left;
-  					left    = current._bvh_branch ? current._bvh_left : null;
-  				}
-  			}
-
-  			const branch = current._bvh_branch;
-  			const right  = branch ? current._bvh_right : null;
-
-  			if(
-  				right &&
-  				right._bvh_max_x > min_x &&
-  				right._bvh_max_y > min_y &&
-  				right._bvh_min_x < max_x &&
-  				right._bvh_min_y < max_y
-  			) {
-  				current       = right;
-  				traverse_left = true;
-  			}
-  			else {
-  				if(!branch && current !== body) {
-  					results.push(current);
-  				}
-
-  				let parent = current._bvh_parent;
-
-  				if(parent) {
-  					while(parent && parent._bvh_right === current) {
-  						current = parent;
-  						parent  = current._bvh_parent;
-  					}
-
-  					current = parent;
-  				}
-  				else {
-  					break;
-  				}
-  			}
-  		}
-
-  		return results;
-  	}
-
-  	/**
-  	 * Draws the bodies within the BVH to a CanvasRenderingContext2D's current path
-  	 * @param {CanvasRenderingContext2D} context The context to draw to
-  	 */
-  	draw(context) {
-  		const bodies = this._bodies;
-  		const count  = bodies.length;
-
-  		for(let i = 0; i < count; ++i) {
-  			bodies[i].draw(context);
-  		}
-  	}
-
-  	/**
-  	 * Draws the BVH to a CanvasRenderingContext2D's current path. This is useful for testing out different padding values for bodies.
-  	 * @param {CanvasRenderingContext2D} context The context to draw to
-  	 */
-  	drawBVH(context) {
-  		let current       = this._hierarchy;
-  		let traverse_left = true;
-
-  		while(current) {
-  			if(traverse_left) {
-  				traverse_left = false;
-
-  				let left = current._bvh_branch ? current._bvh_left : null;
-
-  				while(left) {
-  					current = left;
-  					left    = current._bvh_branch ? current._bvh_left : null;
-  				}
-  			}
-
-  			const branch = current._bvh_branch;
-  			const min_x  = current._bvh_min_x;
-  			const min_y  = current._bvh_min_y;
-  			const max_x  = current._bvh_max_x;
-  			const max_y  = current._bvh_max_y;
-  			const right  = branch ? current._bvh_right : null;
-
-  			context.moveTo(min_x, min_y);
-  			context.lineTo(max_x, min_y);
-  			context.lineTo(max_x, max_y);
-  			context.lineTo(min_x, max_y);
-  			context.lineTo(min_x, min_y);
-
-  			if(right) {
-  				current       = right;
-  				traverse_left = true;
-  			}
-  			else {
-  				let parent = current._bvh_parent;
-
-  				if(parent) {
-  					while(parent && parent._bvh_right === current) {
-  						current = parent;
-  						parent  = current._bvh_parent;
-  					}
-
-  					current = parent;
-  				}
-  				else {
-  					break;
-  				}
-  			}
-  		}
-  	}
-  }
+
+  var BVH =
+  /*#__PURE__*/
+  function () {
+    /**
+     * @constructor
+     */
+    function BVH() {
+      _classCallCheck(this, BVH);
+
+      /** @private */
+      this._hierarchy = null;
+      /** @private */
+
+      this._bodies = [];
+      /** @private */
+
+      this._dirty_branches = [];
+    }
+    /**
+     * Inserts a body into the BVH
+     * @param {Circle|Polygon|Point} body The body to insert
+     * @param {Boolean} [updating = false] Set to true if the body already exists in the BVH (used internally when updating the body's position)
+     */
+
+
+    _createClass(BVH, [{
+      key: "insert",
+      value: function insert(body) {
+        var updating = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+
+        if (!updating) {
+          var bvh = body._bvh;
+
+          if (bvh && bvh !== this) {
+            throw new Error('Body belongs to another collision system');
+          }
+
+          body._bvh = this;
+
+          this._bodies.push(body);
+        }
+
+        var polygon = body._polygon;
+        var body_x = body.x;
+        var body_y = body.y;
+
+        if (polygon) {
+          if (body._dirty_coords || body.x !== body._x || body.y !== body._y || body.angle !== body._angle || body.scale_x !== body._scale_x || body.scale_y !== body._scale_y) {
+            body._calculateCoords();
+          }
+        }
+
+        var padding = body._bvh_padding;
+        var radius = polygon ? 0 : body.radius * body.scale;
+        var body_min_x = (polygon ? body._min_x : body_x - radius) - padding;
+        var body_min_y = (polygon ? body._min_y : body_y - radius) - padding;
+        var body_max_x = (polygon ? body._max_x : body_x + radius) + padding;
+        var body_max_y = (polygon ? body._max_y : body_y + radius) + padding;
+        body._bvh_min_x = body_min_x;
+        body._bvh_min_y = body_min_y;
+        body._bvh_max_x = body_max_x;
+        body._bvh_max_y = body_max_y;
+        var current = this._hierarchy;
+        var sort = 0;
+
+        if (!current) {
+          this._hierarchy = body;
+        } else {
+          while (true) {
+            // Branch
+            if (current._bvh_branch) {
+              var left = current._bvh_left;
+              var left_min_y = left._bvh_min_y;
+              var left_max_x = left._bvh_max_x;
+              var left_max_y = left._bvh_max_y;
+              var left_new_min_x = body_min_x < left._bvh_min_x ? body_min_x : left._bvh_min_x;
+              var left_new_min_y = body_min_y < left_min_y ? body_min_y : left_min_y;
+              var left_new_max_x = body_max_x > left_max_x ? body_max_x : left_max_x;
+              var left_new_max_y = body_max_y > left_max_y ? body_max_y : left_max_y;
+              var left_volume = (left_max_x - left._bvh_min_x) * (left_max_y - left_min_y);
+              var left_new_volume = (left_new_max_x - left_new_min_x) * (left_new_max_y - left_new_min_y);
+              var left_difference = left_new_volume - left_volume;
+              var right = current._bvh_right;
+              var right_min_x = right._bvh_min_x;
+              var right_min_y = right._bvh_min_y;
+              var right_max_x = right._bvh_max_x;
+              var right_max_y = right._bvh_max_y;
+              var right_new_min_x = body_min_x < right_min_x ? body_min_x : right_min_x;
+              var right_new_min_y = body_min_y < right_min_y ? body_min_y : right_min_y;
+              var right_new_max_x = body_max_x > right_max_x ? body_max_x : right_max_x;
+              var right_new_max_y = body_max_y > right_max_y ? body_max_y : right_max_y;
+              var right_volume = (right_max_x - right_min_x) * (right_max_y - right_min_y);
+              var right_new_volume = (right_new_max_x - right_new_min_x) * (right_new_max_y - right_new_min_y);
+              var right_difference = right_new_volume - right_volume;
+              current._bvh_sort = sort++;
+              current._bvh_min_x = left_new_min_x < right_new_min_x ? left_new_min_x : right_new_min_x;
+              current._bvh_min_y = left_new_min_y < right_new_min_y ? left_new_min_y : right_new_min_y;
+              current._bvh_max_x = left_new_max_x > right_new_max_x ? left_new_max_x : right_new_max_x;
+              current._bvh_max_y = left_new_max_y > right_new_max_y ? left_new_max_y : right_new_max_y;
+              current = left_difference <= right_difference ? left : right;
+            } // Leaf
+            else {
+                var grandparent = current._bvh_parent;
+                var parent_min_x = current._bvh_min_x;
+                var parent_min_y = current._bvh_min_y;
+                var parent_max_x = current._bvh_max_x;
+                var parent_max_y = current._bvh_max_y;
+                var new_parent = current._bvh_parent = body._bvh_parent = BVHBranch.getBranch();
+                new_parent._bvh_parent = grandparent;
+                new_parent._bvh_left = current;
+                new_parent._bvh_right = body;
+                new_parent._bvh_sort = sort++;
+                new_parent._bvh_min_x = body_min_x < parent_min_x ? body_min_x : parent_min_x;
+                new_parent._bvh_min_y = body_min_y < parent_min_y ? body_min_y : parent_min_y;
+                new_parent._bvh_max_x = body_max_x > parent_max_x ? body_max_x : parent_max_x;
+                new_parent._bvh_max_y = body_max_y > parent_max_y ? body_max_y : parent_max_y;
+
+                if (!grandparent) {
+                  this._hierarchy = new_parent;
+                } else if (grandparent._bvh_left === current) {
+                  grandparent._bvh_left = new_parent;
+                } else {
+                  grandparent._bvh_right = new_parent;
+                }
+
+                break;
+              }
+          }
+        }
+      }
+      /**
+       * Removes a body from the BVH
+       * @param {Circle|Polygon|Point} body The body to remove
+       * @param {Boolean} [updating = false] Set to true if this is a temporary removal (used internally when updating the body's position)
+       */
+
+    }, {
+      key: "remove",
+      value: function remove(body) {
+        var updating = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+
+        if (!updating) {
+          var bvh = body._bvh;
+
+          if (bvh && bvh !== this) {
+            throw new Error('Body belongs to another collision system');
+          }
+
+          body._bvh = null;
+
+          this._bodies.splice(this._bodies.indexOf(body), 1);
+        }
+
+        if (this._hierarchy === body) {
+          this._hierarchy = null;
+          return;
+        }
+
+        var parent = body._bvh_parent;
+        var grandparent = parent._bvh_parent;
+        var parent_left = parent._bvh_left;
+        var sibling = parent_left === body ? parent._bvh_right : parent_left;
+        sibling._bvh_parent = grandparent;
+
+        if (sibling._bvh_branch) {
+          sibling._bvh_sort = parent._bvh_sort;
+        }
+
+        if (grandparent) {
+          if (grandparent._bvh_left === parent) {
+            grandparent._bvh_left = sibling;
+          } else {
+            grandparent._bvh_right = sibling;
+          }
+
+          var branch = grandparent;
+
+          while (branch) {
+            var left = branch._bvh_left;
+            var left_min_x = left._bvh_min_x;
+            var left_min_y = left._bvh_min_y;
+            var left_max_x = left._bvh_max_x;
+            var left_max_y = left._bvh_max_y;
+            var right = branch._bvh_right;
+            var right_min_x = right._bvh_min_x;
+            var right_min_y = right._bvh_min_y;
+            var right_max_x = right._bvh_max_x;
+            var right_max_y = right._bvh_max_y;
+            branch._bvh_min_x = left_min_x < right_min_x ? left_min_x : right_min_x;
+            branch._bvh_min_y = left_min_y < right_min_y ? left_min_y : right_min_y;
+            branch._bvh_max_x = left_max_x > right_max_x ? left_max_x : right_max_x;
+            branch._bvh_max_y = left_max_y > right_max_y ? left_max_y : right_max_y;
+            branch = branch._bvh_parent;
+          }
+        } else {
+          this._hierarchy = sibling;
+        }
+
+        BVHBranch.releaseBranch(parent);
+      }
+      /**
+       * Updates the BVH. Moved bodies are removed/inserted.
+       */
+
+    }, {
+      key: "update",
+      value: function update() {
+        var bodies = this._bodies;
+        var count = bodies.length;
+
+        for (var i = 0; i < count; ++i) {
+          var body = bodies[i];
+          var update = false;
+
+          if (!update && body.padding !== body._bvh_padding) {
+            body._bvh_padding = body.padding;
+            update = true;
+          }
+
+          if (!update) {
+            var polygon = body._polygon;
+
+            if (polygon) {
+              if (body._dirty_coords || body.x !== body._x || body.y !== body._y || body.angle !== body._angle || body.scale_x !== body._scale_x || body.scale_y !== body._scale_y) {
+                body._calculateCoords();
+              }
+            }
+
+            var x = body.x;
+            var y = body.y;
+            var radius = polygon ? 0 : body.radius * body.scale;
+            var min_x = polygon ? body._min_x : x - radius;
+            var min_y = polygon ? body._min_y : y - radius;
+            var max_x = polygon ? body._max_x : x + radius;
+            var max_y = polygon ? body._max_y : y + radius;
+            update = min_x < body._bvh_min_x || min_y < body._bvh_min_y || max_x > body._bvh_max_x || max_y > body._bvh_max_y;
+          }
+
+          if (update) {
+            this.remove(body, true);
+            this.insert(body, true);
+          }
+        }
+      }
+      /**
+       * Returns a list of potential collisions for a body
+       * @param {Circle|Polygon|Point} body The body to test
+       * @returns {Array<Body>}
+       */
+
+    }, {
+      key: "potentials",
+      value: function potentials(body) {
+        var results = [];
+        var min_x = body._bvh_min_x;
+        var min_y = body._bvh_min_y;
+        var max_x = body._bvh_max_x;
+        var max_y = body._bvh_max_y;
+        var current = this._hierarchy;
+        var traverse_left = true;
+
+        if (!current || !current._bvh_branch) {
+          return results;
+        }
+
+        while (current) {
+          if (traverse_left) {
+            traverse_left = false;
+            var left = current._bvh_branch ? current._bvh_left : null;
+
+            while (left && left._bvh_max_x >= min_x && left._bvh_max_y >= min_y && left._bvh_min_x <= max_x && left._bvh_min_y <= max_y) {
+              current = left;
+              left = current._bvh_branch ? current._bvh_left : null;
+            }
+          }
+
+          var branch = current._bvh_branch;
+          var right = branch ? current._bvh_right : null;
+
+          if (right && right._bvh_max_x > min_x && right._bvh_max_y > min_y && right._bvh_min_x < max_x && right._bvh_min_y < max_y) {
+            current = right;
+            traverse_left = true;
+          } else {
+            if (!branch && current !== body) {
+              results.push(current);
+            }
+
+            var parent = current._bvh_parent;
+
+            if (parent) {
+              while (parent && parent._bvh_right === current) {
+                current = parent;
+                parent = current._bvh_parent;
+              }
+
+              current = parent;
+            } else {
+              break;
+            }
+          }
+        }
+
+        return results;
+      }
+      /**
+       * Draws the bodies within the BVH to a CanvasRenderingContext2D's current path
+       * @param {CanvasRenderingContext2D} context The context to draw to
+       */
+
+    }, {
+      key: "draw",
+      value: function draw(context) {
+        var bodies = this._bodies;
+        var count = bodies.length;
+
+        for (var i = 0; i < count; ++i) {
+          bodies[i].draw(context);
+        }
+      }
+      /**
+       * Draws the BVH to a CanvasRenderingContext2D's current path. This is useful for testing out different padding values for bodies.
+       * @param {CanvasRenderingContext2D} context The context to draw to
+       */
+
+    }, {
+      key: "drawBVH",
+      value: function drawBVH(context) {
+        var current = this._hierarchy;
+        var traverse_left = true;
+
+        while (current) {
+          if (traverse_left) {
+            traverse_left = false;
+            var left = current._bvh_branch ? current._bvh_left : null;
+
+            while (left) {
+              current = left;
+              left = current._bvh_branch ? current._bvh_left : null;
+            }
+          }
+
+          var branch = current._bvh_branch;
+          var min_x = current._bvh_min_x;
+          var min_y = current._bvh_min_y;
+          var max_x = current._bvh_max_x;
+          var max_y = current._bvh_max_y;
+          var right = branch ? current._bvh_right : null;
+          context.moveTo(min_x, min_y);
+          context.lineTo(max_x, min_y);
+          context.lineTo(max_x, max_y);
+          context.lineTo(min_x, max_y);
+          context.lineTo(min_x, min_y);
+
+          if (right) {
+            current = right;
+            traverse_left = true;
+          } else {
+            var parent = current._bvh_parent;
+
+            if (parent) {
+              while (parent && parent._bvh_right === current) {
+                current = parent;
+                parent = current._bvh_parent;
+              }
+
+              current = parent;
+            } else {
+              break;
+            }
+          }
+        }
+      }
+    }]);
+
+    return BVH;
+  }();
 
   /**
    * An object used to collect the detailed results of a collision test
@@ -978,60 +1165,61 @@
    * > **Note:** It is highly recommended you recycle the same Result object if possible in order to avoid wasting memory
    * @class
    */
-  class Result {
-  	/**
-  	 * @constructor
-  	 */
-  	constructor() {
-  		/**
-  		 * @desc True if a collision was detected
-  		 * @type {Boolean}
-  		 */
-  		this.collision = false;
+  var Result =
+  /**
+   * @constructor
+   */
+  function Result() {
+    _classCallCheck(this, Result);
 
-  		/**
-  		 * @desc The source body tested
-  		 * @type {Circle|Polygon|Point}
-  		 */
-  		this.a = null;
+    /**
+     * @desc True if a collision was detected
+     * @type {Boolean}
+     */
+    this.collision = false;
+    /**
+     * @desc The source body tested
+     * @type {Circle|Polygon|Point}
+     */
 
-  		/**
-  		 * @desc The target body tested against
-  		 * @type {Circle|Polygon|Point}
-  		 */
-  		this.b = null;
+    this.a = null;
+    /**
+     * @desc The target body tested against
+     * @type {Circle|Polygon|Point}
+     */
 
-  		/**
-  		 * @desc True if A is completely contained within B
-  		 * @type {Boolean}
-  		 */
-  		this.a_in_b = false;
+    this.b = null;
+    /**
+     * @desc True if A is completely contained within B
+     * @type {Boolean}
+     */
 
-  		/**
-  		 * @desc True if B is completely contained within A
-  		 * @type {Boolean}
-  		 */
-  		this.a_in_b = false;
+    this.a_in_b = false;
+    /**
+     * @desc True if B is completely contained within A
+     * @type {Boolean}
+     */
 
-  		/**
-  		 * @desc The magnitude of the shortest axis of overlap
-  		 * @type {Number}
-  		 */
-  		this.overlap = 0;
+    this.a_in_b = false;
+    /**
+     * @desc The magnitude of the shortest axis of overlap
+     * @type {Number}
+     */
 
-  		/**
-  		 * @desc The X direction of the shortest axis of overlap
-  		 * @type {Number}
-  		 */
-  		this.overlap_x = 0;
+    this.overlap = 0;
+    /**
+     * @desc The X direction of the shortest axis of overlap
+     * @type {Number}
+     */
 
-  		/**
-  		 * @desc The Y direction of the shortest axis of overlap
-  		 * @type {Number}
-  		 */
-  		this.overlap_y = 0;
-  	}
-  }
+    this.overlap_x = 0;
+    /**
+     * @desc The Y direction of the shortest axis of overlap
+     * @type {Number}
+     */
+
+    this.overlap_y = 0;
+  };
 
   /**
    * Determines if two bodies are colliding using the Separating Axis Theorem
@@ -1042,98 +1230,78 @@
    * @param {Boolean} [aabb = true] Set to false to skip the AABB test (useful if you use your own collision heuristic)
    * @returns {Boolean}
    */
-  function SAT(a, b, result = null, aabb = true) {
-  	const a_polygon = a._polygon;
-  	const b_polygon = b._polygon;
+  function SAT(a, b) {
+    var result = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+    var aabb = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
+    var a_polygon = a._polygon;
+    var b_polygon = b._polygon;
+    var collision = false;
 
-  	let collision = false;
+    if (result) {
+      result.a = a;
+      result.b = b;
+      result.a_in_b = true;
+      result.b_in_a = true;
+      result.overlap = null;
+      result.overlap_x = 0;
+      result.overlap_y = 0;
+    }
 
-  	if(result) {
-  		result.a         = a;
-  		result.b         = b;
-  		result.a_in_b    = true;
-  		result.b_in_a    = true;
-  		result.overlap   = null;
-  		result.overlap_x = 0;
-  		result.overlap_y = 0;
-  	}
+    if (a_polygon) {
+      if (a._dirty_coords || a.x !== a._x || a.y !== a._y || a.angle !== a._angle || a.scale_x !== a._scale_x || a.scale_y !== a._scale_y) {
+        a._calculateCoords();
+      }
+    }
 
-  	if(a_polygon) {
-  		if(
-  			a._dirty_coords ||
-  			a.x       !== a._x ||
-  			a.y       !== a._y ||
-  			a.angle   !== a._angle ||
-  			a.scale_x !== a._scale_x ||
-  			a.scale_y !== a._scale_y
-  		) {
-  			a._calculateCoords();
-  		}
-  	}
+    if (b_polygon) {
+      if (b._dirty_coords || b.x !== b._x || b.y !== b._y || b.angle !== b._angle || b.scale_x !== b._scale_x || b.scale_y !== b._scale_y) {
+        b._calculateCoords();
+      }
+    }
 
-  	if(b_polygon) {
-  		if(
-  			b._dirty_coords ||
-  			b.x       !== b._x ||
-  			b.y       !== b._y ||
-  			b.angle   !== b._angle ||
-  			b.scale_x !== b._scale_x ||
-  			b.scale_y !== b._scale_y
-  		) {
-  			b._calculateCoords();
-  		}
-  	}
+    if (!aabb || aabbAABB(a, b)) {
+      if (a_polygon && a._dirty_normals) {
+        a._calculateNormals();
+      }
 
-  	if(!aabb || aabbAABB(a, b)) {
-  		if(a_polygon && a._dirty_normals) {
-  			a._calculateNormals();
-  		}
+      if (b_polygon && b._dirty_normals) {
+        b._calculateNormals();
+      }
 
-  		if(b_polygon && b._dirty_normals) {
-  			b._calculateNormals();
-  		}
+      collision = a_polygon && b_polygon ? polygonPolygon(a, b, result) : a_polygon ? polygonCircle(a, b, result, false) : b_polygon ? polygonCircle(b, a, result, true) : circleCircle(a, b, result);
+    }
 
-  		collision = (
-  			a_polygon && b_polygon ? polygonPolygon(a, b, result) :
-  			a_polygon ? polygonCircle(a, b, result, false) :
-  			b_polygon ? polygonCircle(b, a, result, true) :
-  			circleCircle(a, b, result)
-  		);
-  	}
+    if (result) {
+      result.collision = collision;
+    }
 
-  	if(result) {
-  		result.collision = collision;
-  	}
-
-  	return collision;
+    return collision;
   }
   /**
    * Determines if two bodies' axis aligned bounding boxes are colliding
    * @param {Circle|Polygon|Point} a The source body to test
    * @param {Circle|Polygon|Point} b The target body to test against
    */
+
   function aabbAABB(a, b) {
-  	const a_polygon = a._polygon;
-  	const a_x       = a_polygon ? 0 : a.x;
-  	const a_y       = a_polygon ? 0 : a.y;
-  	const a_radius  = a_polygon ? 0 : a.radius * a.scale;
-  	const a_min_x   = a_polygon ? a._min_x : a_x - a_radius;
-  	const a_min_y   = a_polygon ? a._min_y : a_y - a_radius;
-  	const a_max_x   = a_polygon ? a._max_x : a_x + a_radius;
-  	const a_max_y   = a_polygon ? a._max_y : a_y + a_radius;
-
-  	const b_polygon = b._polygon;
-  	const b_x       = b_polygon ? 0 : b.x;
-  	const b_y       = b_polygon ? 0 : b.y;
-  	const b_radius  = b_polygon ? 0 : b.radius * b.scale;
-  	const b_min_x   = b_polygon ? b._min_x : b_x - b_radius;
-  	const b_min_y   = b_polygon ? b._min_y : b_y - b_radius;
-  	const b_max_x   = b_polygon ? b._max_x : b_x + b_radius;
-  	const b_max_y   = b_polygon ? b._max_y : b_y + b_radius;
-
-  	return a_min_x < b_max_x && a_min_y < b_max_y && a_max_x > b_min_x && a_max_y > b_min_y;
+    var a_polygon = a._polygon;
+    var a_x = a_polygon ? 0 : a.x;
+    var a_y = a_polygon ? 0 : a.y;
+    var a_radius = a_polygon ? 0 : a.radius * a.scale;
+    var a_min_x = a_polygon ? a._min_x : a_x - a_radius;
+    var a_min_y = a_polygon ? a._min_y : a_y - a_radius;
+    var a_max_x = a_polygon ? a._max_x : a_x + a_radius;
+    var a_max_y = a_polygon ? a._max_y : a_y + a_radius;
+    var b_polygon = b._polygon;
+    var b_x = b_polygon ? 0 : b.x;
+    var b_y = b_polygon ? 0 : b.y;
+    var b_radius = b_polygon ? 0 : b.radius * b.scale;
+    var b_min_x = b_polygon ? b._min_x : b_x - b_radius;
+    var b_min_y = b_polygon ? b._min_y : b_y - b_radius;
+    var b_max_x = b_polygon ? b._max_x : b_x + b_radius;
+    var b_max_y = b_polygon ? b._max_y : b_y + b_radius;
+    return a_min_x < b_max_x && a_min_y < b_max_y && a_max_x > b_min_x && a_max_y > b_min_y;
   }
-
   /**
    * Determines if two polygons are colliding
    * @param {Polygon} a The source polygon to test
@@ -1141,46 +1309,47 @@
    * @param {Result} [result = null] A Result object on which to store information about the collision
    * @returns {Boolean}
    */
-  function polygonPolygon(a, b, result = null) {
-  	const a_count = a._coords.length;
-  	const b_count = b._coords.length;
 
-  	// Handle points specially
-  	if(a_count === 2 && b_count === 2) {
-  		const a_coords = a._coords;
-  		const b_coords = b._coords;
 
-  		if(result) {
-  			result.overlap = 0;
-  		}
+  function polygonPolygon(a, b) {
+    var result = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+    var a_count = a._coords.length;
+    var b_count = b._coords.length; // Handle points specially
 
-  		return a_coords[0] === b_coords[0] && a_coords[1] === b_coords[1];
-  	}
+    if (a_count === 2 && b_count === 2) {
+      var _a_coords = a._coords;
+      var _b_coords = b._coords;
 
-  	const a_coords  = a._coords;
-  	const b_coords  = b._coords;
-  	const a_normals = a._normals;
-  	const b_normals = b._normals;
+      if (result) {
+        result.overlap = 0;
+      }
 
-  	if(a_count > 2) {
-  		for(let ix = 0, iy = 1; ix < a_count; ix += 2, iy += 2) {
-  			if(separatingAxis(a_coords, b_coords, a_normals[ix], a_normals[iy], result)) {
-  				return false;
-  			}
-  		}
-  	}
+      return _a_coords[0] === _b_coords[0] && _a_coords[1] === _b_coords[1];
+    }
 
-  	if(b_count > 2) {
-  		for(let ix = 0, iy = 1; ix < b_count; ix += 2, iy += 2) {
-  			if(separatingAxis(a_coords, b_coords, b_normals[ix], b_normals[iy], result)) {
-  				return false;
-  			}
-  		}
-  	}
+    var a_coords = a._coords;
+    var b_coords = b._coords;
+    var a_normals = a._normals;
+    var b_normals = b._normals;
 
-  	return true;
+    if (a_count > 2) {
+      for (var ix = 0, iy = 1; ix < a_count; ix += 2, iy += 2) {
+        if (separatingAxis(a_coords, b_coords, a_normals[ix], a_normals[iy], result)) {
+          return false;
+        }
+      }
+    }
+
+    if (b_count > 2) {
+      for (var _ix = 0, _iy = 1; _ix < b_count; _ix += 2, _iy += 2) {
+        if (separatingAxis(a_coords, b_coords, b_normals[_ix], b_normals[_iy], result)) {
+          return false;
+        }
+      }
+    }
+
+    return true;
   }
-
   /**
    * Determines if a polygon and a circle are colliding
    * @param {Polygon} a The source polygon to test
@@ -1189,132 +1358,134 @@
    * @param {Boolean} [reverse = false] Set to true to reverse a and b in the result parameter when testing circle->polygon instead of polygon->circle
    * @returns {Boolean}
    */
-  function polygonCircle(a, b, result = null, reverse = false) {
-  	const a_coords       = a._coords;
-  	const a_edges        = a._edges;
-  	const a_normals      = a._normals;
-  	const b_x            = b.x;
-  	const b_y            = b.y;
-  	const b_radius       = b.radius * b.scale;
-  	const b_radius2      = b_radius * 2;
-  	const radius_squared = b_radius * b_radius;
-  	const count          = a_coords.length;
 
-  	let a_in_b    = true;
-  	let b_in_a    = true;
-  	let overlap   = null;
-  	let overlap_x = 0;
-  	let overlap_y = 0;
 
-  	// Handle points specially
-  	if(count === 2) {
-  		const coord_x        = b_x - a_coords[0];
-  		const coord_y        = b_y - a_coords[1];
-  		const length_squared = coord_x * coord_x + coord_y * coord_y;
+  function polygonCircle(a, b) {
+    var result = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+    var reverse = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
+    var a_coords = a._coords;
+    var a_edges = a._edges;
+    var a_normals = a._normals;
+    var b_x = b.x;
+    var b_y = b.y;
+    var b_radius = b.radius * b.scale;
+    var b_radius2 = b_radius * 2;
+    var radius_squared = b_radius * b_radius;
+    var count = a_coords.length;
+    var a_in_b = true;
+    var b_in_a = true;
+    var overlap = null;
+    var overlap_x = 0;
+    var overlap_y = 0; // Handle points specially
 
-  		if(length_squared > radius_squared) {
-  			return false;
-  		}
+    if (count === 2) {
+      var coord_x = b_x - a_coords[0];
+      var coord_y = b_y - a_coords[1];
+      var length_squared = coord_x * coord_x + coord_y * coord_y;
 
-  		if(result) {
-  			const length = Math.sqrt(length_squared);
+      if (length_squared > radius_squared) {
+        return false;
+      }
 
-  			overlap   = b_radius - length;
-  			overlap_x = coord_x / length;
-  			overlap_y = coord_y / length;
-  			b_in_a    = false;
-  		}
-  	}
-  	else {
-  		for(let ix = 0, iy = 1; ix < count; ix += 2, iy += 2) {
-  			const coord_x = b_x - a_coords[ix];
-  			const coord_y = b_y - a_coords[iy];
-  			const edge_x  = a_edges[ix];
-  			const edge_y  = a_edges[iy];
-  			const dot     = coord_x * edge_x + coord_y * edge_y;
-  			const region  = dot < 0 ? -1 : dot > edge_x * edge_x + edge_y * edge_y ? 1 : 0;
+      if (result) {
+        var length = Math.sqrt(length_squared);
+        overlap = b_radius - length;
+        overlap_x = coord_x / length;
+        overlap_y = coord_y / length;
+        b_in_a = false;
+      }
+    } else {
+      for (var ix = 0, iy = 1; ix < count; ix += 2, iy += 2) {
+        var _coord_x = b_x - a_coords[ix];
 
-  			let tmp_overlapping = false;
-  			let tmp_overlap     = 0;
-  			let tmp_overlap_x   = 0;
-  			let tmp_overlap_y   = 0;
+        var _coord_y = b_y - a_coords[iy];
 
-  			if(result && a_in_b && coord_x * coord_x + coord_y * coord_y > radius_squared) {
-  				a_in_b = false;
-  			}
+        var edge_x = a_edges[ix];
+        var edge_y = a_edges[iy];
+        var dot = _coord_x * edge_x + _coord_y * edge_y;
+        var region = dot < 0 ? -1 : dot > edge_x * edge_x + edge_y * edge_y ? 1 : 0;
+        var tmp_overlapping = false;
+        var tmp_overlap = 0;
+        var tmp_overlap_x = 0;
+        var tmp_overlap_y = 0;
 
-  			if(region) {
-  				const left     = region === -1;
-  				const other_x  = left ? (ix === 0 ? count - 2 : ix - 2) : (ix === count - 2 ? 0 : ix + 2);
-  				const other_y  = other_x + 1;
-  				const coord2_x = b_x - a_coords[other_x];
-  				const coord2_y = b_y - a_coords[other_y];
-  				const edge2_x  = a_edges[other_x];
-  				const edge2_y  = a_edges[other_y];
-  				const dot2     = coord2_x * edge2_x + coord2_y * edge2_y;
-  				const region2  = dot2 < 0 ? -1 : dot2 > edge2_x * edge2_x + edge2_y * edge2_y ? 1 : 0;
+        if (result && a_in_b && _coord_x * _coord_x + _coord_y * _coord_y > radius_squared) {
+          a_in_b = false;
+        }
 
-  				if(region2 === -region) {
-  					const target_x       = left ? coord_x : coord2_x;
-  					const target_y       = left ? coord_y : coord2_y;
-  					const length_squared = target_x * target_x + target_y * target_y;
+        if (region) {
+          var left = region === -1;
+          var other_x = left ? ix === 0 ? count - 2 : ix - 2 : ix === count - 2 ? 0 : ix + 2;
+          var other_y = other_x + 1;
+          var coord2_x = b_x - a_coords[other_x];
+          var coord2_y = b_y - a_coords[other_y];
+          var edge2_x = a_edges[other_x];
+          var edge2_y = a_edges[other_y];
+          var dot2 = coord2_x * edge2_x + coord2_y * edge2_y;
+          var region2 = dot2 < 0 ? -1 : dot2 > edge2_x * edge2_x + edge2_y * edge2_y ? 1 : 0;
 
-  					if(length_squared > radius_squared) {
-  						return false;
-  					}
+          if (region2 === -region) {
+            var target_x = left ? _coord_x : coord2_x;
+            var target_y = left ? _coord_y : coord2_y;
 
-  					if(result) {
-  						const length = Math.sqrt(length_squared);
+            var _length_squared = target_x * target_x + target_y * target_y;
 
-  						tmp_overlapping = true;
-  						tmp_overlap     = b_radius - length;
-  						tmp_overlap_x   = target_x / length;
-  						tmp_overlap_y   = target_y / length;
-  						b_in_a          = false;
-  					}
-  				}
-  			}
-  			else {
-  				const normal_x        = a_normals[ix];
-  				const normal_y        = a_normals[iy];
-  				const length          = coord_x * normal_x + coord_y * normal_y;
-  				const absolute_length = length < 0 ? -length : length;
+            if (_length_squared > radius_squared) {
+              return false;
+            }
 
-  				if(length > 0 && absolute_length > b_radius) {
-  					return false;
-  				}
+            if (result) {
+              var _length = Math.sqrt(_length_squared);
 
-  				if(result) {
-  					tmp_overlapping = true;
-  					tmp_overlap     = b_radius - length;
-  					tmp_overlap_x   = normal_x;
-  					tmp_overlap_y   = normal_y;
+              tmp_overlapping = true;
+              tmp_overlap = b_radius - _length;
+              tmp_overlap_x = target_x / _length;
+              tmp_overlap_y = target_y / _length;
+              b_in_a = false;
+            }
+          }
+        } else {
+          var normal_x = a_normals[ix];
+          var normal_y = a_normals[iy];
 
-  					if(b_in_a && length >= 0 || tmp_overlap < b_radius2) {
-  						b_in_a = false;
-  					}
-  				}
-  			}
+          var _length2 = _coord_x * normal_x + _coord_y * normal_y;
 
-  			if(tmp_overlapping && (overlap === null || overlap > tmp_overlap)) {
-  				overlap   = tmp_overlap;
-  				overlap_x = tmp_overlap_x;
-  				overlap_y = tmp_overlap_y;
-  			}
-  		}
-  	}
+          var absolute_length = _length2 < 0 ? -_length2 : _length2;
 
-  	if(result) {
-  		result.a_in_b    = reverse ? b_in_a : a_in_b;
-  		result.b_in_a    = reverse ? a_in_b : b_in_a;
-  		result.overlap   = overlap;
-  		result.overlap_x = reverse ? -overlap_x : overlap_x;
-  		result.overlap_y = reverse ? -overlap_y : overlap_y;
-  	}
+          if (_length2 > 0 && absolute_length > b_radius) {
+            return false;
+          }
 
-  	return true;
+          if (result) {
+            tmp_overlapping = true;
+            tmp_overlap = b_radius - _length2;
+            tmp_overlap_x = normal_x;
+            tmp_overlap_y = normal_y;
+
+            if (b_in_a && _length2 >= 0 || tmp_overlap < b_radius2) {
+              b_in_a = false;
+            }
+          }
+        }
+
+        if (tmp_overlapping && (overlap === null || overlap > tmp_overlap)) {
+          overlap = tmp_overlap;
+          overlap_x = tmp_overlap_x;
+          overlap_y = tmp_overlap_y;
+        }
+      }
+    }
+
+    if (result) {
+      result.a_in_b = reverse ? b_in_a : a_in_b;
+      result.b_in_a = reverse ? a_in_b : b_in_a;
+      result.overlap = overlap;
+      result.overlap_x = reverse ? -overlap_x : overlap_x;
+      result.overlap_y = reverse ? -overlap_y : overlap_y;
+    }
+
+    return true;
   }
-
   /**
    * Determines if two circles are colliding
    * @param {Circle} a The source circle to test
@@ -1322,31 +1493,32 @@
    * @param {Result} [result = null] A Result object on which to store information about the collision
    * @returns {Boolean}
    */
-  function circleCircle(a, b, result = null) {
-  	const a_radius       = a.radius * a.scale;
-  	const b_radius       = b.radius * b.scale;
-  	const difference_x   = b.x - a.x;
-  	const difference_y   = b.y - a.y;
-  	const radius_sum     = a_radius + b_radius;
-  	const length_squared = difference_x * difference_x + difference_y * difference_y;
 
-  	if(length_squared > radius_sum * radius_sum) {
-  		return false;
-  	}
 
-  	if(result) {
-  		const length = Math.sqrt(length_squared);
+  function circleCircle(a, b) {
+    var result = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+    var a_radius = a.radius * a.scale;
+    var b_radius = b.radius * b.scale;
+    var difference_x = b.x - a.x;
+    var difference_y = b.y - a.y;
+    var radius_sum = a_radius + b_radius;
+    var length_squared = difference_x * difference_x + difference_y * difference_y;
 
-  		result.a_in_b    = a_radius <= b_radius && length <= b_radius - a_radius;
-  		result.b_in_a    = b_radius <= a_radius && length <= a_radius - b_radius;
-  		result.overlap   = radius_sum - length;
-  		result.overlap_x = difference_x / length;
-  		result.overlap_y = difference_y / length;
-  	}
+    if (length_squared > radius_sum * radius_sum) {
+      return false;
+    }
 
-  	return true;
+    if (result) {
+      var length = Math.sqrt(length_squared);
+      result.a_in_b = a_radius <= b_radius && length <= b_radius - a_radius;
+      result.b_in_a = b_radius <= a_radius && length <= a_radius - b_radius;
+      result.overlap = radius_sum - length;
+      result.overlap_x = difference_x / length;
+      result.overlap_y = difference_y / length;
+    }
+
+    return true;
   }
-
   /**
    * Determines if two polygons are separated by an axis
    * @param {Array<Number[]>} a_coords The coordinates of the polygon to test
@@ -1356,92 +1528,91 @@
    * @param {Result} [result = null] A Result object on which to store information about the collision
    * @returns {Boolean}
    */
-  function separatingAxis(a_coords, b_coords, x, y, result = null) {
-  	const a_count = a_coords.length;
-  	const b_count = b_coords.length;
 
-  	if(!a_count || !b_count) {
-  		return true;
-  	}
 
-  	let a_start = null;
-  	let a_end   = null;
-  	let b_start = null;
-  	let b_end   = null;
+  function separatingAxis(a_coords, b_coords, x, y) {
+    var result = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
+    var a_count = a_coords.length;
+    var b_count = b_coords.length;
 
-  	for(let ix = 0, iy = 1; ix < a_count; ix += 2, iy += 2) {
-  		const dot = a_coords[ix] * x + a_coords[iy] * y;
+    if (!a_count || !b_count) {
+      return true;
+    }
 
-  		if(a_start === null || a_start > dot) {
-  			a_start = dot;
-  		}
+    var a_start = null;
+    var a_end = null;
+    var b_start = null;
+    var b_end = null;
 
-  		if(a_end === null || a_end < dot) {
-  			a_end = dot;
-  		}
-  	}
+    for (var ix = 0, iy = 1; ix < a_count; ix += 2, iy += 2) {
+      var dot = a_coords[ix] * x + a_coords[iy] * y;
 
-  	for(let ix = 0, iy = 1; ix < b_count; ix += 2, iy += 2) {
-  		const dot = b_coords[ix] * x + b_coords[iy] * y;
+      if (a_start === null || a_start > dot) {
+        a_start = dot;
+      }
 
-  		if(b_start === null || b_start > dot) {
-  			b_start = dot;
-  		}
+      if (a_end === null || a_end < dot) {
+        a_end = dot;
+      }
+    }
 
-  		if(b_end === null || b_end < dot) {
-  			b_end = dot;
-  		}
-  	}
+    for (var _ix2 = 0, _iy2 = 1; _ix2 < b_count; _ix2 += 2, _iy2 += 2) {
+      var _dot = b_coords[_ix2] * x + b_coords[_iy2] * y;
 
-  	if(a_start > b_end || a_end < b_start) {
-  		return true;
-  	}
+      if (b_start === null || b_start > _dot) {
+        b_start = _dot;
+      }
 
-  	if(result) {
-  		let overlap = 0;
+      if (b_end === null || b_end < _dot) {
+        b_end = _dot;
+      }
+    }
 
-  		if(a_start < b_start) {
-  			result.a_in_b = false;
+    if (a_start > b_end || a_end < b_start) {
+      return true;
+    }
 
-  			if(a_end < b_end) {
-  				overlap       = a_end - b_start;
-  				result.b_in_a = false;
-  			}
-  			else {
-  				const option1 = a_end - b_start;
-  				const option2 = b_end - a_start;
+    if (result) {
+      var overlap = 0;
 
-  				overlap = option1 < option2 ? option1 : -option2;
-  			}
-  		}
-  		else {
-  			result.b_in_a = false;
+      if (a_start < b_start) {
+        result.a_in_b = false;
 
-  			if(a_end > b_end) {
-  				overlap       = a_start - b_end;
-  				result.a_in_b = false;
-  			}
-  			else {
-  				const option1 = a_end - b_start;
-  				const option2 = b_end - a_start;
+        if (a_end < b_end) {
+          overlap = a_end - b_start;
+          result.b_in_a = false;
+        } else {
+          var option1 = a_end - b_start;
+          var option2 = b_end - a_start;
+          overlap = option1 < option2 ? option1 : -option2;
+        }
+      } else {
+        result.b_in_a = false;
 
-  				overlap = option1 < option2 ? option1 : -option2;
-  			}
-  		}
+        if (a_end > b_end) {
+          overlap = a_start - b_end;
+          result.a_in_b = false;
+        } else {
+          var _option = a_end - b_start;
 
-  		const current_overlap  = result.overlap;
-  		const absolute_overlap = overlap < 0 ? -overlap : overlap;
+          var _option2 = b_end - a_start;
 
-  		if(current_overlap === null || current_overlap > absolute_overlap) {
-  			const sign = overlap < 0 ? -1 : 1;
+          overlap = _option < _option2 ? _option : -_option2;
+        }
+      }
 
-  			result.overlap   = absolute_overlap;
-  			result.overlap_x = x * sign;
-  			result.overlap_y = y * sign;
-  		}
-  	}
+      var current_overlap = result.overlap;
+      var absolute_overlap = overlap < 0 ? -overlap : overlap;
 
-  	return false;
+      if (current_overlap === null || current_overlap > absolute_overlap) {
+        var sign = overlap < 0 ? -1 : 1;
+        result.overlap = absolute_overlap;
+        result.overlap_x = x * sign;
+        result.overlap_y = y * sign;
+      }
+    }
+
+    return false;
   }
 
   /**
@@ -1449,770 +1620,913 @@
    * @class
    * @protected
    */
-  class Body {
-  	/**
-  	 * @constructor
-  	 * @param {Number} [x = 0] The starting X coordinate
-  	 * @param {Number} [y = 0] The starting Y coordinate
-  	 * @param {Number} [padding = 0] The amount to pad the bounding volume when testing for potential collisions
-  	 */
-  	constructor(x = 0, y = 0, padding = 0) {
-  		/**
-  		 * @desc The X coordinate of the body
-  		 * @type {Number}
-  		 */
-  		this.x = x;
 
-  		/**
-  		 * @desc The Y coordinate of the body
-  		 * @type {Number}
-  		 */
-  		this.y = y;
+  var Body =
+  /*#__PURE__*/
+  function () {
+    /**
+     * @constructor
+     * @param {Number} [x = 0] The starting X coordinate
+     * @param {Number} [y = 0] The starting Y coordinate
+     * @param {Number} [padding = 0] The amount to pad the bounding volume when testing for potential collisions
+     */
+    function Body() {
+      var x = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+      var y = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+      var padding = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
 
-  		/**
-  		 * @desc The amount to pad the bounding volume when testing for potential collisions
-  		 * @type {Number}
-  		 */
-  		this.padding = padding;
+      _classCallCheck(this, Body);
 
-  		/** @private */
-  		this._circle = false;
+      /**
+       * @desc The X coordinate of the body
+       * @type {Number}
+       */
+      this.x = x;
+      /**
+       * @desc The Y coordinate of the body
+       * @type {Number}
+       */
 
-  		/** @private */
-  		this._polygon = false;
+      this.y = y;
+      /**
+       * @desc The amount to pad the bounding volume when testing for potential collisions
+       * @type {Number}
+       */
 
-  		/** @private */
-  		this._point = false;
+      this.padding = padding;
+      /** @private */
 
-  		/** @private */
-  		this._bvh = null;
+      this._circle = false;
+      /** @private */
 
-  		/** @private */
-  		this._bvh_parent = null;
+      this._polygon = false;
+      /** @private */
 
-  		/** @private */
-  		this._bvh_branch = false;
+      this._point = false;
+      /** @private */
 
-  		/** @private */
-  		this._bvh_padding = padding;
+      this._bvh = null;
+      /** @private */
 
-  		/** @private */
-  		this._bvh_min_x = 0;
+      this._bvh_parent = null;
+      /** @private */
 
-  		/** @private */
-  		this._bvh_min_y = 0;
+      this._bvh_branch = false;
+      /** @private */
 
-  		/** @private */
-  		this._bvh_max_x = 0;
+      this._bvh_padding = padding;
+      /** @private */
 
-  		/** @private */
-  		this._bvh_max_y = 0;
-  	}
+      this._bvh_min_x = 0;
+      /** @private */
 
-  	/**
-  	 * Determines if the body is colliding with another body
-  	 * @param {Circle|Polygon|Point} target The target body to test against
-  	 * @param {Result} [result = null] A Result object on which to store information about the collision
-  	 * @param {Boolean} [aabb = true] Set to false to skip the AABB test (useful if you use your own potential collision heuristic)
-  	 * @returns {Boolean}
-  	 */
-  	collides(target, result = null, aabb = true) {
-  		return SAT(this, target, result, aabb);
-  	}
+      this._bvh_min_y = 0;
+      /** @private */
 
-  	/**
-  	 * Returns a list of potential collisions
-  	 * @returns {Array<Body>}
-  	 */
-  	potentials() {
-  		const bvh = this._bvh;
+      this._bvh_max_x = 0;
+      /** @private */
 
-  		if(bvh === null) {
-  			throw new Error('Body does not belong to a collision system');
-  		}
+      this._bvh_max_y = 0;
+    }
+    /**
+     * Determines if the body is colliding with another body
+     * @param {Circle|Polygon|Point} target The target body to test against
+     * @param {Result} [result = null] A Result object on which to store information about the collision
+     * @param {Boolean} [aabb = true] Set to false to skip the AABB test (useful if you use your own potential collision heuristic)
+     * @returns {Boolean}
+     */
 
-  		return bvh.potentials(this);
-  	}
 
-  	/**
-  	 * Removes the body from its current collision system
-  	 */
-  	remove() {
-  		const bvh = this._bvh;
+    _createClass(Body, [{
+      key: "collides",
+      value: function collides(target) {
+        var result = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+        var aabb = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
+        return SAT(this, target, result, aabb);
+      }
+      /**
+       * Returns a list of potential collisions
+       * @returns {Array<Body>}
+       */
 
-  		if(bvh) {
-  			bvh.remove(this, false);
-  		}
-  	}
+    }, {
+      key: "potentials",
+      value: function potentials() {
+        var bvh = this._bvh;
 
-  	/**
-  	 * Creates a {@link Result} used to collect the detailed results of a collision test
-  	 */
-  	createResult() {
-  		return new Result();
-  	}
+        if (bvh === null) {
+          throw new Error('Body does not belong to a collision system');
+        }
 
-  	/**
-  	 * Creates a Result used to collect the detailed results of a collision test
-  	 */
-  	static createResult() {
-  		return new Result();
-  	}
-  }
+        return bvh.potentials(this);
+      }
+      /**
+       * Removes the body from its current collision system
+       */
+
+    }, {
+      key: "remove",
+      value: function remove() {
+        var bvh = this._bvh;
+
+        if (bvh) {
+          bvh.remove(this, false);
+        }
+      }
+      /**
+       * Creates a {@link Result} used to collect the detailed results of a collision test
+       */
+
+    }, {
+      key: "createResult",
+      value: function createResult() {
+        return new Result();
+      }
+      /**
+       * Creates a Result used to collect the detailed results of a collision test
+       */
+
+    }], [{
+      key: "createResult",
+      value: function createResult() {
+        return new Result();
+      }
+    }]);
+
+    return Body;
+  }();
 
   /**
    * A circle used to detect collisions
    * @class
    */
-  class Circle extends Body {
-  	/**
-  	 * @constructor
-  	 * @param {Number} [x = 0] The starting X coordinate
-  	 * @param {Number} [y = 0] The starting Y coordinate
-  	 * @param {Number} [radius = 0] The radius
-  	 * @param {Number} [scale = 1] The scale
-  	 * @param {Number} [padding = 0] The amount to pad the bounding volume when testing for potential collisions
-  	 */
-  	constructor(x = 0, y = 0, radius = 0, scale = 1, padding = 0) {
-  		super(x, y, padding);
 
-  		/**
-  		 * @desc
-  		 * @type {Number}
-  		 */
-  		this.radius = radius;
+  var Circle =
+  /*#__PURE__*/
+  function (_Body) {
+    _inherits(Circle, _Body);
 
-  		/**
-  		 * @desc
-  		 * @type {Number}
-  		 */
-  		this.scale = scale;
-  	}
+    /**
+     * @constructor
+     * @param {Number} [x = 0] The starting X coordinate
+     * @param {Number} [y = 0] The starting Y coordinate
+     * @param {Number} [radius = 0] The radius
+     * @param {Number} [scale = 1] The scale
+     * @param {Number} [padding = 0] The amount to pad the bounding volume when testing for potential collisions
+     */
+    function Circle() {
+      var _this;
 
-  	/**
-  	 * Draws the circle to a CanvasRenderingContext2D's current path
-  	 * @param {CanvasRenderingContext2D} context The context to add the arc to
-  	 */
-  	draw(context) {
-  		const x      = this.x;
-  		const y      = this.y;
-  		const radius = this.radius * this.scale;
+      var x = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+      var y = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+      var radius = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
+      var scale = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 1;
+      var padding = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 0;
 
-  		context.moveTo(x + radius, y);
-  		context.arc(x, y, radius, 0, Math.PI * 2);
-  	}
-  }
+      _classCallCheck(this, Circle);
+
+      _this = _possibleConstructorReturn(this, _getPrototypeOf(Circle).call(this, x, y, padding));
+      /**
+       * @desc
+       * @type {Number}
+       */
+
+      _this.radius = radius;
+      /**
+       * @desc
+       * @type {Number}
+       */
+
+      _this.scale = scale;
+      return _this;
+    }
+    /**
+     * Draws the circle to a CanvasRenderingContext2D's current path
+     * @param {CanvasRenderingContext2D} context The context to add the arc to
+     */
+
+
+    _createClass(Circle, [{
+      key: "draw",
+      value: function draw(context) {
+        var x = this.x;
+        var y = this.y;
+        var radius = this.radius * this.scale;
+        context.moveTo(x + radius, y);
+        context.arc(x, y, radius, 0, Math.PI * 2);
+      }
+    }]);
+
+    return Circle;
+  }(Body);
 
   /**
    * A polygon used to detect collisions
    * @class
    */
-  class Polygon extends Body {
-  	/**
-  	 * @constructor
-  	 * @param {Number} [x = 0] The starting X coordinate
-  	 * @param {Number} [y = 0] The starting Y coordinate
-  	 * @param {Array<Number[]>} [points = []] An array of coordinate pairs making up the polygon - [[x1, y1], [x2, y2], ...]
-  	 * @param {Number} [angle = 0] The starting rotation in radians
-  	 * @param {Number} [scale_x = 1] The starting scale along the X axis
-  	 * @param {Number} [scale_y = 1] The starting scale long the Y axis
-  	 * @param {Number} [padding = 0] The amount to pad the bounding volume when testing for potential collisions
-  	 */
-  	constructor(x = 0, y = 0, points = [], angle = 0, scale_x = 1, scale_y = 1, padding = 0) {
-  		super(x, y, padding);
 
-  		/**
-  		 * @desc The angle of the body in radians
-  		 * @type {Number}
-  		 */
-  		this.angle = angle;
+  var Polygon =
+  /*#__PURE__*/
+  function (_Body) {
+    _inherits(Polygon, _Body);
 
-  		/**
-  		 * @desc The scale of the body along the X axis
-  		 * @type {Number}
-  		 */
-  		this.scale_x = scale_x;
+    /**
+     * @constructor
+     * @param {Number} [x = 0] The starting X coordinate
+     * @param {Number} [y = 0] The starting Y coordinate
+     * @param {Array<Number[]>} [points = []] An array of coordinate pairs making up the polygon - [[x1, y1], [x2, y2], ...]
+     * @param {Number} [angle = 0] The starting rotation in radians
+     * @param {Number} [scale_x = 1] The starting scale along the X axis
+     * @param {Number} [scale_y = 1] The starting scale long the Y axis
+     * @param {Number} [padding = 0] The amount to pad the bounding volume when testing for potential collisions
+     */
+    function Polygon() {
+      var _this;
 
-  		/**
-  		 * @desc The scale of the body along the Y axis
-  		 * @type {Number}
-  		 */
-  		this.scale_y = scale_y;
+      var x = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+      var y = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+      var points = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
+      var angle = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 0;
+      var scale_x = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 1;
+      var scale_y = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : 1;
+      var padding = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : 0;
+
+      _classCallCheck(this, Polygon);
+
+      _this = _possibleConstructorReturn(this, _getPrototypeOf(Polygon).call(this, x, y, padding));
+      /**
+       * @desc The angle of the body in radians
+       * @type {Number}
+       */
+
+      _this.angle = angle;
+      /**
+       * @desc The scale of the body along the X axis
+       * @type {Number}
+       */
+
+      _this.scale_x = scale_x;
+      /**
+       * @desc The scale of the body along the Y axis
+       * @type {Number}
+       */
+
+      _this.scale_y = scale_y;
+      /** @private */
+
+      _this._polygon = true;
+      /** @private */
+
+      _this._x = x;
+      /** @private */
+
+      _this._y = y;
+      /** @private */
+
+      _this._angle = angle;
+      /** @private */
+
+      _this._scale_x = scale_x;
+      /** @private */
+
+      _this._scale_y = scale_y;
+      /** @private */
+
+      _this._min_x = 0;
+      /** @private */
+
+      _this._min_y = 0;
+      /** @private */
+
+      _this._max_x = 0;
+      /** @private */
+
+      _this._max_y = 0;
+      /** @private */
+
+      _this._points = null;
+      /** @private */
+
+      _this._coords = null;
+      /** @private */
+
+      _this._edges = null;
+      /** @private */
+
+      _this._normals = null;
+      /** @private */
+
+      _this._dirty_coords = true;
+      /** @private */
+
+      _this._dirty_normals = true;
+      Polygon.prototype.setPoints.call(_assertThisInitialized(_this), points);
+      return _this;
+    }
+    /**
+     * Draws the polygon to a CanvasRenderingContext2D's current path
+     * @param {CanvasRenderingContext2D} context The context to add the shape to
+     */
 
 
-  		/** @private */
-  		this._polygon = true;
+    _createClass(Polygon, [{
+      key: "draw",
+      value: function draw(context) {
+        if (this._dirty_coords || this.x !== this._x || this.y !== this._y || this.angle !== this._angle || this.scale_x !== this._scale_x || this.scale_y !== this._scale_y) {
+          this._calculateCoords();
+        }
 
-  		/** @private */
-  		this._x = x;
+        var coords = this._coords;
 
-  		/** @private */
-  		this._y = y;
+        if (coords.length === 2) {
+          context.moveTo(coords[0], coords[1]);
+          context.arc(coords[0], coords[1], 1, 0, Math.PI * 2);
+        } else {
+          context.moveTo(coords[0], coords[1]);
 
-  		/** @private */
-  		this._angle = angle;
+          for (var i = 2; i < coords.length; i += 2) {
+            context.lineTo(coords[i], coords[i + 1]);
+          }
 
-  		/** @private */
-  		this._scale_x = scale_x;
+          if (coords.length > 4) {
+            context.lineTo(coords[0], coords[1]);
+          }
+        }
+      }
+      /**
+       * Sets the points making up the polygon. It's important to use this function when changing the polygon's shape to ensure internal data is also updated.
+       * @param {Array<Number[]>} new_points An array of coordinate pairs making up the polygon - [[x1, y1], [x2, y2], ...]
+       */
 
-  		/** @private */
-  		this._scale_y = scale_y;
+    }, {
+      key: "setPoints",
+      value: function setPoints(new_points) {
+        var count = new_points.length;
+        this._points = new Float64Array(count * 2);
+        this._coords = new Float64Array(count * 2);
+        this._edges = new Float64Array(count * 2);
+        this._normals = new Float64Array(count * 2);
+        var points = this._points;
 
-  		/** @private */
-  		this._min_x = 0;
+        for (var i = 0, ix = 0, iy = 1; i < count; ++i, ix += 2, iy += 2) {
+          var new_point = new_points[i];
+          points[ix] = new_point[0];
+          points[iy] = new_point[1];
+        }
 
-  		/** @private */
-  		this._min_y = 0;
+        this._dirty_coords = true;
+      }
+      /**
+       * Calculates and caches the polygon's world coordinates based on its points, angle, and scale
+       */
 
-  		/** @private */
-  		this._max_x = 0;
+    }, {
+      key: "_calculateCoords",
+      value: function _calculateCoords() {
+        var x = this.x;
+        var y = this.y;
+        var angle = this.angle;
+        var scale_x = this.scale_x;
+        var scale_y = this.scale_y;
+        var points = this._points;
+        var coords = this._coords;
+        var count = points.length;
+        var min_x;
+        var max_x;
+        var min_y;
+        var max_y;
 
-  		/** @private */
-  		this._max_y = 0;
+        for (var ix = 0, iy = 1; ix < count; ix += 2, iy += 2) {
+          var coord_x = points[ix] * scale_x;
+          var coord_y = points[iy] * scale_y;
 
-  		/** @private */
-  		this._points = null;
+          if (angle) {
+            var cos = Math.cos(angle);
+            var sin = Math.sin(angle);
+            var tmp_x = coord_x;
+            var tmp_y = coord_y;
+            coord_x = tmp_x * cos - tmp_y * sin;
+            coord_y = tmp_x * sin + tmp_y * cos;
+          }
 
-  		/** @private */
-  		this._coords = null;
+          coord_x += x;
+          coord_y += y;
+          coords[ix] = coord_x;
+          coords[iy] = coord_y;
 
-  		/** @private */
-  		this._edges = null;
+          if (ix === 0) {
+            min_x = max_x = coord_x;
+            min_y = max_y = coord_y;
+          } else {
+            if (coord_x < min_x) {
+              min_x = coord_x;
+            } else if (coord_x > max_x) {
+              max_x = coord_x;
+            }
 
-  		/** @private */
-  		this._normals = null;
+            if (coord_y < min_y) {
+              min_y = coord_y;
+            } else if (coord_y > max_y) {
+              max_y = coord_y;
+            }
+          }
+        }
 
-  		/** @private */
-  		this._dirty_coords = true;
+        this._x = x;
+        this._y = y;
+        this._angle = angle;
+        this._scale_x = scale_x;
+        this._scale_y = scale_y;
+        this._min_x = min_x;
+        this._min_y = min_y;
+        this._max_x = max_x;
+        this._max_y = max_y;
+        this._dirty_coords = false;
+        this._dirty_normals = true;
+      }
+      /**
+       * Calculates the normals and edges of the polygon's sides
+       */
 
-  		/** @private */
-  		this._dirty_normals = true;
+    }, {
+      key: "_calculateNormals",
+      value: function _calculateNormals() {
+        var coords = this._coords;
+        var edges = this._edges;
+        var normals = this._normals;
+        var count = coords.length;
 
-  		Polygon.prototype.setPoints.call(this, points);
-  	}
+        for (var ix = 0, iy = 1; ix < count; ix += 2, iy += 2) {
+          var next = ix + 2 < count ? ix + 2 : 0;
+          var x = coords[next] - coords[ix];
+          var y = coords[next + 1] - coords[iy];
+          var length = x || y ? Math.sqrt(x * x + y * y) : 0;
+          edges[ix] = x;
+          edges[iy] = y;
+          normals[ix] = length ? y / length : 0;
+          normals[iy] = length ? -x / length : 0;
+        }
 
-  	/**
-  	 * Draws the polygon to a CanvasRenderingContext2D's current path
-  	 * @param {CanvasRenderingContext2D} context The context to add the shape to
-  	 */
-  	draw(context) {
-  		if(
-  			this._dirty_coords ||
-  			this.x       !== this._x ||
-  			this.y       !== this._y ||
-  			this.angle   !== this._angle ||
-  			this.scale_x !== this._scale_x ||
-  			this.scale_y !== this._scale_y
-  		) {
-  			this._calculateCoords();
-  		}
+        this._dirty_normals = false;
+      }
+    }]);
 
-  		const coords = this._coords;
-
-  		if(coords.length === 2) {
-  			context.moveTo(coords[0], coords[1]);
-  			context.arc(coords[0], coords[1], 1, 0, Math.PI * 2);
-  		}
-  		else {
-  			context.moveTo(coords[0], coords[1]);
-
-  			for(let i = 2; i < coords.length; i += 2) {
-  				context.lineTo(coords[i], coords[i + 1]);
-  			}
-
-  			if(coords.length > 4) {
-  				context.lineTo(coords[0], coords[1]);
-  			}
-  		}
-  	}
-
-  	/**
-  	 * Sets the points making up the polygon. It's important to use this function when changing the polygon's shape to ensure internal data is also updated.
-  	 * @param {Array<Number[]>} new_points An array of coordinate pairs making up the polygon - [[x1, y1], [x2, y2], ...]
-  	 */
-  	setPoints(new_points) {
-  		const count = new_points.length;
-
-  		this._points  = new Float64Array(count * 2);
-  		this._coords  = new Float64Array(count * 2);
-  		this._edges   = new Float64Array(count * 2);
-  		this._normals = new Float64Array(count * 2);
-
-  		const points = this._points;
-
-  		for(let i = 0, ix = 0, iy = 1; i < count; ++i, ix += 2, iy += 2) {
-  			const new_point = new_points[i];
-
-  			points[ix] = new_point[0];
-  			points[iy] = new_point[1];
-  		}
-
-  		this._dirty_coords = true;
-  	}
-
-  	/**
-  	 * Calculates and caches the polygon's world coordinates based on its points, angle, and scale
-  	 */
-  	_calculateCoords() {
-  		const x       = this.x;
-  		const y       = this.y;
-  		const angle   = this.angle;
-  		const scale_x = this.scale_x;
-  		const scale_y = this.scale_y;
-  		const points  = this._points;
-  		const coords  = this._coords;
-  		const count   = points.length;
-
-  		let min_x;
-  		let max_x;
-  		let min_y;
-  		let max_y;
-
-  		for(let ix = 0, iy = 1; ix < count; ix += 2, iy += 2) {
-  			let coord_x = points[ix] * scale_x;
-  			let coord_y = points[iy] * scale_y;
-
-  			if(angle) {
-  				const cos   = Math.cos(angle);
-  				const sin   = Math.sin(angle);
-  				const tmp_x = coord_x;
-  				const tmp_y = coord_y;
-
-  				coord_x = tmp_x * cos - tmp_y * sin;
-  				coord_y = tmp_x * sin + tmp_y * cos;
-  			}
-
-  			coord_x += x;
-  			coord_y += y;
-
-  			coords[ix] = coord_x;
-  			coords[iy] = coord_y;
-
-  			if(ix === 0) {
-  				min_x = max_x = coord_x;
-  				min_y = max_y = coord_y;
-  			}
-  			else {
-  				if(coord_x < min_x) {
-  					min_x = coord_x;
-  				}
-  				else if(coord_x > max_x) {
-  					max_x = coord_x;
-  				}
-
-  				if(coord_y < min_y) {
-  					min_y = coord_y;
-  				}
-  				else if(coord_y > max_y) {
-  					max_y = coord_y;
-  				}
-  			}
-  		}
-
-  		this._x             = x;
-  		this._y             = y;
-  		this._angle         = angle;
-  		this._scale_x       = scale_x;
-  		this._scale_y       = scale_y;
-  		this._min_x         = min_x;
-  		this._min_y         = min_y;
-  		this._max_x         = max_x;
-  		this._max_y         = max_y;
-  		this._dirty_coords  = false;
-  		this._dirty_normals = true;
-  	}
-
-  	/**
-  	 * Calculates the normals and edges of the polygon's sides
-  	 */
-  	_calculateNormals() {
-  		const coords  = this._coords;
-  		const edges   = this._edges;
-  		const normals = this._normals;
-  		const count   = coords.length;
-
-  		for(let ix = 0, iy = 1; ix < count; ix += 2, iy += 2) {
-  			const next   = ix + 2 < count ? ix + 2 : 0;
-  			const x      = coords[next] - coords[ix];
-  			const y      = coords[next + 1] - coords[iy];
-  			const length = x || y ? Math.sqrt(x * x + y * y) : 0;
-
-  			edges[ix]   = x;
-  			edges[iy]   = y;
-  			normals[ix] = length ? y / length : 0;
-  			normals[iy] = length ? -x / length : 0;
-  		}
-
-  		this._dirty_normals = false;
-  	}
-  }
+    return Polygon;
+  }(Body);
 
   /**
    * A point used to detect collisions
    * @class
    */
-  class Point extends Polygon {
-  	/**
-  	 * @constructor
-  	 * @param {Number} [x = 0] The starting X coordinate
-  	 * @param {Number} [y = 0] The starting Y coordinate
-  	 * @param {Number} [padding = 0] The amount to pad the bounding volume when testing for potential collisions
-  	 */
-  	constructor(x = 0, y = 0, padding = 0) {
-  		super(x, y, [[0, 0]], 0, 1, 1, padding);
 
-  		/** @private */
-  		this._point = true;
-  	}
-  }
+  var Point =
+  /*#__PURE__*/
+  function (_Polygon) {
+    _inherits(Point, _Polygon);
+
+    /**
+     * @constructor
+     * @param {Number} [x = 0] The starting X coordinate
+     * @param {Number} [y = 0] The starting Y coordinate
+     * @param {Number} [padding = 0] The amount to pad the bounding volume when testing for potential collisions
+     */
+    function Point() {
+      var _this;
+
+      var x = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+      var y = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+      var padding = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
+
+      _classCallCheck(this, Point);
+
+      _this = _possibleConstructorReturn(this, _getPrototypeOf(Point).call(this, x, y, [[0, 0]], 0, 1, 1, padding));
+      /** @private */
+
+      _this._point = true;
+      return _this;
+    }
+
+    return Point;
+  }(Polygon);
   Point.prototype.setPoints = undefined;
 
   /**
    * A collision system used to track bodies in order to improve collision detection performance
    * @class
    */
-  class Collisions {
-  	/**
-  	 * @constructor
-  	 */
-  	constructor() {
-  		/** @private */
-  		this._bvh = new BVH();
-  	}
 
-  	/**
-  	 * Creates a {@link Circle} and inserts it into the collision system
-  	 * @param {Number} [x = 0] The starting X coordinate
-  	 * @param {Number} [y = 0] The starting Y coordinate
-  	 * @param {Number} [radius = 0] The radius
-  	 * @param {Number} [scale = 1] The scale
-  	 * @param {Number} [padding = 0] The amount to pad the bounding volume when testing for potential collisions
-  	 * @returns {Circle}
-  	 */
-  	createCircle(x = 0, y = 0, radius = 0, scale = 1, padding = 0) {
-  		const body = new Circle(x, y, radius, scale, padding);
+  var Collisions =
+  /*#__PURE__*/
+  function () {
+    /**
+     * @constructor
+     */
+    function Collisions() {
+      _classCallCheck(this, Collisions);
 
-  		this._bvh.insert(body);
-
-  		return body;
-  	}
-
-  	/**
-  	 * Creates a {@link Polygon} and inserts it into the collision system
-  	 * @param {Number} [x = 0] The starting X coordinate
-  	 * @param {Number} [y = 0] The starting Y coordinate
-  	 * @param {Array<Number[]>} [points = []] An array of coordinate pairs making up the polygon - [[x1, y1], [x2, y2], ...]
-  	 * @param {Number} [angle = 0] The starting rotation in radians
-  	 * @param {Number} [scale_x = 1] The starting scale along the X axis
-  	 * @param {Number} [scale_y = 1] The starting scale long the Y axis
-  	 * @param {Number} [padding = 0] The amount to pad the bounding volume when testing for potential collisions
-  	 * @returns {Polygon}
-  	 */
-  	createPolygon(x = 0, y = 0, points = [[0, 0]], angle = 0, scale_x = 1, scale_y = 1, padding = 0) {
-  		const body = new Polygon(x, y, points, angle, scale_x, scale_y, padding);
-
-  		this._bvh.insert(body);
-
-  		return body;
-  	}
-
-  	/**
-  	 * Creates a {@link Point} and inserts it into the collision system
-  	 * @param {Number} [x = 0] The starting X coordinate
-  	 * @param {Number} [y = 0] The starting Y coordinate
-  	 * @param {Number} [padding = 0] The amount to pad the bounding volume when testing for potential collisions
-  	 * @returns {Point}
-  	 */
-  	createPoint(x = 0, y = 0, padding = 0) {
-  		const body = new Point(x, y, padding);
-
-  		this._bvh.insert(body);
-
-  		return body;
-  	}
-
-  	/**
-  	 * Creates a {@link Result} used to collect the detailed results of a collision test
-  	 */
-  	createResult() {
-  		return new Result();
-  	}
-
-  	/**
-  	 * Creates a Result used to collect the detailed results of a collision test
-  	 */
-  	static createResult() {
-  		return new Result();
-  	}
-
-  	/**
-  	 * Inserts bodies into the collision system
-  	 * @param {...Circle|...Polygon|...Point} bodies
-  	 */
-  	insert(...bodies) {
-  		for(const body of bodies) {
-  			this._bvh.insert(body, false);
-  		}
-
-  		return this;
-  	}
-
-  	/**
-  	 * Removes bodies from the collision system
-  	 * @param {...Circle|...Polygon|...Point} bodies
-  	 */
-  	remove(...bodies) {
-  		for(const body of bodies) {
-  			this._bvh.remove(body, false);
-  		}
-
-  		return this;
-  	}
-
-  	/**
-  	 * Updates the collision system. This should be called before any collisions are tested.
-  	 */
-  	update() {
-  		this._bvh.update();
-
-  		return this;
-  	}
-
-  	/**
-  	 * Draws the bodies within the system to a CanvasRenderingContext2D's current path
-  	 * @param {CanvasRenderingContext2D} context The context to draw to
-  	 */
-  	draw(context) {
-  		return this._bvh.draw(context);
-  	}
-
-  	/**
-  	 * Draws the system's BVH to a CanvasRenderingContext2D's current path. This is useful for testing out different padding values for bodies.
-  	 * @param {CanvasRenderingContext2D} context The context to draw to
-  	 */
-  	drawBVH(context) {
-  		return this._bvh.drawBVH(context);
-  	}
-
-  	/**
-  	 * Returns a list of potential collisions for a body
-  	 * @param {Circle|Polygon|Point} body The body to test for potential collisions against
-  	 * @returns {Array<Body>}
-  	 */
-  	potentials(body) {
-  		return this._bvh.potentials(body);
-  	}
-
-  	/**
-  	 * Determines if two bodies are colliding
-  	 * @param {Circle|Polygon|Point} target The target body to test against
-  	 * @param {Result} [result = null] A Result object on which to store information about the collision
-  	 * @param {Boolean} [aabb = true] Set to false to skip the AABB test (useful if you use your own potential collision heuristic)
-  	 * @returns {Boolean}
-  	 */
-  	collides(source, target, result = null, aabb = true) {
-  		return SAT(source, target, result, aabb);
-  	}
-  }
-
-  class _World {
+      /** @private */
+      this._bvh = new BVH();
+    }
+    /**
+     * Creates a {@link Circle} and inserts it into the collision system
+     * @param {Number} [x = 0] The starting X coordinate
+     * @param {Number} [y = 0] The starting Y coordinate
+     * @param {Number} [radius = 0] The radius
+     * @param {Number} [scale = 1] The scale
+     * @param {Number} [padding = 0] The amount to pad the bounding volume when testing for potential collisions
+     * @returns {Circle}
+     */
 
 
-      constructor() {
-          this.EntityList = [];
-          this.EntityListPostUpdate = [];
-          this.collisions = new Collisions();
-          this.collisionResults = this.collisions.createResult();
-          this.GameTime = 0;
+    _createClass(Collisions, [{
+      key: "createCircle",
+      value: function createCircle() {
+        var x = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+        var y = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+        var radius = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
+        var scale = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 1;
+        var padding = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 0;
+        var body = new Circle(x, y, radius, scale, padding);
 
+        this._bvh.insert(body);
 
+        return body;
       }
+      /**
+       * Creates a {@link Polygon} and inserts it into the collision system
+       * @param {Number} [x = 0] The starting X coordinate
+       * @param {Number} [y = 0] The starting Y coordinate
+       * @param {Array<Number[]>} [points = []] An array of coordinate pairs making up the polygon - [[x1, y1], [x2, y2], ...]
+       * @param {Number} [angle = 0] The starting rotation in radians
+       * @param {Number} [scale_x = 1] The starting scale along the X axis
+       * @param {Number} [scale_y = 1] The starting scale long the Y axis
+       * @param {Number} [padding = 0] The amount to pad the bounding volume when testing for potential collisions
+       * @returns {Polygon}
+       */
+
+    }, {
+      key: "createPolygon",
+      value: function createPolygon() {
+        var x = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+        var y = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+        var points = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [[0, 0]];
+        var angle = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 0;
+        var scale_x = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 1;
+        var scale_y = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : 1;
+        var padding = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : 0;
+        var body = new Polygon(x, y, points, angle, scale_x, scale_y, padding);
+
+        this._bvh.insert(body);
+
+        return body;
+      }
+      /**
+       * Creates a {@link Point} and inserts it into the collision system
+       * @param {Number} [x = 0] The starting X coordinate
+       * @param {Number} [y = 0] The starting Y coordinate
+       * @param {Number} [padding = 0] The amount to pad the bounding volume when testing for potential collisions
+       * @returns {Point}
+       */
+
+    }, {
+      key: "createPoint",
+      value: function createPoint() {
+        var x = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+        var y = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+        var padding = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
+        var body = new Point(x, y, padding);
+
+        this._bvh.insert(body);
+
+        return body;
+      }
+      /**
+       * Creates a {@link Result} used to collect the detailed results of a collision test
+       */
+
+    }, {
+      key: "createResult",
+      value: function createResult() {
+        return new Result();
+      }
+      /**
+       * Creates a Result used to collect the detailed results of a collision test
+       */
+
+    }, {
+      key: "insert",
 
       /**
-       * Spawns entity and registers it ot the world
-       * 
-       * @param {Class} ClassToSpawn 
-       * @param {Object} props 
-       * @return Spawned Entity
+       * Inserts bodies into the collision system
+       * @param {...Circle|...Polygon|...Point} bodies
        */
-      SpawnEntity(ClassToSpawn, props) {
-          let newEntity = new ClassToSpawn(props);
-          this.RegisterEntity(newEntity);
-          newEntity.BeginPlay();
-          return newEntity;
+      value: function insert() {
+        for (var _len = arguments.length, bodies = new Array(_len), _key = 0; _key < _len; _key++) {
+          bodies[_key] = arguments[_key];
+        }
+
+        for (var _i = 0, _bodies = bodies; _i < _bodies.length; _i++) {
+          var body = _bodies[_i];
+
+          this._bvh.insert(body, false);
+        }
+
+        return this;
       }
+      /**
+       * Removes bodies from the collision system
+       * @param {...Circle|...Polygon|...Point} bodies
+       */
 
-      RegisterEntity(NewEntity) {
-          this.EntityList.push(NewEntity);
-          if (NewEntity.RegisterPostUpdate === true) {
-              this.EntityListPostUpdate.push(NewEntity);
-          }
+    }, {
+      key: "remove",
+      value: function remove() {
+        for (var _len2 = arguments.length, bodies = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+          bodies[_key2] = arguments[_key2];
+        }
+
+        for (var _i2 = 0, _bodies2 = bodies; _i2 < _bodies2.length; _i2++) {
+          var body = _bodies2[_i2];
+
+          this._bvh.remove(body, false);
+        }
+
+        return this;
       }
+      /**
+       * Updates the collision system. This should be called before any collisions are tested.
+       */
 
+    }, {
+      key: "update",
+      value: function update() {
+        this._bvh.update();
 
-      UnregisterInactiveEntitys() {
-          console.log("GC run");
-          this.EntityList = this.EntityList.filter(x => x.PendingDestroy === false);
-          this.EntityListPostUpdate = this.EntityListPostUpdate.filter(x => x.PendingDestroy === false);
+        return this;
       }
+      /**
+       * Draws the bodies within the system to a CanvasRenderingContext2D's current path
+       * @param {CanvasRenderingContext2D} context The context to draw to
+       */
 
-
-      InitWorld() {
-
-          this.canvas = document.getElementById('mainCanvas');
-          this.ctx = this.canvas.getContext('2d');
-
+    }, {
+      key: "draw",
+      value: function draw(context) {
+        return this._bvh.draw(context);
       }
+      /**
+       * Draws the system's BVH to a CanvasRenderingContext2D's current path. This is useful for testing out different padding values for bodies.
+       * @param {CanvasRenderingContext2D} context The context to draw to
+       */
 
+    }, {
+      key: "drawBVH",
+      value: function drawBVH(context) {
+        return this._bvh.drawBVH(context);
+      }
+      /**
+       * Returns a list of potential collisions for a body
+       * @param {Circle|Polygon|Point} body The body to test for potential collisions against
+       * @returns {Array<Body>}
+       */
+
+    }, {
+      key: "potentials",
+      value: function potentials(body) {
+        return this._bvh.potentials(body);
+      }
+      /**
+       * Determines if two bodies are colliding
+       * @param {Circle|Polygon|Point} target The target body to test against
+       * @param {Result} [result = null] A Result object on which to store information about the collision
+       * @param {Boolean} [aabb = true] Set to false to skip the AABB test (useful if you use your own potential collision heuristic)
+       * @returns {Boolean}
+       */
+
+    }, {
+      key: "collides",
+      value: function collides(source, target) {
+        var result = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+        var aabb = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
+        return SAT(source, target, result, aabb);
+      }
+    }], [{
+      key: "createResult",
+      value: function createResult() {
+        return new Result();
+      }
+    }]);
+
+    return Collisions;
+  }();
+
+  var _World =
+  /*#__PURE__*/
+  function () {
+    function _World() {
+      _classCallCheck(this, _World);
+
+      this.EntityList = [];
+      this.EntityListPostUpdate = [];
+      this.ParticleList = [];
+      this.collisions = new Collisions();
+      this.collisionResults = this.collisions.createResult();
+      this.GameTime = 0;
+    }
+    /**
+     * Spawns entity and registers it ot the world
+     * 
+     * @param {Class} ClassToSpawn 
+     * @param {Object} props 
+     * @return Spawned Entity
+     */
+
+
+    _createClass(_World, [{
+      key: "SpawnEntity",
+      value: function SpawnEntity(ClassToSpawn, props) {
+        var newEntity = new ClassToSpawn(props);
+        this.RegisterEntity(newEntity);
+        newEntity.BeginPlay();
+        return newEntity;
+      }
+    }, {
+      key: "RegisterEntity",
+      value: function RegisterEntity(NewEntity) {
+        this.EntityList.push(NewEntity);
+
+        if (NewEntity.RegisterPostUpdate === true) {
+          this.EntityListPostUpdate.push(NewEntity);
+        }
+      }
+    }, {
+      key: "RegisterParticle",
+      value: function RegisterParticle(NewParticle) {
+        this.ParticleList.push(NewParticle);
+      }
+    }, {
+      key: "UnregisterInactiveEntitys",
+      value: function UnregisterInactiveEntitys() {
+        console.log("GC run");
+        this.EntityList = this.EntityList.filter(function (x) {
+          return x.PendingDestroy === false;
+        });
+        this.EntityListPostUpdate = this.EntityListPostUpdate.filter(function (x) {
+          return x.PendingDestroy === false;
+        });
+        this.ParticleList = this.ParticleList.filter(function (x) {
+          return x.PendingDestroy === false;
+        });
+      }
+    }, {
+      key: "InitWorld",
+      value: function InitWorld() {
+        this.canvas = document.getElementById('mainCanvas');
+        this.ctx = this.canvas.getContext('2d');
+      }
       /**
        * updates game time
        * @param {number} TimeStamp Timestamp from gameloop
        */
-      UpdateGameTime(TimeStamp) {
-          this.GameTime = TimeStamp;
+
+    }, {
+      key: "UpdateGameTime",
+      value: function UpdateGameTime(TimeStamp) {
+        this.GameTime = TimeStamp;
       }
-
-
-      Update(delta) {
-
-
-          this.EntityList.forEach(entity => {
-              if (!entity.PendingDestroy) {
-                  entity.update(delta);
-              }
-          });
-      }
-
-      PostUpdate(delta) {
-          //Update Collision
-          this.collisions.update();
-          //POST update
-          this.EntityListPostUpdate.forEach(entity => {
-              if (!entity.PendingDestroy) {
-                  entity.postUpdate(delta);
-              }
-          });
-      }
-
-  }
-
-  const World = new _World();
-
-  class Entity {
-
-
-
-
-      constructor(props) {
-
-          this.Location = props.location ? props.location.clone() : new Vector2(0, 0);
-          this.Velocity = props.velocity ? props.velocity.clone() : new Vector2(0, 0);
-          /*Rotation in Radians */
-          this.Rotation = 0;
-
-          this.World = World;
-          this.RootBody = null;
-          this.vertexes = [];
-          this.PendingDestroy = false;
-          this.RegisterPostUpdate = false;
-          this.team = props.team || 0;
-
-
-          this.maxHealth = props.maxHealth || 0;
-          this.health = props.health || this.maxHealth;
-
-          this.TimeToLife = props.timetolife || -1;
-          this.spawnTime = World.GameTime;
-          this.Age = 0;
-
-
-
-          this.BaseColor = "#fff";
-          this.StrokeColor = "#fff";
-      }
-
-
-      BeginPlay(){
-          
-      }
-
-      preUpdate(delta) {
-
-      }
-
-      update(delta) {
-
-          this.Age = World.GameTime - this.spawnTime;
-
-          if (this.TimeToLife > 0) {
-              if (this.Age > this.TimeToLife) {
-                  this.Destroy();
-              }
+    }, {
+      key: "Update",
+      value: function Update(delta) {
+        this.EntityList.forEach(function (entity) {
+          if (!entity.PendingDestroy) {
+            entity.update(delta);
           }
-
-          if (!this.IsInWorldBounds()) {
-              console.log("Out of Bounds: ", this);
-              this.Destroy();
-          }
-
+        });
       }
+    }, {
+      key: "PostUpdate",
+      value: function PostUpdate(delta) {
+        //Update Collision
+        this.collisions.update(); //POST update
 
+        this.EntityListPostUpdate.forEach(function (entity) {
+          if (!entity.PendingDestroy) {
+            entity.postUpdate(delta);
+          }
+        });
+      }
+    }]);
+
+    return _World;
+  }();
+
+  var World = new _World();
+
+  var Entity =
+  /*#__PURE__*/
+  function () {
+    function Entity(props) {
+      _classCallCheck(this, Entity);
+
+      this.Location = props.location ? props.location.clone() : new Vector2(0, 0);
+      this.Velocity = props.velocity ? props.velocity.clone() : new Vector2(0, 0);
+      /*Rotation in Radians */
+
+      this.Rotation = 0;
+      this.radius = 0;
+      this.World = World;
+      this.RootBody = null;
+      this.vertexes = [];
+      this.PendingDestroy = false;
+      this.RegisterPostUpdate = false;
+      this.team = props.team || 0;
+      this.maxHealth = props.maxHealth || 0;
+      this.health = props.health || this.maxHealth;
+      this.TimeToLife = props.timetolife || -1;
+      this.spawnTime = World.GameTime;
+      this.Age = 0;
+      this.BaseColor = "#fff";
+      this.StrokeColor = "#fff";
+    }
+
+    _createClass(Entity, [{
+      key: "BeginPlay",
+      value: function BeginPlay() {}
+    }, {
+      key: "preUpdate",
+      value: function preUpdate(delta) {}
+    }, {
+      key: "update",
+      value: function update(delta) {
+        this.Age = World.GameTime - this.spawnTime;
+
+        if (this.TimeToLife > 0) {
+          if (this.Age > this.TimeToLife) {
+            this.Destroy();
+          }
+        }
+
+        if (!this.IsInWorldBounds()) {
+          console.log("Out of Bounds: ", this);
+          this.Destroy();
+        }
+      }
       /**
        * Runs after Update needs to be registered with RegisterPostUpdate = true
        * @param {number} delta DeltaTime 
        */
-      postUpdate(delta) {
 
-      }
-
+    }, {
+      key: "postUpdate",
+      value: function postUpdate(delta) {}
       /**
        * Take damage 
        * @param {number} amount 
        */
-      takeDamage(amount) {
 
-      }
-
+    }, {
+      key: "takeDamage",
+      value: function takeDamage(amount) {}
       /**
        * Prepare Destroy Entity 
        */
-      Destroy() {
-          this.PendingDestroy = true;
 
+    }, {
+      key: "Destroy",
+      value: function Destroy() {
+        this.PendingDestroy = true;
       }
-
-      render(delta) {
-
-      }
-
+    }, {
+      key: "render",
+      value: function render(delta) {}
       /**
        * Set Entity Velocity clones the input vector
        * @param {Vector2} velocity the new velocity
        */
-      SetVelocity(velocity) {
-          this.Velocity = velocity.clone();
+
+    }, {
+      key: "SetVelocity",
+      value: function SetVelocity(velocity) {
+        this.Velocity = velocity.clone();
       }
-
-
       /**
        * Checks if entity is relevant in world
        * @returns {Boolean} 
        */
-      IsInWorldBounds() {
 
-          if (this.Location.x < -400
-              || this.Location.x > 1200
-              || this.Location.y < -400
-              || this.Location.y > 1000) {
-              return false;
-          }
+    }, {
+      key: "IsInWorldBounds",
+      value: function IsInWorldBounds() {
+        if (this.Location.x < -2000 || this.Location.x > 2000 || this.Location.y < -2000 || this.Location.y > 2000) {
+          return false;
+        }
 
-          return true;
+        return true;
       }
+    }]);
 
-
-
-  }
+    return Entity;
+  }();
 
   var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
@@ -5450,222 +5764,272 @@
    * Background star 
    * extra props size
    */
-  class StarBackGround extends Entity {
 
+  var StarBackGround =
+  /*#__PURE__*/
+  function (_Entity) {
+    _inherits(StarBackGround, _Entity);
 
-      constructor(props) {
-          super(props);
-          this.width = props.size;
-          this.height = props.size;
+    function StarBackGround(props) {
+      var _this;
 
+      _classCallCheck(this, StarBackGround);
+
+      _this = _possibleConstructorReturn(this, _getPrototypeOf(StarBackGround).call(this, props));
+      _this.width = props.size;
+      _this.height = props.size;
+      return _this;
+    }
+
+    _createClass(StarBackGround, [{
+      key: "BeginPlay",
+      value: function BeginPlay() {
+        _get(_getPrototypeOf(StarBackGround.prototype), "BeginPlay", this).call(this);
+
+        var factor = this.width / 5;
+        var lerpValue = lerp(0, 0.5, factor);
+        this.BaseColor = chroma('#fff').darken(lerpValue).hex();
       }
+    }, {
+      key: "update",
+      value: function update(delta) {
+        this.Location.addScaled(this.Velocity, delta);
 
-      BeginPlay() {
-
-          super.BeginPlay();
-
-          let factor = this.width / 5;
-          let lerpValue = lerp(0, 0.5, factor);
-          this.BaseColor = chroma('#fff').darken(lerpValue).hex();
+        if (this.Location.y > 900) {
+          this.Location = new Vector2(getRandomfloat(0, 800), getRandomfloat(-120, -250));
+        }
       }
-
-      update(delta) {
-
-          this.Location.addScaled(this.Velocity, delta);
-
-          if (this.Location.y > 900) {
-              this.Location = new Vector2(getRandomfloat(0, 800), getRandomfloat(-120, -250));
-          }
+    }, {
+      key: "render",
+      value: function render(delta) {
+        var ctx = this.World.ctx;
+        ctx.save();
+        ctx.fillStyle = this.BaseColor;
+        ctx.translate(this.Location.x, this.Location.y);
+        ctx.fillRect(-this.width / 2, -this.height / 2, this.width, this.height);
+        ctx.restore();
       }
+    }]);
 
-      render(delta) {
-          const ctx = this.World.ctx;
-          ctx.save();
-          ctx.fillStyle = this.BaseColor;
-          
-          ctx.translate(this.Location.x, this.Location.y);
-          ctx.fillRect(-this.width / 2, -this.height / 2, this.width, this.height);
-          ctx.restore();
-      }
-  }
+    return StarBackGround;
+  }(Entity);
 
   /**
    * Basic Movement Component adds Velocity to Location scaled by delta.
    */
-  class MovementComponent {
+  var MovementComponent =
+  /*#__PURE__*/
+  function () {
+    function MovementComponent(props) {
+      _classCallCheck(this, MovementComponent);
 
-      constructor(props) {
+      this.Outer = props.Outer || null;
+    }
 
-          this.Outer = props.Outer || null;
-
+    _createClass(MovementComponent, [{
+      key: "UpdateMovement",
+      value: function UpdateMovement(delta) {
+        if (this.Outer) {
+          this.Outer.Location.addScaled(this.Outer.Velocity, delta);
+        }
       }
+    }]);
 
+    return MovementComponent;
+  }();
 
-      UpdateMovement(delta) {
-          if (this.Outer) {
-              
-              this.Outer.Location.addScaled(this.Outer.Velocity, delta);
+  var Monster =
+  /*#__PURE__*/
+  function (_Entity) {
+    _inherits(Monster, _Entity);
 
-          }
+    function Monster(props) {
+      var _this;
+
+      _classCallCheck(this, Monster);
+
+      _this = _possibleConstructorReturn(this, _getPrototypeOf(Monster).call(this, props));
+      _this.vertexes = _this.CreateRandomPolygon();
+      _this.RootBody = _this.CreateCollionBody();
+      _this.RootBody.Outer = _assertThisInitialized(_this);
+      _this.team = props.team || 8;
+      _this.maxHealth = props.maxhealth || 30;
+      _this.health = _this.maxHealth;
+      _this.MovementComponent = _this.CreateMovementComponent(props);
+      return _this;
+    }
+
+    _createClass(Monster, [{
+      key: "CreateMovementComponent",
+      value: function CreateMovementComponent(props) {
+        if (props.MovementComponent) {
+          return new props.MovementComponent(_objectSpread2({
+            Outer: this
+          }, props.MovementConfig));
+        } else {
+          return new MovementComponent({
+            Outer: this
+          });
+        }
       }
-  }
-
-  class Monster extends Entity {
-
-      constructor(props) {
-          super(props);
-          this.vertexes = this.CreateRandomPolygon();
-          this.RootBody = this.CreateCollionBody();
-          this.RootBody.Outer = this;
-          this.team = props.team || 8;
-
-          this.maxHealth = 30;
-          this.health = this.maxHealth;
-
-          this.MovementComponent = this.CreateMovementComponent(props);
-
-      }
-
-
-      CreateMovementComponent(props) {
-          if (props.MovementComponent) {
-              return new props.MovementComponent({ Outer: this, ...props.MovementConfig });
-          } else {
-
-              return new MovementComponent({ Outer: this });
-          }
-      }
-
-
       /**
        * Create Random Poylgon
        * @return {Number|Array}Vertexes array
        */
-      CreateRandomPolygon() {
-          return [];
-      }
 
+    }, {
+      key: "CreateRandomPolygon",
+      value: function CreateRandomPolygon() {
+        return [];
+      }
       /**
        * @return Collision Body
        */
-      CreateCollionBody() {
-          return this.World.collisions.createCircle(this.Location.x, this.Location.y, 10);
+
+    }, {
+      key: "CreateCollionBody",
+      value: function CreateCollionBody() {
+        this.radius = 10;
+        return this.World.collisions.createCircle(this.Location.x, this.Location.y, this.radius);
       }
+    }, {
+      key: "update",
+      value: function update(delta) {
+        _get(_getPrototypeOf(Monster.prototype), "update", this).call(this, delta);
 
-      update(delta) {
-
-          super.update(delta);
-          this.UpdateMovement(delta);
-          this.UpdateRootBody();
-
+        this.UpdateMovement(delta);
+        this.UpdateRootBody();
       }
-
-      UpdateMovement(delta) {
-          this.MovementComponent.UpdateMovement(delta);
-
+    }, {
+      key: "UpdateMovement",
+      value: function UpdateMovement(delta) {
+        this.MovementComponent.UpdateMovement(delta);
       }
-
-      UpdateRootBody() {
-          this.RootBody.x = this.Location.x;
-          this.RootBody.y = this.Location.y;
-          this.RootBody.angle = this.Rotation;
+    }, {
+      key: "UpdateRootBody",
+      value: function UpdateRootBody() {
+        this.RootBody.x = this.Location.x;
+        this.RootBody.y = this.Location.y;
+        this.RootBody.angle = this.Rotation;
       }
+    }, {
+      key: "postUpdate",
+      value: function postUpdate(delta) {}
+    }, {
+      key: "Destroy",
+      value: function Destroy() {
+        _get(_getPrototypeOf(Monster.prototype), "Destroy", this).call(this);
 
-      postUpdate(delta) {
-
-
+        this.RootBody.remove();
       }
-
-      Destroy() {
-          super.Destroy();
-          this.RootBody.remove();
+    }, {
+      key: "render",
+      value: function render(delta) {
+        var ctx = this.World.ctx;
+        ctx.save();
+        ctx.translate(this.Location.x, this.Location.y);
+        ctx.beginPath();
+        ctx.fillStyle = this.BaseColor;
+        ctx.arc(0, 0, 10, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.restore();
       }
+    }, {
+      key: "takeDamage",
+      value: function takeDamage(amount) {
+        this.health -= amount;
 
-      render(delta) {
-          const ctx = this.World.ctx;
-          ctx.save();
-          ctx.translate(this.Location.x, this.Location.y);
-          ctx.beginPath();
-          ctx.fillStyle = this.BaseColor;
-          ctx.arc(0, 0, 10, 0, 2 * Math.PI);
-          ctx.fill();
-          ctx.restore();
+        if (this.health <= 0) {
+          this.Destroy();
+        }
       }
+    }]);
 
-      takeDamage(amount) {
-          this.health -= amount;
+    return Monster;
+  }(Entity);
 
-          if (this.health <= 0) {
-              this.Destroy();
-          }
+  var _Key =
+  /*#__PURE__*/
+  function () {
+    function _Key() {
+      _classCallCheck(this, _Key);
+
+      this._pressed = {};
+      this.LEFT = 37;
+      this.UP = 38;
+      this.RIGHT = 39;
+      this.DOWN = 40;
+      this.CTRL = 17;
+      this.SHIFT = 16;
+    }
+
+    _createClass(_Key, [{
+      key: "isDown",
+      value: function isDown(keyCode) {
+        return this._pressed[keyCode];
       }
-  }
-
-  class _Key {
-      constructor() {
-          this._pressed = {};
-          this.LEFT = 37;
-          this.UP = 38;
-          this.RIGHT = 39;
-          this.DOWN = 40;
-          this.CTRL = 17;
-          this.SHIFT = 16;
+    }, {
+      key: "onKeydown",
+      value: function onKeydown(event) {
+        this._pressed[event.keyCode] = true;
       }
-
-
-      isDown(keyCode) {
-          return this._pressed[keyCode];
+    }, {
+      key: "onKeyup",
+      value: function onKeyup(event) {
+        delete this._pressed[event.keyCode];
       }
+    }]);
 
-      onKeydown(event) {
-          this._pressed[event.keyCode] = true;
+    return _Key;
+  }();
+
+  var Key = new _Key();
+
+  var Weapon =
+  /*#__PURE__*/
+  function () {
+    function Weapon() {
+      _classCallCheck(this, Weapon);
+
+      this.Period = 250;
+      this.lastTimeFired = 0;
+      this.Outer = null;
+    }
+    /**
+     * Set the new owner of this weapon.
+     * @param {Entity} NewOwner 
+     */
+
+
+    _createClass(Weapon, [{
+      key: "SetOwner",
+      value: function SetOwner(NewOwner) {
+        this.Outer = NewOwner;
       }
-
-      onKeyup(event) {
-          delete this._pressed[event.keyCode];
-      }
-
-  }
-
-  const Key = new _Key();
-
-  class Weapon {
-
-
-      constructor() {
-
-          this.Period = 250;
-          this.lastTimeFired = 0;
-          this.Outer = null;
-          
-      }
-
-      /**
-       * Set the new owner of this weapon.
-       * @param {Entity} NewOwner 
-       */
-      SetOwner(NewOwner) {
-          this.Outer = NewOwner;
-      }
-
       /**
        * basic pre weapon fire logic
        * can the weapon fire?
        */
-      FireWeapon() {
-          if (this.lastTimeFired + this.Period < World.GameTime) {
-              this.HandleFireWeapon();
-          }
-      }
 
+    }, {
+      key: "FireWeapon",
+      value: function FireWeapon() {
+        if (this.lastTimeFired + this.Period < World.GameTime) {
+          this.HandleFireWeapon();
+        }
+      }
       /**
        * weapon fire logic 
        * creates projectiles etc.
        */
-      HandleFireWeapon() {
 
-      }
-  }
+    }, {
+      key: "HandleFireWeapon",
+      value: function HandleFireWeapon() {}
+    }]);
+
+    return Weapon;
+  }();
 
   var colorScale={
   	"jet":[{"index":0,"rgb":[0,0,131]},{"index":0.125,"rgb":[0,60,170]},{"index":0.375,"rgb":[5,255,255]},{"index":0.625,"rgb":[255,255,0]},{"index":0.875,"rgb":[250,0,0]},{"index":1,"rgb":[128,0,0]}],
@@ -5897,226 +6261,378 @@
       return 'rgba(' + rgba.join(',') + ')';
   }
 
-  class Projectile extends Monster {
+  var Particle =
+  /*#__PURE__*/
+  function (_Entity) {
+    _inherits(Particle, _Entity);
 
-      constructor(props) {
-          super(props);
+    function Particle(props) {
+      var _this;
 
+      _classCallCheck(this, Particle);
 
-          this.RegisterPostUpdate = true;
+      _this = _possibleConstructorReturn(this, _getPrototypeOf(Particle).call(this, props));
+      _this.TimeToLife = getRandomfloat(250, 700);
+      _this.ColorMap = colormap({
+        colormap: 'winter',
+        nshades: 20,
+        format: 'hex',
+        alpha: 1
+      });
+      _this.BaseColor = _this.ColorMap[0];
+      return _this;
+    }
 
-          this.TimeToLife = 1200;
+    _createClass(Particle, [{
+      key: "update",
+      value: function update(delta) {
+        _get(_getPrototypeOf(Particle.prototype), "update", this).call(this, delta);
 
-          this.ColorMap = colormap({
-              colormap: 'summer',
-              nshades: 20,
-              format: 'hex',
-              alpha: 1
+        this.Location.addScaled(this.Velocity, delta);
+        var factor = this.Age / this.TimeToLife;
+        this.BaseColor = this.ColorMap[Math.floor(lerp(0, this.ColorMap.length, factor))];
+      }
+    }, {
+      key: "render",
+      value: function render(delta) {
+        var ctx = this.World.ctx;
+        ctx.save();
+        ctx.translate(this.Location.x, this.Location.y);
+        ctx.beginPath();
+        ctx.fillStyle = this.BaseColor;
+        ctx.arc(0, 0, 1, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.restore();
+      }
+    }]);
+
+    return Particle;
+  }(Entity);
+
+  var ParticleEmitter =
+  /*#__PURE__*/
+  function () {
+    function ParticleEmitter(props) {
+      _classCallCheck(this, ParticleEmitter);
+
+      this.SpawnCount = 5;
+      this.Direction = props.direction || new Vector2(0, 0);
+      this.Location = props.location || new Vector2(0, 0);
+    }
+
+    _createClass(ParticleEmitter, [{
+      key: "Activate",
+      value: function Activate() {
+        for (var i = 0; i < this.SpawnCount; i++) {
+          var randomDirection = getRandomfloat(-0.2, 0.2);
+          var localVelocity = this.Direction.clone().rotate2D(randomDirection).multiply(getRandomfloat(200, 400));
+          var NewParticle = new Particle({
+            location: this.Location,
+            velocity: localVelocity
           });
-          this.BaseColor = this.ColorMap[0];
+          World.RegisterParticle(NewParticle);
+        }
       }
+    }]);
 
-      CreateCollionBody() {
-          return this.World.collisions.createCircle(this.Location.x, this.Location.y, 2);
+    return ParticleEmitter;
+  }();
+
+  var Projectile =
+  /*#__PURE__*/
+  function (_Monster) {
+    _inherits(Projectile, _Monster);
+
+    function Projectile(props) {
+      var _this;
+
+      _classCallCheck(this, Projectile);
+
+      _this = _possibleConstructorReturn(this, _getPrototypeOf(Projectile).call(this, props));
+      _this.RegisterPostUpdate = true;
+      _this.TimeToLife = 1200;
+      _this.ColorMap = colormap({
+        colormap: 'summer',
+        nshades: 20,
+        format: 'hex',
+        alpha: 1
+      });
+      _this.BaseColor = _this.ColorMap[0];
+      _this.ImpactFX = ParticleEmitter;
+      _this.DamageDealt = 5;
+      return _this;
+    }
+
+    _createClass(Projectile, [{
+      key: "CreateCollionBody",
+      value: function CreateCollionBody() {
+        return this.World.collisions.createCircle(this.Location.x, this.Location.y, 2);
       }
+    }, {
+      key: "update",
+      value: function update(delta) {
+        _get(_getPrototypeOf(Projectile.prototype), "update", this).call(this, delta);
 
-      update(delta) {
-          super.update(delta);
-          let factor = this.Age / this.TimeToLife;
-          this.BaseColor = this.ColorMap[
-              Math.floor(lerp(0, this.ColorMap.length, factor))
-          ];
+        var factor = this.Age / this.TimeToLife;
+        this.BaseColor = this.ColorMap[Math.floor(lerp(0, this.ColorMap.length, factor))];
       }
+    }, {
+      key: "postUpdate",
+      value: function postUpdate(delta) {
+        if (!this.PendingDestroy) {
+          var potentials = this.RootBody.potentials();
+          var _iteratorNormalCompletion = true;
+          var _didIteratorError = false;
+          var _iteratorError = undefined;
 
-      postUpdate(delta) {
-          if (!this.PendingDestroy) {
-              const potentials = this.RootBody.potentials();
-              for (const otherBody of potentials) {
-                  if (this.RootBody.collides(otherBody, this.World.collisionResults)) {
-                      if (this.team !== otherBody.Outer.team) {
-                          otherBody.Outer.takeDamage(10);
-                          this.Destroy();
-                          break;
-                      }
-                  }
+          try {
+            for (var _iterator = potentials[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+              var otherBody = _step.value;
+
+              if (this.RootBody.collides(otherBody, this.World.collisionResults)) {
+                if (this.team !== otherBody.Outer.team) {
+                  otherBody.Outer.takeDamage(this.DamageDealt);
+                  var Direction = new Vector2(this.World.collisionResults.overlap_x, this.World.collisionResults.overlap_y).multiply(-1);
+                  var FX = new ParticleEmitter({
+                    location: this.Location,
+                    direction: Direction
+                  });
+                  FX.Activate();
+                  this.Destroy();
+                  break;
+                }
               }
+            }
+          } catch (err) {
+            _didIteratorError = true;
+            _iteratorError = err;
+          } finally {
+            try {
+              if (!_iteratorNormalCompletion && _iterator.return != null) {
+                _iterator.return();
+              }
+            } finally {
+              if (_didIteratorError) {
+                throw _iteratorError;
+              }
+            }
           }
-
+        }
       }
-
-      render(delta) {
-
-
-          const ctx = this.World.ctx;
-          ctx.save();
-          ctx.translate(this.Location.x, this.Location.y);
-          ctx.beginPath();
-          ctx.fillStyle = this.BaseColor;
-          ctx.arc(0, 0, 2, 0, 2 * Math.PI);
-          ctx.fill();
-          ctx.restore();
+    }, {
+      key: "render",
+      value: function render(delta) {
+        var ctx = this.World.ctx;
+        ctx.save();
+        ctx.translate(this.Location.x, this.Location.y);
+        ctx.beginPath();
+        ctx.fillStyle = this.BaseColor;
+        ctx.arc(0, 0, 2, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.restore();
       }
-  }
+    }]);
+
+    return Projectile;
+  }(Monster);
 
   /**
    * Projectile shoots "Upwards"
    */
-  class BaseProjectileWeapon extends Weapon {
 
-      constructor() {
-          super();
+  var BaseProjectileWeapon =
+  /*#__PURE__*/
+  function (_Weapon) {
+    _inherits(BaseProjectileWeapon, _Weapon);
 
-     
+    function BaseProjectileWeapon() {
+      _classCallCheck(this, BaseProjectileWeapon);
 
+      return _possibleConstructorReturn(this, _getPrototypeOf(BaseProjectileWeapon).call(this));
+    }
+
+    _createClass(BaseProjectileWeapon, [{
+      key: "HandleFireWeapon",
+      value: function HandleFireWeapon() {
+        var P = new Projectile({
+          location: this.Outer.Location,
+          velocity: new Vector2(0, getRandomfloat(-550, -450)).add(this.Outer.Velocity.clone().multiply(0.16))
+        });
+        P.team = this.Outer.team;
+        World.RegisterEntity(P);
       }
+    }]);
+
+    return BaseProjectileWeapon;
+  }(Weapon);
+
+  var Player =
+  /*#__PURE__*/
+  function (_Monster) {
+    _inherits(Player, _Monster);
+
+    function Player(props) {
+      var _this;
+
+      _classCallCheck(this, Player);
+
+      _this = _possibleConstructorReturn(this, _getPrototypeOf(Player).call(this, props));
+      _this.RegisterPostUpdate = true;
+      _this.team = 0;
+      _this.maxHealth = 100;
+      _this.health = _this.maxHealth;
+      _this.InputStrength = 250;
+      _this.weapon = new BaseProjectileWeapon();
+
+      _this.weapon.SetOwner(_assertThisInitialized(_this)); //start with 1 to avoid modulus 0
 
 
+      _this.PositionLevel = 1;
+      return _this;
+    }
 
-      HandleFireWeapon() {
-          let P = new Projectile({
-              location: this.Outer.Location,
-              velocity: new Vector2(0, getRandomfloat(-550, -450)).add(this.Outer.Velocity.clone().multiply(0.16))
-          });
-          P.team = this.Outer.team;
-          World.RegisterEntity(P);
+    _createClass(Player, [{
+      key: "update",
+      value: function update(delta) {
+        this.Velocity = new Vector2(0, 0);
+
+        if (Key.isDown(Key.UP)) {
+          this.Velocity.addScaled(new Vector2(0, -1), this.InputStrength);
+        }
+
+        if (Key.isDown(Key.DOWN)) {
+          this.Velocity.addScaled(new Vector2(0, 1), this.InputStrength);
+        }
+
+        if (Key.isDown(Key.LEFT)) {
+          this.Velocity.addScaled(new Vector2(-1, 0), this.InputStrength);
+        }
+
+        if (Key.isDown(Key.RIGHT)) {
+          this.Velocity.addScaled(new Vector2(1, 0), this.InputStrength);
+        }
+
+        _get(_getPrototypeOf(Player.prototype), "update", this).call(this, delta);
+
+        if (Key.isDown(Key.CTRL)) {
+          if (this.weapon) {
+            this.weapon.FireWeapon();
+          }
+        }
       }
+    }, {
+      key: "postUpdate",
+      value: function postUpdate(delta) {
+        if (!this.PendingDestroy) {
+          var potentials = this.RootBody.potentials();
+          var _iteratorNormalCompletion = true;
+          var _didIteratorError = false;
+          var _iteratorError = undefined;
 
-   
-  }
+          try {
+            for (var _iterator = potentials[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+              var otherBody = _step.value;
 
-  class Player extends Monster {
-
-      constructor(props) {
-
-          super(props);
-
-          this.RegisterPostUpdate = true;
-          this.team = 0;
-
-          this.maxHealth = 100;
-          this.health = this.maxHealth;
-
-          this.InputStrength = 250;
-
-          this.weapon = new BaseProjectileWeapon();
-          this.weapon.SetOwner(this);
-
-          //start with 1 to avoid modulus 0
-          this.PositionLevel = 1;
-      }
-
-      update(delta) {
-
-          this.Velocity = new Vector2(0, 0);
-
-          if (Key.isDown(Key.UP)) {
-              this.Velocity.addScaled(new Vector2(0, -1), this.InputStrength);
-          }
-
-          if (Key.isDown(Key.DOWN)) {
-              this.Velocity.addScaled(new Vector2(0, 1), this.InputStrength);
-          }
-
-          if (Key.isDown(Key.LEFT)) {
-              this.Velocity.addScaled(new Vector2(-1, 0), this.InputStrength);
-          }
-          if (Key.isDown(Key.RIGHT)) {
-              this.Velocity.addScaled(new Vector2(1, 0), this.InputStrength);
-          }
-
-          super.update(delta);
-
-
-
-          if (Key.isDown(Key.CTRL)) {
-
-              if (this.weapon) {
-                  this.weapon.FireWeapon();
+              if (this.RootBody.collides(otherBody, this.World.collisionResults)) {
+                if (this.team !== otherBody.Outer.team) {
+                  otherBody.Outer.Destroy();
+                  this.takeDamage(10);
+                }
               }
-
-          }
-      }
-
-      postUpdate(delta) {
-          if (!this.PendingDestroy) {
-              const potentials = this.RootBody.potentials();
-              for (const otherBody of potentials) {
-                  if (this.RootBody.collides(otherBody, this.World.collisionResults)) {
-                      if (this.team !== otherBody.Outer.team) {
-                          otherBody.Outer.Destroy();
-                          this.takeDamage(10);
-                      }
-                  }
+            }
+          } catch (err) {
+            _didIteratorError = true;
+            _iteratorError = err;
+          } finally {
+            try {
+              if (!_iteratorNormalCompletion && _iterator.return != null) {
+                _iterator.return();
               }
+            } finally {
+              if (_didIteratorError) {
+                throw _iteratorError;
+              }
+            }
           }
+        }
       }
+    }, {
+      key: "takeDamage",
+      value: function takeDamage(amount) {
+        _get(_getPrototypeOf(Player.prototype), "takeDamage", this).call(this, amount);
 
-      takeDamage(amount) {
-
-          super.takeDamage(amount);
-
-          console.log("player HP: " + this.health);
+        console.log("player HP: " + this.health);
       }
-
-      CreateCollionBody() {
-          return this.World.collisions.createPolygon(this.Location.x, this.Location.y, [[0, 0], [16, 32], [-16, 32]]);
+    }, {
+      key: "CreateCollionBody",
+      value: function CreateCollionBody() {
+        return this.World.collisions.createPolygon(this.Location.x, this.Location.y, [[0, 0], [16, 32], [-16, 32]]);
       }
+    }, {
+      key: "render",
+      value: function render(delta) {
+        var ctx = this.World.ctx;
+        ctx.save(); //module import for rollup
 
-
-
-      render(delta) {
-          const ctx = this.World.ctx;
-          ctx.save();
-          //module import for rollup
-          ctx.fillStyle = chroma('green').darken(Math.sin(this.Age * 0.002)).hex();
-          ctx.strokeStyle = '#f0f';
-
-          ctx.beginPath();
-          ctx.translate(this.Location.x, this.Location.y);
-          ctx.lineTo(16, 32);
-          ctx.lineTo(-16, 32);
-          ctx.lineTo(0, 0);
-          ctx.closePath();
-          ctx.fill();
-          ctx.restore();
+        ctx.fillStyle = chroma('green').darken(Math.sin(this.Age * 0.002)).hex();
+        ctx.strokeStyle = '#f0f';
+        ctx.beginPath();
+        ctx.translate(this.Location.x, this.Location.y);
+        ctx.lineTo(16, 32);
+        ctx.lineTo(-16, 32);
+        ctx.lineTo(0, 0);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
       }
+    }]);
 
-  }
+    return Player;
+  }(Monster);
 
   /**
    * Y Axis Sinus Movement, Spawn x axis keept as offset
    */
-  class SinusCurveMovementComponent extends MovementComponent {
 
-      constructor(props) {
+  var SinusCurveMovementComponent =
+  /*#__PURE__*/
+  function (_MovementComponent) {
+    _inherits(SinusCurveMovementComponent, _MovementComponent);
 
-          super(props);
-          this.frequency = 100;
-          this.magnitude = 90;
-          this.OffsetX = this.Outer.Location.x;
+    function SinusCurveMovementComponent(props) {
+      var _this;
+
+      _classCallCheck(this, SinusCurveMovementComponent);
+
+      _this = _possibleConstructorReturn(this, _getPrototypeOf(SinusCurveMovementComponent).call(this, props));
+      _this.frequency = 100;
+      _this.magnitude = 90;
+      _this.OffsetX = _this.Outer.Location.x;
+      return _this;
+    }
+
+    _createClass(SinusCurveMovementComponent, [{
+      key: "UpdateMovement",
+      value: function UpdateMovement(delta) {
+        var LocalLocation = this.Outer.Location.clone();
+        LocalLocation.addScaled(this.Outer.Velocity, delta); //use y axis for sinus
+
+        this.Outer.Location = new Vector2(Math.sin(LocalLocation.y / this.frequency) * this.magnitude + this.OffsetX, LocalLocation.y);
       }
+    }]);
 
-      UpdateMovement(delta) {
+    return SinusCurveMovementComponent;
+  }(MovementComponent);
 
-          var LocalLocation = this.Outer.Location.clone();
-          LocalLocation.addScaled(this.Outer.Velocity, delta);
-
-          //use y axis for sinus
-          this.Outer.Location = new Vector2((Math.sin(LocalLocation.y / this.frequency) * this.magnitude) + this.OffsetX, LocalLocation.y);
-
-      }
-
-  }
-
-  const SCREEN_W = 800;
-  const SCREEN_H = 600;
-
-
-  const DefaultEnemyProps = { velocity: new Vector2(0, 150) };
-  const SinusCurveDefaultProps = { MovementComponent: SinusCurveMovementComponent, velocity: new Vector2(0, 200) };
-
-
-
+  var SCREEN_W = 800;
+  var SCREEN_H = 600;
+  var DefaultEnemyProps = {
+    velocity: new Vector2(0, 150)
+  };
+  var SinusCurveDefaultProps = {
+    MovementComponent: SinusCurveMovementComponent,
+    velocity: new Vector2(0, 200)
+  };
   /**
    * Spawns Enemys in a Line
    * 
@@ -6126,301 +6642,342 @@
    * @param {Class} ClassToSpawn The Class to Spawn. Defaults to Monster 
    * @param {Object} InProps Properties passed to constructor
    */
-  function SpawnEnemyLine(Location, TargetLocation, Padding, ClassToSpawn = Monster, InProps = {}) {
 
-      let Dist = Location.Distance(TargetLocation);
-      let Count = Math.round(Dist / Padding);
-      let LocalLocation = Location.clone();
+  function SpawnEnemyLine(Location, TargetLocation, Padding) {
+    var ClassToSpawn = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : Monster;
+    var InProps = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : {};
+    var Dist = Location.Distance(TargetLocation);
+    var Count = Math.round(Dist / Padding);
+    var LocalLocation = Location.clone();
 
-      for (let i = 0; i < Count; i++) {
-          let LocalProps = { location: LocalLocation };
-          LocalProps = { ...LocalProps, ...InProps };
-          World.SpawnEntity(ClassToSpawn, LocalProps);
-          LocalLocation.moveTowards(TargetLocation, Padding);
-      }
-
+    for (var i = 0; i < Count; i++) {
+      var LocalProps = {
+        location: LocalLocation
+      };
+      LocalProps = _objectSpread2({}, LocalProps, {}, InProps);
+      World.SpawnEntity(ClassToSpawn, LocalProps);
+      LocalLocation.moveTowards(TargetLocation, Padding);
+    }
   }
 
-  class Asteroid extends Monster {
+  var Asteroid =
+  /*#__PURE__*/
+  function (_Monster) {
+    _inherits(Asteroid, _Monster);
 
-      constructor(props) {
-          super(props);
-          //inverse rotation
-          let inverse = getRandomBool() ? 1 : -1;
-          this.rotationSpeed = getRandomfloat(0.01, 0.05) * inverse;
+    function Asteroid(props) {
+      var _this;
 
-          this.BaseChroma = chroma('saddlebrown').darken(getRandomfloat(0, 0.8));
-          this.BaseColor = this.BaseChroma.hex();
-          this.LowHealthColor = "#F00";
-          this.HealthChromaScale = chroma.scale(["#fff", this.LowHealthColor]).mode('lab');
+      _classCallCheck(this, Asteroid);
 
+      _this = _possibleConstructorReturn(this, _getPrototypeOf(Asteroid).call(this, props)); //inverse rotation
 
-          this.maxHealth = 70;
-          this.health = this.maxHealth;
+      var inverse = getRandomBool() ? 1 : -1;
+      _this.rotationSpeed = getRandomfloat(0.01, 0.05) * inverse;
+      _this.BaseChroma = chroma('saddlebrown').darken(getRandomfloat(0, 0.8));
+      _this.BaseColor = _this.BaseChroma.hex();
+      _this.LowHealthColor = "#F00";
+      _this.HealthChromaScale = chroma.scale(["#fff", _this.LowHealthColor]).mode('lab');
+      _this.maxHealth = props.maxhealth || 70;
+      _this.health = _this.maxHealth;
+      return _this;
+    }
+
+    _createClass(Asteroid, [{
+      key: "update",
+      value: function update(delta) {
+        this.Rotation += this.rotationSpeed;
+
+        _get(_getPrototypeOf(Asteroid.prototype), "update", this).call(this, delta);
       }
+    }, {
+      key: "CreateRandomPolygon",
+      value: function CreateRandomPolygon() {
+        this.radius = getRandomfloat(15, 40);
+        var Center = new Vector2(0, 0);
+        var ArrayVertexes = [];
+        var RandomAngles = [];
+        var numVertexes = getRandomInt(8, 16);
 
-      update(delta) {
+        for (var i = 0; i < numVertexes; i++) {
+          RandomAngles.push(getRandomfloat(0, Math.PI * 2));
+        } //sort random angels direction dont matter
 
-          this.Rotation += this.rotationSpeed;
 
-          super.update(delta);
+        RandomAngles.sort();
 
+        for (var _i = 0; _i < numVertexes; _i++) {
+          var x = Center.x + this.radius * Math.cos(RandomAngles[_i]);
+          var y = Center.y + this.radius * Math.sin(RandomAngles[_i]);
+          ArrayVertexes.push([x, y]);
+        }
+
+        return ArrayVertexes;
       }
-
-      CreateRandomPolygon() {
-          let Radius = getRandomfloat(15, 40);
-          let Center = new Vector2(0, 0);
-          let ArrayVertexes = [];
-          let RandomAngles = [];
-          let numVertexes = getRandomInt(8, 16);
-          for (let i = 0; i < numVertexes; i++) {
-              RandomAngles.push(getRandomfloat(0, Math.PI * 2));
-          }
-
-          //sort random angels direction dont matter
-          RandomAngles.sort();
-
-          for (let i = 0; i < numVertexes; i++) {
-
-              let x = Center.x + Radius * Math.cos(RandomAngles[i]);
-              let y = Center.y + Radius * Math.sin(RandomAngles[i]);
-
-              ArrayVertexes.push([x, y]);
-          }
-          return ArrayVertexes;
+    }, {
+      key: "CreateCollionBody",
+      value: function CreateCollionBody() {
+        return this.World.collisions.createPolygon(this.Location.x, this.Location.y, this.vertexes);
       }
+    }, {
+      key: "takeDamage",
+      value: function takeDamage(amount) {
+        _get(_getPrototypeOf(Asteroid.prototype), "takeDamage", this).call(this, amount);
 
-      CreateCollionBody() {
-          return this.World.collisions.createPolygon(this.Location.x, this.Location.y, this.vertexes);
+        this.BaseColor = chroma.blend(this.BaseChroma.hex(), this.HealthChromaScale(this.health / this.maxHealth).hex(), 'multiply');
       }
+    }, {
+      key: "render",
+      value: function render() {
+        var ctx = this.World.ctx;
+        ctx.save();
+        ctx.fillStyle = this.BaseColor;
+        ctx.strokeStyle = this.StrokeColor;
+        ctx.translate(this.Location.x, this.Location.y);
+        ctx.rotate(this.Rotation);
+        ctx.beginPath(); //draw polygon
 
-      takeDamage(amount) {
-          super.takeDamage(amount);
-          this.BaseColor = chroma.blend(this.BaseChroma.hex(), this.HealthChromaScale(this.health / this.maxHealth).hex(), 'multiply');    }
+        for (var i = 0; i < this.vertexes.length; i++) {
+          ctx.lineTo(this.vertexes[i][0], this.vertexes[i][1]);
+        }
 
-      render() {
-          const ctx = this.World.ctx;
-          ctx.save();
-
-          ctx.fillStyle = this.BaseColor;
-          ctx.strokeStyle = this.StrokeColor;
-
-          ctx.translate(this.Location.x, this.Location.y);
-          ctx.rotate(this.Rotation);
-
-          ctx.beginPath();
-          //draw polygon
-          for (let i = 0; i < this.vertexes.length; i++) {
-              ctx.lineTo(this.vertexes[i][0], this.vertexes[i][1]);
-          }
-          ctx.closePath();
-          ctx.fill();
-          ctx.restore();
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
       }
+    }]);
 
-  }
+    return Asteroid;
+  }(Monster);
 
   /**
    * X Axis Cosine Movement, Spawn y axis keept as offset
    */
-  class CosineCurveMovementComponent extends MovementComponent {
 
-      constructor(props) {
+  var CosineCurveMovementComponent =
+  /*#__PURE__*/
+  function (_MovementComponent) {
+    _inherits(CosineCurveMovementComponent, _MovementComponent);
 
-          super(props);
-          this.frequency = 100;
-          this.magnitude = 90;
-          this.OffsetY = this.Outer.Location.y;
+    function CosineCurveMovementComponent(props) {
+      var _this;
+
+      _classCallCheck(this, CosineCurveMovementComponent);
+
+      _this = _possibleConstructorReturn(this, _getPrototypeOf(CosineCurveMovementComponent).call(this, props));
+      _this.frequency = 100;
+      _this.magnitude = 90;
+      _this.OffsetY = _this.Outer.Location.y;
+      return _this;
+    }
+
+    _createClass(CosineCurveMovementComponent, [{
+      key: "UpdateMovement",
+      value: function UpdateMovement(delta) {
+        var LocalLocation = this.Outer.Location.clone();
+        LocalLocation.addScaled(this.Outer.Velocity, delta); //use y axis for sinus
+
+        this.Outer.Location = new Vector2(LocalLocation.x, Math.cos(LocalLocation.x / this.frequency) * this.magnitude + this.OffsetY);
       }
+    }]);
 
-      UpdateMovement(delta) {
+    return CosineCurveMovementComponent;
+  }(MovementComponent);
 
-          var LocalLocation = this.Outer.Location.clone();
-          LocalLocation.addScaled(this.Outer.Velocity, delta);
+  var SINE_VERCTICAL_DOWN = 1;
+  var SINE_HORIZONTAL = 2;
+  var LINE_X = 3;
 
-          //use y axis for sinus
-          this.Outer.Location = new Vector2(LocalLocation.x, (Math.cos(LocalLocation.x / this.frequency) * this.magnitude) + this.OffsetY);
+  var _GameMode =
+  /*#__PURE__*/
+  function () {
+    function _GameMode() {
+      _classCallCheck(this, _GameMode);
 
+      this.PlayerPawn = null;
+    }
+
+    _createClass(_GameMode, [{
+      key: "RegisterPlayerPawn",
+      value: function RegisterPlayerPawn(InPlayerPawn) {
+        this.PlayerPawn = InPlayerPawn;
       }
+    }, {
+      key: "Update",
+      value: function Update(delta) {
+        if (this.PlayerPawn) {
+          this.PlayerPawn.PositionLevel += 1 * delta;
 
-  }
-
-  const SINE_VERCTICAL_DOWN = 1;
-  const SINE_HORIZONTAL = 2;
-
-  class _GameMode {
-
-
-      constructor() {
-          this.PlayerPawn = null;
-
+          if (Math.floor(this.PlayerPawn.PositionLevel) % 3 === 0) {
+            //add 1 to avoid modulus 0
+            this.PlayerPawn.PositionLevel += 1;
+            this.SpawnNextEnemySet();
+          }
+        }
       }
+    }, {
+      key: "SpawnNextEnemySet",
+      value: function SpawnNextEnemySet() {
+        var SetID = getRandomInt(1, 4);
 
-      RegisterPlayerPawn(InPlayerPawn) {
-          this.PlayerPawn = InPlayerPawn;
-      }
+        switch (SetID) {
+          case SINE_VERCTICAL_DOWN:
+            {
+              var OriginLocation = new Vector2(getRandomfloat(100, 700), -400);
+              var TargetLocation = new Vector2(OriginLocation.x, 0);
+              SpawnEnemyLine(OriginLocation, TargetLocation, 40, Asteroid, SinusCurveDefaultProps);
+            }
+            break;
 
-      Update(delta) {
-          if (this.PlayerPawn) {
+          case SINE_HORIZONTAL:
+            {
+              var IsSpawnLeft = getRandomBool();
+              var randomY = getRandomfloat(100, 500);
 
-              this.PlayerPawn.PositionLevel += 1 * delta;
+              var _OriginLocation = IsSpawnLeft ? new Vector2(-400, randomY) : new Vector2(1200, randomY);
 
-              if (Math.floor(this.PlayerPawn.PositionLevel) % 3 === 0) {
+              var _TargetLocation = IsSpawnLeft ? new Vector2(0, randomY) : new Vector2(800, randomY);
 
-                  //add 1 to avoid modulus 0
-                  this.PlayerPawn.PositionLevel += 1;
+              var LocalVelocity = IsSpawnLeft ? new Vector2(200, 0) : new Vector2(-200, 0);
+              SpawnEnemyLine(_OriginLocation, _TargetLocation, 40, Asteroid, {
+                MovementComponent: CosineCurveMovementComponent,
+                velocity: LocalVelocity
+              });
+            }
+            break;
 
-                  this.SpawnNextEnemySet();
+          case LINE_X:
+            {
+              var _IsSpawnLeft = getRandomBool();
 
+              var _randomY = getRandomfloat(-100, -400);
 
+              var _OriginLocation2, _TargetLocation2, _LocalVelocity;
+
+              var magnitudeX = getRandomfloat(100, 200);
+              var magnitudeY = getRandomfloat(100, 200);
+
+              if (_IsSpawnLeft) {
+                _OriginLocation2 = new Vector2(1200, _randomY);
+                _TargetLocation2 = new Vector2(_OriginLocation2.x - getRandomfloat(100, 400), _randomY + getRandomfloat(100, 300));
+                _LocalVelocity = new Vector2(magnitudeX * -1, magnitudeY);
+              } else {
+                _OriginLocation2 = new Vector2(-400, _randomY);
+                _TargetLocation2 = new Vector2(_OriginLocation2.x + getRandomfloat(100, 400), _randomY + getRandomfloat(100, 300));
+                _LocalVelocity = new Vector2(magnitudeX, magnitudeY);
               }
-          }
+
+              SpawnEnemyLine(_OriginLocation2, _TargetLocation2, 40, Asteroid, {
+                velocity: _LocalVelocity
+              });
+            }
+            break;
+
+          default:
+            {
+              var _TargetLocation3 = new Vector2(400, 0);
+
+              _TargetLocation3.setDirection(getRandomInt(360, 180), 2000);
+
+              var b = getRandomBool();
+              console.log(b);
+              var LocalProps = b ? DefaultEnemyProps : SinusCurveDefaultProps;
+              SpawnEnemyLine(new Vector2(400, 0), _TargetLocation3, 20, Monster, LocalProps);
+            }
+            break;
+        }
       }
+    }]);
 
+    return _GameMode;
+  }();
 
-
-      SpawnNextEnemySet() {
-          let SetID = getRandomInt(1, 3);
-          switch (SetID) {
-              case SINE_VERCTICAL_DOWN:
-                  {
-                      let OriginLocation = new Vector2(getRandomfloat(100, 700), -400);
-                      let TargetLocation = new Vector2(OriginLocation.x, 0);
-                      SpawnEnemyLine(OriginLocation, TargetLocation, 40, Asteroid, SinusCurveDefaultProps);
-                  }
-                  break;
-              case SINE_HORIZONTAL:
-                  {
-                      let IsSpawnLeft = getRandomBool();
-                      let randomY = getRandomfloat(100, 500);
-                      let OriginLocation = IsSpawnLeft ? new Vector2(-400, randomY) : new Vector2(1200, randomY);
-                      let TargetLocation = IsSpawnLeft ? new Vector2(0, randomY) : new Vector2(800, randomY);
-                      let LocalVelocity = IsSpawnLeft ? new Vector2(200, 0) : new Vector2(-200, 0);
-                      SpawnEnemyLine(OriginLocation, TargetLocation, 40, Asteroid, {
-                          MovementComponent: CosineCurveMovementComponent, velocity: LocalVelocity
-                      });
-
-                  }
-                  break;
-              default:
-                  {
-                      let TargetLocation = new Vector2(400, 0);
-                      TargetLocation.setDirection(getRandomInt(360, 180), 2000);
-
-                      var b = getRandomBool();
-                      console.log(b);
-                      var LocalProps = b ? DefaultEnemyProps : SinusCurveDefaultProps;
-                      SpawnEnemyLine(new Vector2(400, 0), TargetLocation, 20, Monster, LocalProps);
-                  }
-                  break;
-          }
-
-
-      }
-
-
-
-
-
-  }
-
-
-  const GameMode = new _GameMode();
+  var GameMode = new _GameMode();
 
   var lastFrameTimeMs = 0;
   var maxFPS = 60;
   var delta = 0;
-
   var lastTimeGC = 0;
 
   function GameLoop(TimeStamp) {
+    World.UpdateGameTime(TimeStamp);
 
-      World.UpdateGameTime(TimeStamp);
-
-      if (TimeStamp < lastFrameTimeMs + (1000 / maxFPS)) {
-          requestAnimationFrame(GameLoop);
-          return;
-      }
-
-      if (lastTimeGC + 60000 < TimeStamp) {
-          lastTimeGC = TimeStamp;
-          World.UnregisterInactiveEntitys();
-      }
-
-      delta = (TimeStamp - lastFrameTimeMs) / 1000;
-      lastFrameTimeMs = TimeStamp;
-
-
-
-      //Update
-      GameMode.Update(delta);
-      World.Update(delta);
-
-      //Post update
-      World.PostUpdate(delta);
-
-      //Draw
-      //clear screen  CLS
-      World.ctx.fillStyle = "#000";
-      World.ctx.fillRect(0, 0, 800, 600);
-
-      World.EntityList.forEach(entity => {
-          if (!entity.PendingDestroy) {
-              entity.render(delta);
-          }
-      });
-
-
-
+    if (TimeStamp < lastFrameTimeMs + 1000 / maxFPS) {
       requestAnimationFrame(GameLoop);
+      return;
+    }
+
+    if (lastTimeGC + 60000 < TimeStamp) {
+      lastTimeGC = TimeStamp;
+      World.UnregisterInactiveEntitys();
+    }
+
+    delta = (TimeStamp - lastFrameTimeMs) / 1000;
+    lastFrameTimeMs = TimeStamp; //Update
+
+    GameMode.Update(delta);
+    World.Update(delta); //Post update
+
+    World.PostUpdate(delta); //Draw
+    //clear screen  CLS
+
+    World.ctx.fillStyle = "#000";
+    World.ctx.fillRect(0, 0, 800, 600);
+    World.EntityList.forEach(function (entity) {
+      if (!entity.PendingDestroy) {
+        entity.render(delta);
+      }
+    });
+    World.ParticleList.forEach(function (particle) {
+      if (!particle.PendingDestroy) {
+        particle.update(delta);
+        particle.render(delta);
+      }
+    }); // Draw Debug collisons
+
+    requestAnimationFrame(GameLoop);
   }
-
-
-
 
   function InitGame() {
+    InitStars(); //  World.SpawnEntity(Asteroid, { location: new Vector2(400, 300), maxhealth:10000500 })
 
+    var newPlayer = World.SpawnEntity(Player, {
+      location: new Vector2(400, 500)
+    });
+    GameMode.RegisterPlayerPawn(newPlayer);
 
+    function InitStars() {
+      for (var i = 0; i < 60; i++) {
+        var size = getRandomInt(1, 5);
+        var x = getRandomfloat(0, SCREEN_W);
+        var y = getRandomfloat(0, SCREEN_H);
+        var speed = getRandomfloat(150, 180) / size;
 
+        if (i > 45) {
+          size = getRandomInt(4, 8);
+          speed = getRandomfloat(50, 80) / size;
+        }
 
-      InitStars();
-
-
-      var newPlayer = World.SpawnEntity(Player, { location: new Vector2(400, 500) });
-      GameMode.RegisterPlayerPawn(newPlayer);
-
-      function InitStars() {
-          for (let i = 0; i < 60; i++) {
-              let size = getRandomInt(1, 5);
-              let x = getRandomfloat(0, SCREEN_W);
-              let y = getRandomfloat(0, SCREEN_H);
-              let speed = getRandomfloat(150, 180) / size;
-              if (i > 45) {
-                  size = getRandomInt(4, 8);
-                  speed = getRandomfloat(50, 80) / size;
-              }
-
-              World.SpawnEntity(StarBackGround, {
-                  location: new Vector2(x, y),
-                  velocity: new Vector2(0, speed),
-                  size: size
-              });
-
-          }
+        World.SpawnEntity(StarBackGround, {
+          location: new Vector2(x, y),
+          velocity: new Vector2(0, speed),
+          size: size
+        });
       }
+    }
   }
 
+  window.addEventListener('keyup', function (event) {
+    Key.onKeyup(event);
+  }, false);
+  window.addEventListener('keydown', function (event) {
+    Key.onKeydown(event);
+  }, false); //window.addEventListener('mousemove', MouseMove, false);
 
-
-
-  window.addEventListener('keyup', function (event) { Key.onKeyup(event); }, false);
-  window.addEventListener('keydown', function (event) { Key.onKeydown(event); }, false);
-  //window.addEventListener('mousemove', MouseMove, false);
-
-  document.addEventListener('DOMContentLoaded', (event) => {
-      World.InitWorld();
-      InitGame();
-      requestAnimationFrame(GameLoop);
+  document.addEventListener('DOMContentLoaded', function (event) {
+    World.InitWorld();
+    InitGame();
+    requestAnimationFrame(GameLoop);
   });
 
 }());

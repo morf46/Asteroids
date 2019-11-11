@@ -13,7 +13,7 @@ class Monster extends Entity {
         this.RootBody.Outer = this;
         this.team = props.team || 8;
 
-        this.maxHealth = 30;
+        this.maxHealth = props.maxhealth || 30;
         this.health = this.maxHealth;
 
         this.MovementComponent = this.CreateMovementComponent(props);
@@ -22,6 +22,7 @@ class Monster extends Entity {
 
 
     CreateMovementComponent(props) {
+
         if (props.MovementComponent) {
             return new props.MovementComponent({ Outer: this, ...props.MovementConfig });
         } else {
@@ -43,7 +44,8 @@ class Monster extends Entity {
      * @return Collision Body
      */
     CreateCollionBody() {
-        return this.World.collisions.createCircle(this.Location.x, this.Location.y, 10);
+        this.radius = 10;
+        return this.World.collisions.createCircle(this.Location.x, this.Location.y, this.radius);
     }
 
     update(delta) {
