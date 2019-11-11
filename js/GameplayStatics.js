@@ -14,6 +14,7 @@ export const DefaultEnemyProps = { velocity: new Vector2(0, 150) };
 export const SinusCurveDefaultProps = { MovementComponent: SinusCurveMovementComponent, velocity: new Vector2(0, 200) }
 
 
+
 /**
  * Spawns Enemys in a Line
  * 

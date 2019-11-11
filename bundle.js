@@ -6116,6 +6116,7 @@
   const SinusCurveDefaultProps = { MovementComponent: SinusCurveMovementComponent, velocity: new Vector2(0, 200) };
 
 
+
   /**
    * Spawns Enemys in a Line
    * 
@@ -6148,10 +6149,10 @@
           let inverse = getRandomBool() ? 1 : -1;
           this.rotationSpeed = getRandomfloat(0.01, 0.05) * inverse;
 
-          this.ChromaColor = chroma('saddlebrown').darken(getRandomfloat(0, 0.8));
-          this.BaseColor = this.ChromaColor.hex();
+          this.BaseChroma = chroma('saddlebrown').darken(getRandomfloat(0, 0.8));
+          this.BaseColor = this.BaseChroma.hex();
           this.LowHealthColor = "#F00";
-          this.ChromaScale = chroma.scale([this.BaseColor, this.LowHealthColor]).mode('lab');
+          this.HealthChromaScale = chroma.scale(["#fff", this.LowHealthColor]).mode('lab');
 
 
           this.maxHealth = 70;
@@ -6195,8 +6196,7 @@
 
       takeDamage(amount) {
           super.takeDamage(amount);
-          this.BaseColor = this.ChromaScale(this.health / this.maxHealth).hex();
-      }
+          this.BaseColor = chroma.blend(this.BaseChroma.hex(), this.HealthChromaScale(this.health / this.maxHealth).hex(), 'multiply');    }
 
       render() {
           const ctx = this.World.ctx;
@@ -6219,6 +6219,34 @@
       }
 
   }
+
+  /**
+   * X Axis Cosine Movement, Spawn y axis keept as offset
+   */
+  class CosineCurveMovementComponent extends MovementComponent {
+
+      constructor(props) {
+
+          super(props);
+          this.frequency = 100;
+          this.magnitude = 90;
+          this.OffsetY = this.Outer.Location.y;
+      }
+
+      UpdateMovement(delta) {
+
+          var LocalLocation = this.Outer.Location.clone();
+          LocalLocation.addScaled(this.Outer.Velocity, delta);
+
+          //use y axis for sinus
+          this.Outer.Location = new Vector2(LocalLocation.x, (Math.cos(LocalLocation.x / this.frequency) * this.magnitude) + this.OffsetY);
+
+      }
+
+  }
+
+  const SINE_VERCTICAL_DOWN = 1;
+  const SINE_HORIZONTAL = 2;
 
   class _GameMode {
 
@@ -6249,13 +6277,30 @@
           }
       }
 
+
+
       SpawnNextEnemySet() {
-          let SetID = getRandomInt(1, 1);
+          let SetID = getRandomInt(1, 3);
           switch (SetID) {
-              case 1:
-                  let OriginLocation = new Vector2(getRandomfloat(100, 700), -400);
-                  let TargetLocation = new Vector2(OriginLocation.x, 0);
-                  SpawnEnemyLine(OriginLocation, TargetLocation, 40, Asteroid, SinusCurveDefaultProps);
+              case SINE_VERCTICAL_DOWN:
+                  {
+                      let OriginLocation = new Vector2(getRandomfloat(100, 700), -400);
+                      let TargetLocation = new Vector2(OriginLocation.x, 0);
+                      SpawnEnemyLine(OriginLocation, TargetLocation, 40, Asteroid, SinusCurveDefaultProps);
+                  }
+                  break;
+              case SINE_HORIZONTAL:
+                  {
+                      let IsSpawnLeft = getRandomBool();
+                      let randomY = getRandomfloat(100, 500);
+                      let OriginLocation = IsSpawnLeft ? new Vector2(-400, randomY) : new Vector2(1200, randomY);
+                      let TargetLocation = IsSpawnLeft ? new Vector2(0, randomY) : new Vector2(800, randomY);
+                      let LocalVelocity = IsSpawnLeft ? new Vector2(200, 0) : new Vector2(-200, 0);
+                      SpawnEnemyLine(OriginLocation, TargetLocation, 40, Asteroid, {
+                          MovementComponent: CosineCurveMovementComponent, velocity: LocalVelocity
+                      });
+
+                  }
                   break;
               default:
                   {

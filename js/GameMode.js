@@ -3,7 +3,10 @@ import { SpawnEnemyLine, DefaultEnemyProps, SinusCurveDefaultProps } from "./Gam
 import Monster from "./monster";
 import { getRandomfloat, getRandomBoolWithWeight, getRandomBool, getRandomInt } from "./mathutils";
 import Asteroid from "./monsters/asteroid";
+import CosineCurveMovementComponent from "./Ai/CosineCurveMovement";
 
+const SINE_VERCTICAL_DOWN = 1;
+const SINE_HORIZONTAL = 2;
 
 class _GameMode {
 
@@ -34,13 +37,30 @@ class _GameMode {
         }
     }
 
+
+
     SpawnNextEnemySet() {
-        let SetID = getRandomInt(1, 1);
+        let SetID = getRandomInt(1, 3);
         switch (SetID) {
-            case 1:
-                let OriginLocation = new Vector2(getRandomfloat(100, 700), -400);
-                let TargetLocation = new Vector2(OriginLocation.x, 0);
-                SpawnEnemyLine(OriginLocation, TargetLocation, 40, Asteroid, SinusCurveDefaultProps);
+            case SINE_VERCTICAL_DOWN:
+                {
+                    let OriginLocation = new Vector2(getRandomfloat(100, 700), -400);
+                    let TargetLocation = new Vector2(OriginLocation.x, 0);
+                    SpawnEnemyLine(OriginLocation, TargetLocation, 40, Asteroid, SinusCurveDefaultProps);
+                }
+                break;
+            case SINE_HORIZONTAL:
+                {
+                    let IsSpawnLeft = getRandomBool();
+                    let randomY = getRandomfloat(100, 500)
+                    let OriginLocation = IsSpawnLeft ? new Vector2(-400, randomY) : new Vector2(1200, randomY);
+                    let TargetLocation = IsSpawnLeft ? new Vector2(0, randomY) : new Vector2(800, randomY);
+                    let LocalVelocity = IsSpawnLeft ? new Vector2(200, 0) : new Vector2(-200, 0)
+                    SpawnEnemyLine(OriginLocation, TargetLocation, 40, Asteroid, {
+                        MovementComponent: CosineCurveMovementComponent, velocity: LocalVelocity
+                    });
+
+                }
                 break;
             default:
                 {

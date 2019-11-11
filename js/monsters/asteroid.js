@@ -13,10 +13,10 @@ class Asteroid extends Monster {
         let inverse = getRandomBool() ? 1 : -1;
         this.rotationSpeed = getRandomfloat(0.01, 0.05) * inverse;
 
-        this.ChromaColor = chroma('saddlebrown').darken(getRandomfloat(0, 0.8));
-        this.BaseColor = this.ChromaColor.hex();
+        this.BaseChroma = chroma('saddlebrown').darken(getRandomfloat(0, 0.8));
+        this.BaseColor = this.BaseChroma.hex();
         this.LowHealthColor = "#F00";
-        this.ChromaScale = chroma.scale([this.BaseColor, this.LowHealthColor]).mode('lab');
+        this.HealthChromaScale = chroma.scale(["#fff", this.LowHealthColor]).mode('lab');
 
 
         this.maxHealth = 70;
@@ -60,7 +60,7 @@ class Asteroid extends Monster {
 
     takeDamage(amount) {
         super.takeDamage(amount);
-        this.BaseColor = this.ChromaScale(this.health / this.maxHealth).hex();
+        this.BaseColor = chroma.blend(this.BaseChroma.hex(), this.HealthChromaScale(this.health / this.maxHealth).hex(), 'multiply');;
     }
 
     render() {
