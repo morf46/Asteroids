@@ -1,15 +1,17 @@
 import Vector2 from "./vector"
 import World from "./world";
+import { lerp } from './mathutils';
 
-class Entity {
+export class Entity {
 
 
 
 
     constructor(props) {
 
-        this.Location = props.location ? props.location.clone() : new Vector2(0, 0);
+        this.SpawnLocation = props.location ? props.location.clone() : new Vector2(0, 0);
         this.Velocity = props.velocity ? props.velocity.clone() : new Vector2(0, 0);
+        this.Location = this.SpawnLocation.clone();
         /*Rotation in Radians */
         this.Rotation = 0;
 
@@ -34,6 +36,9 @@ class Entity {
 
         this.BaseColor = "#fff";
         this.StrokeColor = "#fff";
+
+
+        this.ColorMap = null;
     }
 
 
@@ -115,10 +120,24 @@ class Entity {
         return true;
     }
 
+    OnCheckedOverlap(OtherEntity) {
+
+    }
+
+
+
+    lerpChromaColor(delta) {
+        if (this.ColorMap && this.ColorMap.length > 0) {
+
+            let factor = this.Age / this.TimeToLife;
+            this.BaseColor = this.ColorMap[
+                Math.floor(lerp(0, this.ColorMap.length, factor))
+            ];
+        }
+    }
 
 
 }
 
 
 
-export default Entity;

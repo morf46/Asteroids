@@ -1,8 +1,7 @@
 import Vector2 from "./vector";
 import { SpawnEnemyLine, DefaultEnemyProps, SinusCurveDefaultProps } from "./GameplayStatics";
-import Monster from "./monster";
+import { Monster, Asteroid } from "./internal";
 import { getRandomfloat, getRandomBoolWithWeight, getRandomBool, getRandomInt } from "./mathutils";
-import Asteroid from "./monsters/asteroid";
 import CosineCurveMovementComponent from "./Ai/CosineCurveMovement";
 
 const SINE_VERCTICAL_DOWN = 1;

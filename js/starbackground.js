@@ -1,4 +1,4 @@
-import Entity from './entity';
+import {Entity} from './internal';
 import Vector2 from './vector';
 import { getRandomfloat, lerp } from './mathutils';
 import chroma from 'chroma-js';

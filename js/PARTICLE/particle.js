@@ -1,4 +1,4 @@
-import Entity from "../entity";
+import {Entity} from "../internal";
 import { getRandomfloat, lerp } from "../mathutils";
 import colormap from 'colormap';
 
@@ -7,7 +7,7 @@ class Particle extends Entity {
 
     constructor(props) {
         super(props);
-        this.TimeToLife = getRandomfloat(250,700);
+        this.TimeToLife = getRandomfloat(250, 700);
 
         this.ColorMap = colormap({
             colormap: 'winter',
@@ -23,10 +23,7 @@ class Particle extends Entity {
 
         this.Location.addScaled(this.Velocity, delta);
 
-        let factor = this.Age / this.TimeToLife;
-        this.BaseColor = this.ColorMap[
-            Math.floor(lerp(0, this.ColorMap.length, factor))
-        ];
+        this.lerpChromaColor();
     }
 
 

@@ -13,9 +13,10 @@ class SinusCurveMovementComponent extends MovementComponent {
     constructor(props) {
 
         super(props)
-        this.frequency = 100;
-        this.magnitude = 90;
+        this.frequency = props.frequency || 100;
+        this.magnitude = props.magnitude || 90;
         this.OffsetX = this.Outer.Location.x;
+        this.UseSpawnLocationDiff = props.usespawnlocationdiff || false;
     }
 
     UpdateMovement(delta) {
@@ -23,8 +24,9 @@ class SinusCurveMovementComponent extends MovementComponent {
         var LocalLocation = this.Outer.Location.clone()
         LocalLocation.addScaled(this.Outer.Velocity, delta);
 
+        let DiffY = this.UseSpawnLocationDiff ? LocalLocation.clone().subtract(this.Outer.SpawnLocation) : LocalLocation;
         //use y axis for sinus
-        this.Outer.Location = new Vector2((Math.sin(LocalLocation.y / this.frequency) * this.magnitude) + this.OffsetX, LocalLocation.y);
+        this.Outer.Location = new Vector2((Math.sin(DiffY.y / this.frequency) * this.magnitude) + this.OffsetX, LocalLocation.y);
 
     }
 

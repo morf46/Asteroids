@@ -1,16 +1,19 @@
-import Monster from "./monster";
+import { Monster } from "./internal";
 import Vector2 from "./vector";
 import Key from "./input";
-import BaseProjectileWeapon from "./weapons/baseprojectile";
+
 import { getRandomfloat } from "./mathutils";
 import chroma from 'chroma-js';
+import ProjectileWeaponBase from "./weapons/projectileweaponbase";
+import { RainbowGun } from "./weapons/rainbowgun";
 
 
 
 
 
 
-class Player extends Monster {
+
+export class Player extends Monster {
 
     constructor(props) {
 
@@ -24,7 +27,7 @@ class Player extends Monster {
 
         this.InputStrength = 250;
 
-        this.weapon = new BaseProjectileWeapon();
+        this.weapon = new RainbowGun();
         this.weapon.SetOwner(this);
 
         //start with 1 to avoid modulus 0
@@ -69,8 +72,8 @@ class Player extends Monster {
             for (const otherBody of potentials) {
                 if (this.RootBody.collides(otherBody, this.World.collisionResults)) {
                     if (this.team !== otherBody.Outer.team) {
-                        otherBody.Outer.Destroy();
-                        this.takeDamage(10);
+                        otherBody.Outer.OnOverlap(this);
+
                     }
                 }
             }
@@ -109,5 +112,3 @@ class Player extends Monster {
 
 }
 
-
-export default Player;

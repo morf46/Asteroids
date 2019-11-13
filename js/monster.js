@@ -1,10 +1,11 @@
-import Entity from "./entity";
+import { Entity } from "./internal";
+import { Player } from "./internal";
 import Vector2 from "./vector";
 import MovementComponent from "./Ai/MovementComponent";
 
 
 
-class Monster extends Entity {
+export class Monster extends Entity {
 
     constructor(props) {
         super(props);
@@ -91,11 +92,18 @@ class Monster extends Entity {
     takeDamage(amount) {
         this.health -= amount;
 
-        if (this.health <= 0) {
+        if (this.health <= 0 && !this.PendingDestroy) {
             this.Destroy();
         }
     }
+
+    OnOverlap(OtherEntity) {
+        if (OtherEntity instanceof Player) {
+            OtherEntity.takeDamage(10);
+            this.Destroy();
+        }
+    }
+
 }
 
 
-export default Monster;

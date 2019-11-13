@@ -179,6 +179,17 @@
     return Math.round(Math.random()) === 1 ? true : false;
   }
   /**
+   * Returns a random weighted bool
+   *  0.6 returns true 60% of time.
+   * @param {Number} weight 0.0 - 1.f 
+   * @return {Boolean} 
+   */
+
+  function getRandomBoolWithWeight(weight) {
+    var w = Clamp(weight, 0, 1);
+    return Math.random() < w ? true : false;
+  }
+  /**
    * Convert Radians to Degrees
    * 
    * @param {Number} radians 
@@ -188,6 +199,18 @@
   function radiansToDegrees(radians) {
     var pi = Math.PI;
     return radians * (180 / pi);
+  }
+  /**
+   * Returns a number whose value is limited to the given range.
+   *
+   * @param {Number} value The current value
+   * @param {Number} min The lower boundary of the output range
+   * @param {Number} max The upper boundary of the output range
+   * @returns A number in the range [min, max]
+    */
+
+  function Clamp(value, min, max) {
+    return Math.min(Math.max(value, min), max);
   }
   /**
    *linear interpolate between two values 
@@ -2428,8 +2451,9 @@
     function Entity(props) {
       _classCallCheck(this, Entity);
 
-      this.Location = props.location ? props.location.clone() : new Vector2(0, 0);
+      this.SpawnLocation = props.location ? props.location.clone() : new Vector2(0, 0);
       this.Velocity = props.velocity ? props.velocity.clone() : new Vector2(0, 0);
+      this.Location = this.SpawnLocation.clone();
       /*Rotation in Radians */
 
       this.Rotation = 0;
@@ -2447,6 +2471,7 @@
       this.Age = 0;
       this.BaseColor = "#fff";
       this.StrokeColor = "#fff";
+      this.ColorMap = null;
     }
 
     _createClass(Entity, [{
@@ -2523,10 +2548,163 @@
 
         return true;
       }
+    }, {
+      key: "OnCheckedOverlap",
+      value: function OnCheckedOverlap(OtherEntity) {}
+    }, {
+      key: "lerpChromaColor",
+      value: function lerpChromaColor(delta) {
+        if (this.ColorMap && this.ColorMap.length > 0) {
+          var factor = this.Age / this.TimeToLife;
+          this.BaseColor = this.ColorMap[Math.floor(lerp(0, this.ColorMap.length, factor))];
+        }
+      }
     }]);
 
     return Entity;
   }();
+
+  /**
+   * Basic Movement Component adds Velocity to Location scaled by delta.
+   */
+  var MovementComponent =
+  /*#__PURE__*/
+  function () {
+    function MovementComponent(props) {
+      _classCallCheck(this, MovementComponent);
+
+      this.Outer = props.Outer || null;
+    }
+
+    _createClass(MovementComponent, [{
+      key: "UpdateMovement",
+      value: function UpdateMovement(delta) {
+        if (this.Outer) {
+          this.Outer.Location.addScaled(this.Outer.Velocity, delta);
+        }
+      }
+    }]);
+
+    return MovementComponent;
+  }();
+
+  var Monster =
+  /*#__PURE__*/
+  function (_Entity) {
+    _inherits(Monster, _Entity);
+
+    function Monster(props) {
+      var _this;
+
+      _classCallCheck(this, Monster);
+
+      _this = _possibleConstructorReturn(this, _getPrototypeOf(Monster).call(this, props));
+      _this.vertexes = _this.CreateRandomPolygon();
+      _this.RootBody = _this.CreateCollionBody();
+      _this.RootBody.Outer = _assertThisInitialized(_this);
+      _this.team = props.team || 8;
+      _this.maxHealth = props.maxhealth || 30;
+      _this.health = _this.maxHealth;
+      _this.MovementComponent = _this.CreateMovementComponent(props);
+      return _this;
+    }
+
+    _createClass(Monster, [{
+      key: "CreateMovementComponent",
+      value: function CreateMovementComponent(props) {
+        if (props.MovementComponent) {
+          return new props.MovementComponent(_objectSpread2({
+            Outer: this
+          }, props.MovementConfig));
+        } else {
+          return new MovementComponent({
+            Outer: this
+          });
+        }
+      }
+      /**
+       * Create Random Poylgon
+       * @return {Number|Array}Vertexes array
+       */
+
+    }, {
+      key: "CreateRandomPolygon",
+      value: function CreateRandomPolygon() {
+        return [];
+      }
+      /**
+       * @return Collision Body
+       */
+
+    }, {
+      key: "CreateCollionBody",
+      value: function CreateCollionBody() {
+        this.radius = 10;
+        return this.World.collisions.createCircle(this.Location.x, this.Location.y, this.radius);
+      }
+    }, {
+      key: "update",
+      value: function update(delta) {
+        _get(_getPrototypeOf(Monster.prototype), "update", this).call(this, delta);
+
+        this.UpdateMovement(delta);
+        this.UpdateRootBody();
+      }
+    }, {
+      key: "UpdateMovement",
+      value: function UpdateMovement(delta) {
+        this.MovementComponent.UpdateMovement(delta);
+      }
+    }, {
+      key: "UpdateRootBody",
+      value: function UpdateRootBody() {
+        this.RootBody.x = this.Location.x;
+        this.RootBody.y = this.Location.y;
+        this.RootBody.angle = this.Rotation;
+      }
+    }, {
+      key: "postUpdate",
+      value: function postUpdate(delta) {}
+    }, {
+      key: "Destroy",
+      value: function Destroy() {
+        _get(_getPrototypeOf(Monster.prototype), "Destroy", this).call(this);
+
+        this.RootBody.remove();
+      }
+    }, {
+      key: "render",
+      value: function render(delta) {
+        var ctx = this.World.ctx;
+        ctx.save();
+        ctx.translate(this.Location.x, this.Location.y);
+        ctx.beginPath();
+        ctx.fillStyle = this.BaseColor;
+        ctx.arc(0, 0, 10, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.restore();
+      }
+    }, {
+      key: "takeDamage",
+      value: function takeDamage(amount) {
+        this.health -= amount;
+
+        if (this.health <= 0 && !this.PendingDestroy) {
+          this.Destroy();
+        }
+      }
+    }, {
+      key: "OnOverlap",
+      value: function OnOverlap(OtherEntity) {
+        if (OtherEntity instanceof Player$1) {
+          OtherEntity.takeDamage(10);
+          this.Destroy();
+        }
+      }
+    }]);
+
+    return Monster;
+  }(Entity);
 
   var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
@@ -5760,277 +5938,6 @@
   });
   var chroma_1 = chroma.chroma;
 
-  /**
-   * Background star 
-   * extra props size
-   */
-
-  var StarBackGround =
-  /*#__PURE__*/
-  function (_Entity) {
-    _inherits(StarBackGround, _Entity);
-
-    function StarBackGround(props) {
-      var _this;
-
-      _classCallCheck(this, StarBackGround);
-
-      _this = _possibleConstructorReturn(this, _getPrototypeOf(StarBackGround).call(this, props));
-      _this.width = props.size;
-      _this.height = props.size;
-      return _this;
-    }
-
-    _createClass(StarBackGround, [{
-      key: "BeginPlay",
-      value: function BeginPlay() {
-        _get(_getPrototypeOf(StarBackGround.prototype), "BeginPlay", this).call(this);
-
-        var factor = this.width / 5;
-        var lerpValue = lerp(0, 0.5, factor);
-        this.BaseColor = chroma('#fff').darken(lerpValue).hex();
-      }
-    }, {
-      key: "update",
-      value: function update(delta) {
-        this.Location.addScaled(this.Velocity, delta);
-
-        if (this.Location.y > 900) {
-          this.Location = new Vector2(getRandomfloat(0, 800), getRandomfloat(-120, -250));
-        }
-      }
-    }, {
-      key: "render",
-      value: function render(delta) {
-        var ctx = this.World.ctx;
-        ctx.save();
-        ctx.fillStyle = this.BaseColor;
-        ctx.translate(this.Location.x, this.Location.y);
-        ctx.fillRect(-this.width / 2, -this.height / 2, this.width, this.height);
-        ctx.restore();
-      }
-    }]);
-
-    return StarBackGround;
-  }(Entity);
-
-  /**
-   * Basic Movement Component adds Velocity to Location scaled by delta.
-   */
-  var MovementComponent =
-  /*#__PURE__*/
-  function () {
-    function MovementComponent(props) {
-      _classCallCheck(this, MovementComponent);
-
-      this.Outer = props.Outer || null;
-    }
-
-    _createClass(MovementComponent, [{
-      key: "UpdateMovement",
-      value: function UpdateMovement(delta) {
-        if (this.Outer) {
-          this.Outer.Location.addScaled(this.Outer.Velocity, delta);
-        }
-      }
-    }]);
-
-    return MovementComponent;
-  }();
-
-  var Monster =
-  /*#__PURE__*/
-  function (_Entity) {
-    _inherits(Monster, _Entity);
-
-    function Monster(props) {
-      var _this;
-
-      _classCallCheck(this, Monster);
-
-      _this = _possibleConstructorReturn(this, _getPrototypeOf(Monster).call(this, props));
-      _this.vertexes = _this.CreateRandomPolygon();
-      _this.RootBody = _this.CreateCollionBody();
-      _this.RootBody.Outer = _assertThisInitialized(_this);
-      _this.team = props.team || 8;
-      _this.maxHealth = props.maxhealth || 30;
-      _this.health = _this.maxHealth;
-      _this.MovementComponent = _this.CreateMovementComponent(props);
-      return _this;
-    }
-
-    _createClass(Monster, [{
-      key: "CreateMovementComponent",
-      value: function CreateMovementComponent(props) {
-        if (props.MovementComponent) {
-          return new props.MovementComponent(_objectSpread2({
-            Outer: this
-          }, props.MovementConfig));
-        } else {
-          return new MovementComponent({
-            Outer: this
-          });
-        }
-      }
-      /**
-       * Create Random Poylgon
-       * @return {Number|Array}Vertexes array
-       */
-
-    }, {
-      key: "CreateRandomPolygon",
-      value: function CreateRandomPolygon() {
-        return [];
-      }
-      /**
-       * @return Collision Body
-       */
-
-    }, {
-      key: "CreateCollionBody",
-      value: function CreateCollionBody() {
-        this.radius = 10;
-        return this.World.collisions.createCircle(this.Location.x, this.Location.y, this.radius);
-      }
-    }, {
-      key: "update",
-      value: function update(delta) {
-        _get(_getPrototypeOf(Monster.prototype), "update", this).call(this, delta);
-
-        this.UpdateMovement(delta);
-        this.UpdateRootBody();
-      }
-    }, {
-      key: "UpdateMovement",
-      value: function UpdateMovement(delta) {
-        this.MovementComponent.UpdateMovement(delta);
-      }
-    }, {
-      key: "UpdateRootBody",
-      value: function UpdateRootBody() {
-        this.RootBody.x = this.Location.x;
-        this.RootBody.y = this.Location.y;
-        this.RootBody.angle = this.Rotation;
-      }
-    }, {
-      key: "postUpdate",
-      value: function postUpdate(delta) {}
-    }, {
-      key: "Destroy",
-      value: function Destroy() {
-        _get(_getPrototypeOf(Monster.prototype), "Destroy", this).call(this);
-
-        this.RootBody.remove();
-      }
-    }, {
-      key: "render",
-      value: function render(delta) {
-        var ctx = this.World.ctx;
-        ctx.save();
-        ctx.translate(this.Location.x, this.Location.y);
-        ctx.beginPath();
-        ctx.fillStyle = this.BaseColor;
-        ctx.arc(0, 0, 10, 0, 2 * Math.PI);
-        ctx.fill();
-        ctx.restore();
-      }
-    }, {
-      key: "takeDamage",
-      value: function takeDamage(amount) {
-        this.health -= amount;
-
-        if (this.health <= 0) {
-          this.Destroy();
-        }
-      }
-    }]);
-
-    return Monster;
-  }(Entity);
-
-  var _Key =
-  /*#__PURE__*/
-  function () {
-    function _Key() {
-      _classCallCheck(this, _Key);
-
-      this._pressed = {};
-      this.LEFT = 37;
-      this.UP = 38;
-      this.RIGHT = 39;
-      this.DOWN = 40;
-      this.CTRL = 17;
-      this.SHIFT = 16;
-    }
-
-    _createClass(_Key, [{
-      key: "isDown",
-      value: function isDown(keyCode) {
-        return this._pressed[keyCode];
-      }
-    }, {
-      key: "onKeydown",
-      value: function onKeydown(event) {
-        this._pressed[event.keyCode] = true;
-      }
-    }, {
-      key: "onKeyup",
-      value: function onKeyup(event) {
-        delete this._pressed[event.keyCode];
-      }
-    }]);
-
-    return _Key;
-  }();
-
-  var Key = new _Key();
-
-  var Weapon =
-  /*#__PURE__*/
-  function () {
-    function Weapon() {
-      _classCallCheck(this, Weapon);
-
-      this.Period = 250;
-      this.lastTimeFired = 0;
-      this.Outer = null;
-    }
-    /**
-     * Set the new owner of this weapon.
-     * @param {Entity} NewOwner 
-     */
-
-
-    _createClass(Weapon, [{
-      key: "SetOwner",
-      value: function SetOwner(NewOwner) {
-        this.Outer = NewOwner;
-      }
-      /**
-       * basic pre weapon fire logic
-       * can the weapon fire?
-       */
-
-    }, {
-      key: "FireWeapon",
-      value: function FireWeapon() {
-        if (this.lastTimeFired + this.Period < World.GameTime) {
-          this.HandleFireWeapon();
-        }
-      }
-      /**
-       * weapon fire logic 
-       * creates projectiles etc.
-       */
-
-    }, {
-      key: "HandleFireWeapon",
-      value: function HandleFireWeapon() {}
-    }]);
-
-    return Weapon;
-  }();
-
   var colorScale={
   	"jet":[{"index":0,"rgb":[0,0,131]},{"index":0.125,"rgb":[0,60,170]},{"index":0.375,"rgb":[5,255,255]},{"index":0.625,"rgb":[255,255,0]},{"index":0.875,"rgb":[250,0,0]},{"index":1,"rgb":[128,0,0]}],
 
@@ -6261,333 +6168,44 @@
       return 'rgba(' + rgba.join(',') + ')';
   }
 
-  var Particle =
-  /*#__PURE__*/
-  function (_Entity) {
-    _inherits(Particle, _Entity);
-
-    function Particle(props) {
-      var _this;
-
-      _classCallCheck(this, Particle);
-
-      _this = _possibleConstructorReturn(this, _getPrototypeOf(Particle).call(this, props));
-      _this.TimeToLife = getRandomfloat(250, 700);
-      _this.ColorMap = colormap({
-        colormap: 'winter',
-        nshades: 20,
-        format: 'hex',
-        alpha: 1
-      });
-      _this.BaseColor = _this.ColorMap[0];
-      return _this;
-    }
-
-    _createClass(Particle, [{
-      key: "update",
-      value: function update(delta) {
-        _get(_getPrototypeOf(Particle.prototype), "update", this).call(this, delta);
-
-        this.Location.addScaled(this.Velocity, delta);
-        var factor = this.Age / this.TimeToLife;
-        this.BaseColor = this.ColorMap[Math.floor(lerp(0, this.ColorMap.length, factor))];
-      }
-    }, {
-      key: "render",
-      value: function render(delta) {
-        var ctx = this.World.ctx;
-        ctx.save();
-        ctx.translate(this.Location.x, this.Location.y);
-        ctx.beginPath();
-        ctx.fillStyle = this.BaseColor;
-        ctx.arc(0, 0, 1, 0, 2 * Math.PI);
-        ctx.fill();
-        ctx.restore();
-      }
-    }]);
-
-    return Particle;
-  }(Entity);
-
-  var ParticleEmitter =
-  /*#__PURE__*/
-  function () {
-    function ParticleEmitter(props) {
-      _classCallCheck(this, ParticleEmitter);
-
-      this.SpawnCount = 5;
-      this.Direction = props.direction || new Vector2(0, 0);
-      this.Location = props.location || new Vector2(0, 0);
-    }
-
-    _createClass(ParticleEmitter, [{
-      key: "Activate",
-      value: function Activate() {
-        for (var i = 0; i < this.SpawnCount; i++) {
-          var randomDirection = getRandomfloat(-0.2, 0.2);
-          var localVelocity = this.Direction.clone().rotate2D(randomDirection).multiply(getRandomfloat(200, 400));
-          var NewParticle = new Particle({
-            location: this.Location,
-            velocity: localVelocity
-          });
-          World.RegisterParticle(NewParticle);
-        }
-      }
-    }]);
-
-    return ParticleEmitter;
-  }();
-
-  var Projectile =
+  var PowerUpBase =
   /*#__PURE__*/
   function (_Monster) {
-    _inherits(Projectile, _Monster);
+    _inherits(PowerUpBase, _Monster);
 
-    function Projectile(props) {
+    function PowerUpBase(props) {
       var _this;
 
-      _classCallCheck(this, Projectile);
+      _classCallCheck(this, PowerUpBase);
 
-      _this = _possibleConstructorReturn(this, _getPrototypeOf(Projectile).call(this, props));
-      _this.RegisterPostUpdate = true;
-      _this.TimeToLife = 1200;
-      _this.ColorMap = colormap({
-        colormap: 'summer',
-        nshades: 20,
-        format: 'hex',
-        alpha: 1
-      });
-      _this.BaseColor = _this.ColorMap[0];
-      _this.ImpactFX = ParticleEmitter;
-      _this.DamageDealt = 5;
+      _this = _possibleConstructorReturn(this, _getPrototypeOf(PowerUpBase).call(this, props));
+      _this.TimeToLife = 60000;
+      _this.Velocity = new Vector2(0, 0);
+      _this.BaseColor = "#FF0";
       return _this;
     }
 
-    _createClass(Projectile, [{
+    _createClass(PowerUpBase, [{
       key: "CreateCollionBody",
       value: function CreateCollionBody() {
-        return this.World.collisions.createCircle(this.Location.x, this.Location.y, 2);
+        this.radius = 10;
+        return this.World.collisions.createCircle(this.Location.x, this.Location.y, this.radius);
       }
     }, {
       key: "update",
       value: function update(delta) {
-        _get(_getPrototypeOf(Projectile.prototype), "update", this).call(this, delta);
-
-        var factor = this.Age / this.TimeToLife;
-        this.BaseColor = this.ColorMap[Math.floor(lerp(0, this.ColorMap.length, factor))];
+        _get(_getPrototypeOf(PowerUpBase.prototype), "update", this).call(this, delta);
       }
     }, {
-      key: "postUpdate",
-      value: function postUpdate(delta) {
-        if (!this.PendingDestroy) {
-          var potentials = this.RootBody.potentials();
-          var _iteratorNormalCompletion = true;
-          var _didIteratorError = false;
-          var _iteratorError = undefined;
-
-          try {
-            for (var _iterator = potentials[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-              var otherBody = _step.value;
-
-              if (this.RootBody.collides(otherBody, this.World.collisionResults)) {
-                if (this.team !== otherBody.Outer.team) {
-                  otherBody.Outer.takeDamage(this.DamageDealt);
-                  var Direction = new Vector2(this.World.collisionResults.overlap_x, this.World.collisionResults.overlap_y).multiply(-1);
-                  var FX = new ParticleEmitter({
-                    location: this.Location,
-                    direction: Direction
-                  });
-                  FX.Activate();
-                  this.Destroy();
-                  break;
-                }
-              }
-            }
-          } catch (err) {
-            _didIteratorError = true;
-            _iteratorError = err;
-          } finally {
-            try {
-              if (!_iteratorNormalCompletion && _iterator.return != null) {
-                _iterator.return();
-              }
-            } finally {
-              if (_didIteratorError) {
-                throw _iteratorError;
-              }
-            }
-          }
+      key: "OnCheckedOverlap",
+      value: function OnCheckedOverlap(OtherEntity) {
+        if (OtherEntity instanceof Player) {
+          this.Destroy();
         }
-      }
-    }, {
-      key: "render",
-      value: function render(delta) {
-        var ctx = this.World.ctx;
-        ctx.save();
-        ctx.translate(this.Location.x, this.Location.y);
-        ctx.beginPath();
-        ctx.fillStyle = this.BaseColor;
-        ctx.arc(0, 0, 2, 0, 2 * Math.PI);
-        ctx.fill();
-        ctx.restore();
       }
     }]);
 
-    return Projectile;
-  }(Monster);
-
-  /**
-   * Projectile shoots "Upwards"
-   */
-
-  var BaseProjectileWeapon =
-  /*#__PURE__*/
-  function (_Weapon) {
-    _inherits(BaseProjectileWeapon, _Weapon);
-
-    function BaseProjectileWeapon() {
-      _classCallCheck(this, BaseProjectileWeapon);
-
-      return _possibleConstructorReturn(this, _getPrototypeOf(BaseProjectileWeapon).call(this));
-    }
-
-    _createClass(BaseProjectileWeapon, [{
-      key: "HandleFireWeapon",
-      value: function HandleFireWeapon() {
-        var P = new Projectile({
-          location: this.Outer.Location,
-          velocity: new Vector2(0, getRandomfloat(-550, -450)).add(this.Outer.Velocity.clone().multiply(0.16))
-        });
-        P.team = this.Outer.team;
-        World.RegisterEntity(P);
-      }
-    }]);
-
-    return BaseProjectileWeapon;
-  }(Weapon);
-
-  var Player =
-  /*#__PURE__*/
-  function (_Monster) {
-    _inherits(Player, _Monster);
-
-    function Player(props) {
-      var _this;
-
-      _classCallCheck(this, Player);
-
-      _this = _possibleConstructorReturn(this, _getPrototypeOf(Player).call(this, props));
-      _this.RegisterPostUpdate = true;
-      _this.team = 0;
-      _this.maxHealth = 100;
-      _this.health = _this.maxHealth;
-      _this.InputStrength = 250;
-      _this.weapon = new BaseProjectileWeapon();
-
-      _this.weapon.SetOwner(_assertThisInitialized(_this)); //start with 1 to avoid modulus 0
-
-
-      _this.PositionLevel = 1;
-      return _this;
-    }
-
-    _createClass(Player, [{
-      key: "update",
-      value: function update(delta) {
-        this.Velocity = new Vector2(0, 0);
-
-        if (Key.isDown(Key.UP)) {
-          this.Velocity.addScaled(new Vector2(0, -1), this.InputStrength);
-        }
-
-        if (Key.isDown(Key.DOWN)) {
-          this.Velocity.addScaled(new Vector2(0, 1), this.InputStrength);
-        }
-
-        if (Key.isDown(Key.LEFT)) {
-          this.Velocity.addScaled(new Vector2(-1, 0), this.InputStrength);
-        }
-
-        if (Key.isDown(Key.RIGHT)) {
-          this.Velocity.addScaled(new Vector2(1, 0), this.InputStrength);
-        }
-
-        _get(_getPrototypeOf(Player.prototype), "update", this).call(this, delta);
-
-        if (Key.isDown(Key.CTRL)) {
-          if (this.weapon) {
-            this.weapon.FireWeapon();
-          }
-        }
-      }
-    }, {
-      key: "postUpdate",
-      value: function postUpdate(delta) {
-        if (!this.PendingDestroy) {
-          var potentials = this.RootBody.potentials();
-          var _iteratorNormalCompletion = true;
-          var _didIteratorError = false;
-          var _iteratorError = undefined;
-
-          try {
-            for (var _iterator = potentials[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-              var otherBody = _step.value;
-
-              if (this.RootBody.collides(otherBody, this.World.collisionResults)) {
-                if (this.team !== otherBody.Outer.team) {
-                  otherBody.Outer.Destroy();
-                  this.takeDamage(10);
-                }
-              }
-            }
-          } catch (err) {
-            _didIteratorError = true;
-            _iteratorError = err;
-          } finally {
-            try {
-              if (!_iteratorNormalCompletion && _iterator.return != null) {
-                _iterator.return();
-              }
-            } finally {
-              if (_didIteratorError) {
-                throw _iteratorError;
-              }
-            }
-          }
-        }
-      }
-    }, {
-      key: "takeDamage",
-      value: function takeDamage(amount) {
-        _get(_getPrototypeOf(Player.prototype), "takeDamage", this).call(this, amount);
-
-        console.log("player HP: " + this.health);
-      }
-    }, {
-      key: "CreateCollionBody",
-      value: function CreateCollionBody() {
-        return this.World.collisions.createPolygon(this.Location.x, this.Location.y, [[0, 0], [16, 32], [-16, 32]]);
-      }
-    }, {
-      key: "render",
-      value: function render(delta) {
-        var ctx = this.World.ctx;
-        ctx.save(); //module import for rollup
-
-        ctx.fillStyle = chroma('green').darken(Math.sin(this.Age * 0.002)).hex();
-        ctx.strokeStyle = '#f0f';
-        ctx.beginPath();
-        ctx.translate(this.Location.x, this.Location.y);
-        ctx.lineTo(16, 32);
-        ctx.lineTo(-16, 32);
-        ctx.lineTo(0, 0);
-        ctx.closePath();
-        ctx.fill();
-        ctx.restore();
-      }
-    }]);
-
-    return Player;
+    return PowerUpBase;
   }(Monster);
 
   /**
@@ -6605,9 +6223,10 @@
       _classCallCheck(this, SinusCurveMovementComponent);
 
       _this = _possibleConstructorReturn(this, _getPrototypeOf(SinusCurveMovementComponent).call(this, props));
-      _this.frequency = 100;
-      _this.magnitude = 90;
+      _this.frequency = props.frequency || 100;
+      _this.magnitude = props.magnitude || 90;
       _this.OffsetX = _this.Outer.Location.x;
+      _this.UseSpawnLocationDiff = props.usespawnlocationdiff || false;
       return _this;
     }
 
@@ -6615,9 +6234,10 @@
       key: "UpdateMovement",
       value: function UpdateMovement(delta) {
         var LocalLocation = this.Outer.Location.clone();
-        LocalLocation.addScaled(this.Outer.Velocity, delta); //use y axis for sinus
+        LocalLocation.addScaled(this.Outer.Velocity, delta);
+        var DiffY = this.UseSpawnLocationDiff ? LocalLocation.clone().subtract(this.Outer.SpawnLocation) : LocalLocation; //use y axis for sinus
 
-        this.Outer.Location = new Vector2(Math.sin(LocalLocation.y / this.frequency) * this.magnitude + this.OffsetX, LocalLocation.y);
+        this.Outer.Location = new Vector2(Math.sin(DiffY.y / this.frequency) * this.magnitude + this.OffsetX, LocalLocation.y);
       }
     }]);
 
@@ -6659,96 +6279,6 @@
       LocalLocation.moveTowards(TargetLocation, Padding);
     }
   }
-
-  var Asteroid =
-  /*#__PURE__*/
-  function (_Monster) {
-    _inherits(Asteroid, _Monster);
-
-    function Asteroid(props) {
-      var _this;
-
-      _classCallCheck(this, Asteroid);
-
-      _this = _possibleConstructorReturn(this, _getPrototypeOf(Asteroid).call(this, props)); //inverse rotation
-
-      var inverse = getRandomBool() ? 1 : -1;
-      _this.rotationSpeed = getRandomfloat(0.01, 0.05) * inverse;
-      _this.BaseChroma = chroma('saddlebrown').darken(getRandomfloat(0, 0.8));
-      _this.BaseColor = _this.BaseChroma.hex();
-      _this.LowHealthColor = "#F00";
-      _this.HealthChromaScale = chroma.scale(["#fff", _this.LowHealthColor]).mode('lab');
-      _this.maxHealth = props.maxhealth || 70;
-      _this.health = _this.maxHealth;
-      return _this;
-    }
-
-    _createClass(Asteroid, [{
-      key: "update",
-      value: function update(delta) {
-        this.Rotation += this.rotationSpeed;
-
-        _get(_getPrototypeOf(Asteroid.prototype), "update", this).call(this, delta);
-      }
-    }, {
-      key: "CreateRandomPolygon",
-      value: function CreateRandomPolygon() {
-        this.radius = getRandomfloat(15, 40);
-        var Center = new Vector2(0, 0);
-        var ArrayVertexes = [];
-        var RandomAngles = [];
-        var numVertexes = getRandomInt(8, 16);
-
-        for (var i = 0; i < numVertexes; i++) {
-          RandomAngles.push(getRandomfloat(0, Math.PI * 2));
-        } //sort random angels direction dont matter
-
-
-        RandomAngles.sort();
-
-        for (var _i = 0; _i < numVertexes; _i++) {
-          var x = Center.x + this.radius * Math.cos(RandomAngles[_i]);
-          var y = Center.y + this.radius * Math.sin(RandomAngles[_i]);
-          ArrayVertexes.push([x, y]);
-        }
-
-        return ArrayVertexes;
-      }
-    }, {
-      key: "CreateCollionBody",
-      value: function CreateCollionBody() {
-        return this.World.collisions.createPolygon(this.Location.x, this.Location.y, this.vertexes);
-      }
-    }, {
-      key: "takeDamage",
-      value: function takeDamage(amount) {
-        _get(_getPrototypeOf(Asteroid.prototype), "takeDamage", this).call(this, amount);
-
-        this.BaseColor = chroma.blend(this.BaseChroma.hex(), this.HealthChromaScale(this.health / this.maxHealth).hex(), 'multiply');
-      }
-    }, {
-      key: "render",
-      value: function render() {
-        var ctx = this.World.ctx;
-        ctx.save();
-        ctx.fillStyle = this.BaseColor;
-        ctx.strokeStyle = this.StrokeColor;
-        ctx.translate(this.Location.x, this.Location.y);
-        ctx.rotate(this.Rotation);
-        ctx.beginPath(); //draw polygon
-
-        for (var i = 0; i < this.vertexes.length; i++) {
-          ctx.lineTo(this.vertexes[i][0], this.vertexes[i][1]);
-        }
-
-        ctx.closePath();
-        ctx.fill();
-        ctx.restore();
-      }
-    }]);
-
-    return Asteroid;
-  }(Monster);
 
   /**
    * X Axis Cosine Movement, Spawn y axis keept as offset
@@ -6894,6 +6424,659 @@
 
   var GameMode = new _GameMode();
 
+  var Asteroid =
+  /*#__PURE__*/
+  function (_Monster) {
+    _inherits(Asteroid, _Monster);
+
+    function Asteroid(props) {
+      var _this;
+
+      _classCallCheck(this, Asteroid);
+
+      _this = _possibleConstructorReturn(this, _getPrototypeOf(Asteroid).call(this, props)); //inverse rotation
+
+      var inverse = getRandomBool() ? 1 : -1;
+      _this.rotationSpeed = getRandomfloat(0.01, 0.05) * inverse;
+      _this.BaseChroma = chroma('saddlebrown').darken(getRandomfloat(0, 0.8));
+      _this.BaseColor = _this.BaseChroma.hex();
+      _this.LowHealthColor = "#F00";
+      _this.HealthChromaScale = chroma.scale(["#fff", _this.LowHealthColor]).mode('lab');
+      _this.maxHealth = props.maxhealth || 70;
+      _this.health = _this.maxHealth;
+      return _this;
+    }
+
+    _createClass(Asteroid, [{
+      key: "update",
+      value: function update(delta) {
+        this.Rotation += this.rotationSpeed;
+
+        _get(_getPrototypeOf(Asteroid.prototype), "update", this).call(this, delta);
+      }
+    }, {
+      key: "CreateRandomPolygon",
+      value: function CreateRandomPolygon() {
+        this.radius = getRandomfloat(15, 40);
+        var Center = new Vector2(0, 0);
+        var ArrayVertexes = [];
+        var RandomAngles = [];
+        var numVertexes = getRandomInt(8, 16);
+
+        for (var i = 0; i < numVertexes; i++) {
+          RandomAngles.push(getRandomfloat(0, Math.PI * 2));
+        } //sort random angels direction dont matter
+
+
+        RandomAngles.sort();
+
+        for (var _i = 0; _i < numVertexes; _i++) {
+          var x = Center.x + this.radius * Math.cos(RandomAngles[_i]);
+          var y = Center.y + this.radius * Math.sin(RandomAngles[_i]);
+          ArrayVertexes.push([x, y]);
+        }
+
+        return ArrayVertexes;
+      }
+    }, {
+      key: "CreateCollionBody",
+      value: function CreateCollionBody() {
+        return this.World.collisions.createPolygon(this.Location.x, this.Location.y, this.vertexes);
+      }
+    }, {
+      key: "takeDamage",
+      value: function takeDamage(amount) {
+        _get(_getPrototypeOf(Asteroid.prototype), "takeDamage", this).call(this, amount);
+
+        this.BaseColor = chroma.blend(this.BaseChroma.hex(), this.HealthChromaScale(this.health / this.maxHealth).hex(), 'multiply');
+      }
+    }, {
+      key: "Destroy",
+      value: function Destroy() {
+        _get(_getPrototypeOf(Asteroid.prototype), "Destroy", this).call(this);
+
+        var drop = getRandomBoolWithWeight(0.5);
+
+        if (drop) {
+          this.World.SpawnEntity(PowerUpBase, {
+            location: this.Location.clone(),
+            team: GameMode.PlayerPawn.team
+          });
+        }
+      }
+    }, {
+      key: "render",
+      value: function render() {
+        var ctx = this.World.ctx;
+        ctx.save();
+        ctx.fillStyle = this.BaseColor;
+        ctx.strokeStyle = this.StrokeColor;
+        ctx.translate(this.Location.x, this.Location.y);
+        ctx.rotate(this.Rotation);
+        ctx.beginPath(); //draw polygon
+
+        for (var i = 0; i < this.vertexes.length; i++) {
+          ctx.lineTo(this.vertexes[i][0], this.vertexes[i][1]);
+        }
+
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+      }
+    }]);
+
+    return Asteroid;
+  }(Monster);
+
+  var _Key =
+  /*#__PURE__*/
+  function () {
+    function _Key() {
+      _classCallCheck(this, _Key);
+
+      this._pressed = {};
+      this.LEFT = 37;
+      this.UP = 38;
+      this.RIGHT = 39;
+      this.DOWN = 40;
+      this.CTRL = 17;
+      this.SHIFT = 16;
+    }
+
+    _createClass(_Key, [{
+      key: "isDown",
+      value: function isDown(keyCode) {
+        return this._pressed[keyCode];
+      }
+    }, {
+      key: "onKeydown",
+      value: function onKeydown(event) {
+        this._pressed[event.keyCode] = true;
+      }
+    }, {
+      key: "onKeyup",
+      value: function onKeyup(event) {
+        delete this._pressed[event.keyCode];
+      }
+    }]);
+
+    return _Key;
+  }();
+
+  var Key = new _Key();
+
+  var Weapon =
+  /*#__PURE__*/
+  function () {
+    function Weapon() {
+      _classCallCheck(this, Weapon);
+
+      this.Period = 250;
+      this.lastTimeFired = 0;
+      this.Outer = null;
+    }
+    /**
+     * Set the new owner of this weapon.
+     * @param {Entity} NewOwner 
+     */
+
+
+    _createClass(Weapon, [{
+      key: "SetOwner",
+      value: function SetOwner(NewOwner) {
+        this.Outer = NewOwner;
+      }
+      /**
+       * basic pre weapon fire logic
+       * can the weapon fire?
+       */
+
+    }, {
+      key: "FireWeapon",
+      value: function FireWeapon() {
+        if (this.lastTimeFired + this.Period < World.GameTime) {
+          this.HandleFireWeapon();
+        }
+      }
+      /**
+       * weapon fire logic 
+       * creates projectiles etc.
+       */
+
+    }, {
+      key: "HandleFireWeapon",
+      value: function HandleFireWeapon() {}
+    }]);
+
+    return Weapon;
+  }();
+
+  var Particle =
+  /*#__PURE__*/
+  function (_Entity) {
+    _inherits(Particle, _Entity);
+
+    function Particle(props) {
+      var _this;
+
+      _classCallCheck(this, Particle);
+
+      _this = _possibleConstructorReturn(this, _getPrototypeOf(Particle).call(this, props));
+      _this.TimeToLife = getRandomfloat(250, 700);
+      _this.ColorMap = colormap({
+        colormap: 'winter',
+        nshades: 20,
+        format: 'hex',
+        alpha: 1
+      });
+      _this.BaseColor = _this.ColorMap[0];
+      return _this;
+    }
+
+    _createClass(Particle, [{
+      key: "update",
+      value: function update(delta) {
+        _get(_getPrototypeOf(Particle.prototype), "update", this).call(this, delta);
+
+        this.Location.addScaled(this.Velocity, delta);
+        this.lerpChromaColor();
+      }
+    }, {
+      key: "render",
+      value: function render(delta) {
+        var ctx = this.World.ctx;
+        ctx.save();
+        ctx.translate(this.Location.x, this.Location.y);
+        ctx.beginPath();
+        ctx.fillStyle = this.BaseColor;
+        ctx.arc(0, 0, 1, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.restore();
+      }
+    }]);
+
+    return Particle;
+  }(Entity);
+
+  var ParticleEmitter =
+  /*#__PURE__*/
+  function () {
+    function ParticleEmitter(props) {
+      _classCallCheck(this, ParticleEmitter);
+
+      this.SpawnCount = 5;
+      this.Direction = props.direction || new Vector2(0, 0);
+      this.Location = props.location || new Vector2(0, 0);
+    }
+
+    _createClass(ParticleEmitter, [{
+      key: "Activate",
+      value: function Activate() {
+        for (var i = 0; i < this.SpawnCount; i++) {
+          var randomDirection = getRandomfloat(-0.2, 0.2);
+          var localVelocity = this.Direction.clone().rotate2D(randomDirection).multiply(getRandomfloat(200, 400));
+          var NewParticle = new Particle({
+            location: this.Location,
+            velocity: localVelocity
+          });
+          World.RegisterParticle(NewParticle);
+        }
+      }
+    }]);
+
+    return ParticleEmitter;
+  }();
+
+  var Projectile =
+  /*#__PURE__*/
+  function (_Monster) {
+    _inherits(Projectile, _Monster);
+
+    function Projectile(props) {
+      var _this;
+
+      _classCallCheck(this, Projectile);
+
+      _this = _possibleConstructorReturn(this, _getPrototypeOf(Projectile).call(this, props));
+      _this.RegisterPostUpdate = true;
+      _this.TimeToLife = 1200;
+      _this.ColorMap = colormap({
+        colormap: 'summer',
+        nshades: 20,
+        format: 'hex',
+        alpha: 1
+      });
+      _this.BaseColor = _this.ColorMap[0];
+      _this.ImpactFX = ParticleEmitter;
+      _this.DamageDealt = 5;
+      return _this;
+    }
+
+    _createClass(Projectile, [{
+      key: "CreateCollionBody",
+      value: function CreateCollionBody() {
+        return this.World.collisions.createCircle(this.Location.x, this.Location.y, 2);
+      }
+    }, {
+      key: "update",
+      value: function update(delta) {
+        _get(_getPrototypeOf(Projectile.prototype), "update", this).call(this, delta);
+
+        this.lerpChromaColor();
+      }
+    }, {
+      key: "postUpdate",
+      value: function postUpdate(delta) {
+        if (!this.PendingDestroy) {
+          var potentials = this.RootBody.potentials();
+          var _iteratorNormalCompletion = true;
+          var _didIteratorError = false;
+          var _iteratorError = undefined;
+
+          try {
+            for (var _iterator = potentials[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+              var otherBody = _step.value;
+
+              if (this.RootBody.collides(otherBody, this.World.collisionResults)) {
+                if (this.team !== otherBody.Outer.team) {
+                  otherBody.Outer.takeDamage(this.DamageDealt);
+                  var Direction = new Vector2(this.World.collisionResults.overlap_x, this.World.collisionResults.overlap_y).multiply(-1);
+                  var FX = new ParticleEmitter({
+                    location: this.Location,
+                    direction: Direction
+                  });
+                  FX.Activate();
+                  this.Destroy();
+                  break;
+                }
+              }
+            }
+          } catch (err) {
+            _didIteratorError = true;
+            _iteratorError = err;
+          } finally {
+            try {
+              if (!_iteratorNormalCompletion && _iterator.return != null) {
+                _iterator.return();
+              }
+            } finally {
+              if (_didIteratorError) {
+                throw _iteratorError;
+              }
+            }
+          }
+        }
+      }
+    }, {
+      key: "render",
+      value: function render(delta) {
+        var ctx = this.World.ctx;
+        ctx.save();
+        ctx.translate(this.Location.x, this.Location.y);
+        ctx.beginPath();
+        ctx.fillStyle = this.BaseColor;
+        ctx.arc(0, 0, 2, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.restore();
+      }
+    }]);
+
+    return Projectile;
+  }(Monster);
+
+  /**
+   * Projectile shoots "Upwards"
+   */
+
+  var ProjectileWeaponBase =
+  /*#__PURE__*/
+  function (_Weapon) {
+    _inherits(ProjectileWeaponBase, _Weapon);
+
+    function ProjectileWeaponBase() {
+      var _this;
+
+      _classCallCheck(this, ProjectileWeaponBase);
+
+      _this = _possibleConstructorReturn(this, _getPrototypeOf(ProjectileWeaponBase).call(this));
+      _this.ProjectileClass = Projectile; //Private shoot count
+
+      _this.InternalShootCount = 0;
+      return _this;
+    }
+
+    _createClass(ProjectileWeaponBase, [{
+      key: "HandleFireWeapon",
+      value: function HandleFireWeapon() {
+        if (this.ProjectileClass) {
+          var P = World.SpawnEntity(this.ProjectileClass, {
+            location: this.Outer.Location,
+            velocity: new Vector2(0, getRandomfloat(-550, -450)).add(this.Outer.Velocity.clone().multiply(0.16)),
+            team: this.Outer.team
+          });
+          P.team = this.Outer.team;
+          this.InternalShootCount++;
+        }
+      }
+    }]);
+
+    return ProjectileWeaponBase;
+  }(Weapon);
+
+  var RainbowProjectile =
+  /*#__PURE__*/
+  function (_Projectile) {
+    _inherits(RainbowProjectile, _Projectile);
+
+    function RainbowProjectile(props) {
+      var _this;
+
+      _classCallCheck(this, RainbowProjectile);
+
+      _this = _possibleConstructorReturn(this, _getPrototypeOf(RainbowProjectile).call(this, props));
+      _this.RegisterPostUpdate = true;
+      _this.TimeToLife = 1200;
+      _this.ColorMap = colormap({
+        colormap: 'rainbow',
+        nshades: 30,
+        format: 'hex',
+        alpha: 1
+      });
+      _this.BaseColor = _this.ColorMap[0];
+      _this.DamageDealt = 5;
+      return _this;
+    }
+
+    _createClass(RainbowProjectile, [{
+      key: "update",
+      value: function update(delta) {
+        _get(_getPrototypeOf(RainbowProjectile.prototype), "update", this).call(this, delta);
+      }
+    }]);
+
+    return RainbowProjectile;
+  }(Projectile);
+
+  var RainbowGun =
+  /*#__PURE__*/
+  function (_ProjectileWeaponBase) {
+    _inherits(RainbowGun, _ProjectileWeaponBase);
+
+    function RainbowGun(props) {
+      var _this;
+
+      _classCallCheck(this, RainbowGun);
+
+      _this = _possibleConstructorReturn(this, _getPrototypeOf(RainbowGun).call(this, props));
+      _this.ProjectileClass = RainbowProjectile;
+      _this.Period = 1500;
+      return _this;
+    }
+
+    _createClass(RainbowGun, [{
+      key: "HandleFireWeapon",
+      value: function HandleFireWeapon() {
+        if (this.ProjectileClass) {
+          for (var i = 0; i < 2; i++) {
+            var localInverse = i === 0 ? 1 : -1;
+            var P = World.SpawnEntity(this.ProjectileClass, {
+              location: this.Outer.Location,
+              velocity: new Vector2(0, getRandomfloat(-450, -600)).addScaled(this.Outer.Velocity.clone(), 0.16),
+              team: this.Outer.team,
+              MovementComponent: SinusCurveMovementComponent,
+              MovementConfig: {
+                usespawnlocationdiff: true,
+                frequency: 30,
+                magnitude: getRandomfloat(10, 15) * localInverse
+              }
+            });
+            P.team = this.Outer.team;
+            this.InternalShootCount++;
+          }
+        }
+      }
+    }]);
+
+    return RainbowGun;
+  }(ProjectileWeaponBase);
+
+  var Player$1 =
+  /*#__PURE__*/
+  function (_Monster) {
+    _inherits(Player, _Monster);
+
+    function Player(props) {
+      var _this;
+
+      _classCallCheck(this, Player);
+
+      _this = _possibleConstructorReturn(this, _getPrototypeOf(Player).call(this, props));
+      _this.RegisterPostUpdate = true;
+      _this.team = 0;
+      _this.maxHealth = 100;
+      _this.health = _this.maxHealth;
+      _this.InputStrength = 250;
+      _this.weapon = new RainbowGun();
+
+      _this.weapon.SetOwner(_assertThisInitialized(_this)); //start with 1 to avoid modulus 0
+
+
+      _this.PositionLevel = 1;
+      return _this;
+    }
+
+    _createClass(Player, [{
+      key: "update",
+      value: function update(delta) {
+        this.Velocity = new Vector2(0, 0);
+
+        if (Key.isDown(Key.UP)) {
+          this.Velocity.addScaled(new Vector2(0, -1), this.InputStrength);
+        }
+
+        if (Key.isDown(Key.DOWN)) {
+          this.Velocity.addScaled(new Vector2(0, 1), this.InputStrength);
+        }
+
+        if (Key.isDown(Key.LEFT)) {
+          this.Velocity.addScaled(new Vector2(-1, 0), this.InputStrength);
+        }
+
+        if (Key.isDown(Key.RIGHT)) {
+          this.Velocity.addScaled(new Vector2(1, 0), this.InputStrength);
+        }
+
+        _get(_getPrototypeOf(Player.prototype), "update", this).call(this, delta);
+
+        if (Key.isDown(Key.CTRL)) {
+          if (this.weapon) {
+            this.weapon.FireWeapon();
+          }
+        }
+      }
+    }, {
+      key: "postUpdate",
+      value: function postUpdate(delta) {
+        if (!this.PendingDestroy) {
+          var potentials = this.RootBody.potentials();
+          var _iteratorNormalCompletion = true;
+          var _didIteratorError = false;
+          var _iteratorError = undefined;
+
+          try {
+            for (var _iterator = potentials[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+              var otherBody = _step.value;
+
+              if (this.RootBody.collides(otherBody, this.World.collisionResults)) {
+                if (this.team !== otherBody.Outer.team) {
+                  otherBody.Outer.OnOverlap(this);
+                }
+              }
+            }
+          } catch (err) {
+            _didIteratorError = true;
+            _iteratorError = err;
+          } finally {
+            try {
+              if (!_iteratorNormalCompletion && _iterator.return != null) {
+                _iterator.return();
+              }
+            } finally {
+              if (_didIteratorError) {
+                throw _iteratorError;
+              }
+            }
+          }
+        }
+      }
+    }, {
+      key: "takeDamage",
+      value: function takeDamage(amount) {
+        _get(_getPrototypeOf(Player.prototype), "takeDamage", this).call(this, amount);
+
+        console.log("player HP: " + this.health);
+      }
+    }, {
+      key: "CreateCollionBody",
+      value: function CreateCollionBody() {
+        return this.World.collisions.createPolygon(this.Location.x, this.Location.y, [[0, 0], [16, 32], [-16, 32]]);
+      }
+    }, {
+      key: "render",
+      value: function render(delta) {
+        var ctx = this.World.ctx;
+        ctx.save(); //module import for rollup
+
+        ctx.fillStyle = chroma('green').darken(Math.sin(this.Age * 0.002)).hex();
+        ctx.strokeStyle = '#f0f';
+        ctx.beginPath();
+        ctx.translate(this.Location.x, this.Location.y);
+        ctx.lineTo(16, 32);
+        ctx.lineTo(-16, 32);
+        ctx.lineTo(0, 0);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+      }
+    }]);
+
+    return Player;
+  }(Monster);
+
+  /**
+   * Background star 
+   * extra props size
+   */
+
+  var StarBackGround =
+  /*#__PURE__*/
+  function (_Entity) {
+    _inherits(StarBackGround, _Entity);
+
+    function StarBackGround(props) {
+      var _this;
+
+      _classCallCheck(this, StarBackGround);
+
+      _this = _possibleConstructorReturn(this, _getPrototypeOf(StarBackGround).call(this, props));
+      _this.width = props.size;
+      _this.height = props.size;
+      return _this;
+    }
+
+    _createClass(StarBackGround, [{
+      key: "BeginPlay",
+      value: function BeginPlay() {
+        _get(_getPrototypeOf(StarBackGround.prototype), "BeginPlay", this).call(this);
+
+        var factor = this.width / 5;
+        var lerpValue = lerp(0, 0.5, factor);
+        this.BaseColor = chroma('#fff').darken(lerpValue).hex();
+      }
+    }, {
+      key: "update",
+      value: function update(delta) {
+        this.Location.addScaled(this.Velocity, delta);
+
+        if (this.Location.y > 900) {
+          this.Location = new Vector2(getRandomfloat(0, 800), getRandomfloat(-120, -250));
+        }
+      }
+    }, {
+      key: "render",
+      value: function render(delta) {
+        var ctx = this.World.ctx;
+        ctx.save();
+        ctx.fillStyle = this.BaseColor;
+        ctx.translate(this.Location.x, this.Location.y);
+        ctx.fillRect(-this.width / 2, -this.height / 2, this.width, this.height);
+        ctx.restore();
+      }
+    }]);
+
+    return StarBackGround;
+  }(Entity);
+
   var lastFrameTimeMs = 0;
   var maxFPS = 60;
   var delta = 0;
@@ -6941,7 +7124,7 @@
   function InitGame() {
     InitStars(); //  World.SpawnEntity(Asteroid, { location: new Vector2(400, 300), maxhealth:10000500 })
 
-    var newPlayer = World.SpawnEntity(Player, {
+    var newPlayer = World.SpawnEntity(Player$1, {
       location: new Vector2(400, 500)
     });
     GameMode.RegisterPlayerPawn(newPlayer);

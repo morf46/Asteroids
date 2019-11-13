@@ -1,17 +1,11 @@
 import Vector2 from './vector';
 import StarBackGround from './starbackground';
-import Monster from './monster';
-import Player from './player';
+import {Player} from './internal';
 import World from './world';
 import { getRandomfloat, getRandomInt } from './mathutils';
 import Key from './input';
-
 import GameMode from './GameMode';
 import { SpawnEnemyLine, SCREEN_H, SCREEN_W, DefaultEnemyProps, SinusCurveDefaultProps } from './GameplayStatics';
-import Asteroid from './monsters/asteroid';
-
-
-
 
 
 

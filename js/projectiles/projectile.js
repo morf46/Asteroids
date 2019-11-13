@@ -1,9 +1,9 @@
 
-import Monster from "./monster";
-import Vector2 from "./vector";
+import {Monster} from "../internal";
+import Vector2 from "../vector";
 import colormap from 'colormap';
-import { lerp } from "./mathutils";
-import ParticleEmitter from "./particle/particleemitter";
+import { lerp } from "../mathutils";
+import ParticleEmitter from "../particle/particleemitter";
 
 class Projectile extends Monster {
 
@@ -34,10 +34,7 @@ class Projectile extends Monster {
 
     update(delta) {
         super.update(delta);
-        let factor = this.Age / this.TimeToLife;
-        this.BaseColor = this.ColorMap[
-            Math.floor(lerp(0, this.ColorMap.length, factor))
-        ];
+        this.lerpChromaColor();
     }
 
     postUpdate(delta) {

@@ -1,11 +1,13 @@
-import Monster from "../monster";
+import { Monster } from "../internal";
 import Vector2 from "../vector";
-import { getRandomfloat, getRandomBool, getRandomInt } from "../mathutils";
+import { getRandomfloat, getRandomBool, getRandomInt, getRandomBoolWithWeight } from "../mathutils";
 import chroma from 'chroma-js';
+import PowerUpBase from "../powerups/powerupbase";
+import GameMode from "../GameMode";
 
 
 
-class Asteroid extends Monster {
+export class Asteroid extends Monster {
 
     constructor(props) {
         super(props);
@@ -63,6 +65,14 @@ class Asteroid extends Monster {
         this.BaseColor = chroma.blend(this.BaseChroma.hex(), this.HealthChromaScale(this.health / this.maxHealth).hex(), 'multiply');;
     }
 
+    Destroy() {
+        super.Destroy();
+        let drop = getRandomBoolWithWeight(0.5);
+        if (drop) {
+            this.World.SpawnEntity(PowerUpBase, { location: this.Location.clone(), team: GameMode.PlayerPawn.team });
+        }
+    }
+
     render() {
         const ctx = this.World.ctx;
         ctx.save();
@@ -86,4 +96,3 @@ class Asteroid extends Monster {
 }
 
 
-export default Asteroid;
