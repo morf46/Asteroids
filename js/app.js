@@ -1,6 +1,6 @@
 import Vector2 from './vector';
 import StarBackGround from './starbackground';
-import {Player} from './internal';
+import { Player } from './internal';
 import World from './world';
 import { getRandomfloat, getRandomInt } from './mathutils';
 import Key from './input';
@@ -17,7 +17,6 @@ var maxFPS = 60;
 var delta = 0;
 var timestep = 1000 / 60;
 
-var lastTimeGC = 0;
 
 function GameLoop(TimeStamp) {
 
@@ -28,39 +27,29 @@ function GameLoop(TimeStamp) {
         return;
     }
 
-    if (lastTimeGC + 60000 < TimeStamp) {
-        lastTimeGC = TimeStamp;
-        World.UnregisterInactiveEntitys();
-    }
+
 
     delta = (TimeStamp - lastFrameTimeMs) / 1000;
     lastFrameTimeMs = TimeStamp;
 
-
-
-    //Update
-    GameMode.Update(delta);
-    World.Update(delta);
-
-    //Post update
-    World.PostUpdate(delta);
 
     //Draw
     //clear screen  CLS
     World.ctx.fillStyle = "#000";
     World.ctx.fillRect(0, 0, 800, 600);
 
-    World.EntityList.forEach(entity => {
-        if (!entity.PendingDestroy) {
-            entity.render(delta);
-        }
-    });
-    World.ParticleList.forEach(particle => {
-        if (!particle.PendingDestroy) {
-            particle.update(delta);
-            particle.render(delta);
-        }
-    });
+
+    //Update Collisions
+    World.UpdateCollisions(delta);
+
+    //Update
+    GameMode.Update(delta);
+    World.Update(delta);
+
+
+
+
+
 
     // Draw Debug collisons
     if (DebugShapes) {
@@ -94,7 +83,7 @@ function InitGame() {
 
     InitStars();
 
-  //  World.SpawnEntity(Asteroid, { location: new Vector2(400, 300), maxhealth:10000500 })
+    //  World.SpawnEntity(Asteroid, { location: new Vector2(400, 300), maxhealth:10000500 })
 
     var newPlayer = World.SpawnEntity(Player, { location: new Vector2(400, 500) })
     GameMode.RegisterPlayerPawn(newPlayer);
@@ -129,6 +118,7 @@ window.addEventListener('keydown', function (event) { Key.onKeydown(event); }, f
 
 document.addEventListener('DOMContentLoaded', (event) => {
     World.InitWorld();
+    WorldGlobal = World;
     InitGame();
     requestAnimationFrame(GameLoop);
 });

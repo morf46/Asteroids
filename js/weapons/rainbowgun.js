@@ -1,10 +1,8 @@
-import ProjectileWeaponBase from "./projectileweaponbase";
-import { RainbowProjectile } from "../projectiles/rainbowprojectile";
 import World from '../world';
 import Vector2 from '../vector';
 import { getRandomfloat } from "../mathutils";
-import Projectile from "../projectiles/projectile";
 import SinusCurveMovementComponent from "../Ai/SinusCurveMovement";
+import { ProjectileWeaponBase,RainbowProjectile } from "../internal";
 
 
 export class RainbowGun extends ProjectileWeaponBase {
@@ -15,6 +13,8 @@ export class RainbowGun extends ProjectileWeaponBase {
 
         this.ProjectileClass = RainbowProjectile;
 
+        this.Ammunition = 100;
+        this.Period = 500;
     }
 
 
@@ -34,14 +34,19 @@ export class RainbowGun extends ProjectileWeaponBase {
                     MovementConfig: {
                         usespawnlocationdiff: true,
                         frequency: 30,
-                        magnitude: (getRandomfloat(10,15) * localInverse)
+                        magnitude: (getRandomfloat(10, 15) * localInverse)
                     }
                 });
                 P.team = this.Outer.team;
 
                 this.InternalShootCount++;
+                this.Ammunition--;
+
+                if (this.Ammunition <= 0) {
+                    this.Destroy();
+                    break;
+                }
             }
         }
-
     }
 }

@@ -1,17 +1,16 @@
 
-import {Monster} from "../internal";
+import { Monster, ParticleEmitter } from "../internal";
 import Vector2 from "../vector";
 import colormap from 'colormap';
-import { lerp } from "../mathutils";
-import ParticleEmitter from "../particle/particleemitter";
 
-class Projectile extends Monster {
+
+export class Projectile extends Monster {
 
     constructor(props) {
         super(props);
 
 
-        this.RegisterPostUpdate = true;
+        this.RegisterCollisonQuery = true;
 
         this.TimeToLife = 1200;
 
@@ -37,7 +36,7 @@ class Projectile extends Monster {
         this.lerpChromaColor();
     }
 
-    postUpdate(delta) {
+    QueryCollisions(delta) {
         if (!this.PendingDestroy) {
             const potentials = this.RootBody.potentials();
             for (const otherBody of potentials) {
@@ -45,15 +44,18 @@ class Projectile extends Monster {
                     if (this.team !== otherBody.Outer.team) {
                         otherBody.Outer.takeDamage(this.DamageDealt);
                         let Direction = new Vector2(this.World.collisionResults.overlap_x, this.World.collisionResults.overlap_y).multiply(-1);
-                        let FX = new ParticleEmitter({ location: this.Location, direction: Direction })
-                        FX.Activate();
+                        this.SpawnImpactFX({ direction: Direction });
                         this.Destroy();
                         break;
                     }
                 }
             }
         }
+    }
 
+    SpawnImpactFX(data) {
+        let FX = this.World.SpawnEntity(ParticleEmitter, { location: this.Location, direction: data.direction })
+        FX.Activate();
     }
 
     render(delta) {
@@ -70,4 +72,3 @@ class Projectile extends Monster {
     }
 }
 
-export default Projectile;

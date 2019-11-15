@@ -1,11 +1,12 @@
 import { Monster } from "./internal";
 import Vector2 from "./vector";
 import Key from "./input";
-
 import { getRandomfloat } from "./mathutils";
 import chroma from 'chroma-js';
-import ProjectileWeaponBase from "./weapons/projectileweaponbase";
-import { RainbowGun } from "./weapons/rainbowgun";
+import { ProjectileWeaponBase, RainbowGun, WPN_TPattern } from "./internal";
+
+
+
 
 
 
@@ -19,7 +20,7 @@ export class Player extends Monster {
 
         super(props);
 
-        this.RegisterPostUpdate = true;
+        this.RegisterCollisonQuery = true;
         this.team = 0;
 
         this.maxHealth = 100;
@@ -27,11 +28,19 @@ export class Player extends Monster {
 
         this.InputStrength = 250;
 
-        this.weapon = new RainbowGun();
-        this.weapon.SetOwner(this);
+        this.weapon = null;
+        this.Inventory = [];
 
         //start with 1 to avoid modulus 0
         this.PositionLevel = 1;
+    }
+
+    BeginPlay() {
+        let BaseWeapon = new ProjectileWeaponBase();
+        //let BaseWeapon = new WPN_TPattern();
+
+        //let BaseWeapon = new RainbowGun();
+        this.PickupItem(BaseWeapon);
     }
 
     update(delta) {
@@ -66,7 +75,7 @@ export class Player extends Monster {
         }
     }
 
-    postUpdate(delta) {
+    QueryCollisions(delta) {
         if (!this.PendingDestroy) {
             const potentials = this.RootBody.potentials();
             for (const otherBody of potentials) {
@@ -79,6 +88,28 @@ export class Player extends Monster {
             }
         }
     }
+
+    PickupItem(newItem) {
+        this.Inventory.push(newItem);
+        newItem.SetOwner(this);
+        this.OnPickupInventory();
+    }
+    DropItem(itemToDrop) {
+        this.Inventory = this.Inventory.filter(item => item !== itemToDrop);
+        this.OnDropInventory();
+    }
+    OnPickupInventory() {
+        this.OnWeaponPickup();
+
+    }
+    OnDropInventory() {
+        this.OnWeaponPickup();
+    }
+    OnWeaponPickup() {
+        //just pickup latest weapon
+        this.weapon = this.Inventory[this.Inventory.length - 1];
+    }
+
 
     takeDamage(amount) {
 

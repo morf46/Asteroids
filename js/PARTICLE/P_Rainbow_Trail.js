@@ -1,22 +1,21 @@
-import { Entity } from "../internal";
+import { Particle } from "../internal";
 import { getRandomfloat, lerp } from "../mathutils";
 import colormap from 'colormap';
 
 
-export class Particle extends Entity {
+export class P_Rainbow_Trail extends Particle {
 
     constructor(props) {
         super(props);
-        this.TimeToLife = getRandomfloat(250, 700);
+        this.TimeToLife = getRandomfloat(800, 1200);
 
         this.ColorMap = colormap({
-            colormap: 'winter',
+            colormap: 'rainbow',
             nshades: 20,
             format: 'hex',
-            alpha: 1
+            alpha: 0.5
         })
         this.BaseColor = this.ColorMap[0];
-        
     }
 
     update(delta) {
@@ -27,7 +26,7 @@ export class Particle extends Entity {
         this.lerpChromaColor();
     }
 
-
+    
 
 
 
@@ -37,7 +36,7 @@ export class Particle extends Entity {
         ctx.translate(this.Location.x, this.Location.y);
         ctx.beginPath();
         ctx.fillStyle = this.BaseColor;
-        ctx.arc(0, 0, 1, 0, 2 * Math.PI)
+        ctx.arc(0, 0, 2, 0, 2 * Math.PI)
         ctx.fill();
         ctx.restore();
 
@@ -45,3 +44,4 @@ export class Particle extends Entity {
 
 
 }
+

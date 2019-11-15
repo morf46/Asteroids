@@ -9,6 +9,9 @@ export class Entity {
 
     constructor(props) {
 
+        props = props || {}
+
+        this.Outer = props.outer || null;
         this.SpawnLocation = props.location ? props.location.clone() : new Vector2(0, 0);
         this.Velocity = props.velocity ? props.velocity.clone() : new Vector2(0, 0);
         this.Location = this.SpawnLocation.clone();
@@ -21,7 +24,7 @@ export class Entity {
         this.RootBody = null;
         this.vertexes = [];
         this.PendingDestroy = false;
-        this.RegisterPostUpdate = false;
+        this.RegisterCollisonQuery = false;
         this.team = props.team || 0;
 
 
@@ -46,9 +49,7 @@ export class Entity {
 
     }
 
-    preUpdate(delta) {
-
-    }
+    
 
     update(delta) {
 
@@ -61,19 +62,18 @@ export class Entity {
         }
 
         if (!this.IsInWorldBounds()) {
-            console.log("Out of Bounds: ", this);
+            //console.log("Out of Bounds: ", this);
             this.Destroy();
         }
+        
+    }
+
+
+    QueryCollisions(delta) {
 
     }
 
-    /**
-     * Runs after Update needs to be registered with RegisterPostUpdate = true
-     * @param {number} delta DeltaTime 
-     */
-    postUpdate(delta) {
 
-    }
 
     /**
      * Take damage 

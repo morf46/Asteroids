@@ -8,8 +8,7 @@ class _World {
 
     constructor() {
         this.EntityList = [];
-        this.EntityListPostUpdate = [];
-        this.ParticleList = [];
+        this.PendingSpawns = [];
         this.collisions = new Collisions();
         this.collisionResults = this.collisions.createResult();
         this.GameTime = 0;
@@ -27,29 +26,18 @@ class _World {
     SpawnEntity(ClassToSpawn, props) {
         let newEntity = new ClassToSpawn(props);
         this.RegisterEntity(newEntity);
-        newEntity.BeginPlay();
         return newEntity;
     }
 
     RegisterEntity(NewEntity) {
-        this.EntityList.push(NewEntity);
-        if (NewEntity.RegisterPostUpdate === true) {
-            this.EntityListPostUpdate.push(NewEntity);
-        }
+        this.PendingSpawns.push(NewEntity);
     }
 
-    RegisterParticle(NewParticle){
-        this.ParticleList.push(NewParticle);
+    RegisterParticle(NewParticle) {
+        this.RegisterEntity(NewParticle);
     }
 
 
-    UnregisterInactiveEntitys() {
-        console.log("GC run");
-        this.EntityList = this.EntityList.filter(x => x.PendingDestroy === false);
-        this.EntityListPostUpdate = this.EntityListPostUpdate.filter(x => x.PendingDestroy === false);
-        this.ParticleList = this.ParticleList.filter(x => x.PendingDestroy === false);
-
-    }
 
 
     InitWorld() {
@@ -71,24 +59,35 @@ class _World {
     Update(delta) {
 
 
-        this.EntityList.forEach(entity => {
+        //push new spawns to list
+        for (let i = 0; i < this.PendingSpawns.length; i++) {
+            const newEntity = this.PendingSpawns[i];
+            this.EntityList.push(newEntity);
+            newEntity.BeginPlay();
+        }
+        //clear list
+        this.PendingSpawns = [];
+
+        this.EntityList = this.EntityList.filter(entity => {
             if (!entity.PendingDestroy) {
+
                 entity.update(delta);
+
+                if (entity.RegisterCollisonQuery === true) {
+                    entity.QueryCollisions(delta);
+                }
+
+                entity.render(delta);
             }
+
+            return entity.PendingDestroy === false;
         });
 
-        
     }
 
-    PostUpdate(delta) {
+    UpdateCollisions(delta) {
         //Update Collision
         this.collisions.update();
-        //POST update
-        this.EntityListPostUpdate.forEach(entity => {
-            if (!entity.PendingDestroy) {
-                entity.postUpdate(delta);
-            }
-        });
     }
 
 }

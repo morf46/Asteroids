@@ -68,7 +68,7 @@ export class Monster extends Entity {
         this.RootBody.angle = this.Rotation;
     }
 
-    postUpdate(delta) {
+    QueryCollisions(delta) {
 
 
     }

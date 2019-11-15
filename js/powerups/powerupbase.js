@@ -1,6 +1,7 @@
-import { Monster } from "../internal";
+import { Monster, Player,RainbowGun } from "../internal";
 import Vector2 from "../vector";
-import colormap from 'colormap';
+import { WPN_TPattern } from "../weapons/WPN_TPattern";
+
 
 class PowerUpBase extends Monster {
 
@@ -32,8 +33,11 @@ class PowerUpBase extends Monster {
 
     }
 
-    OnCheckedOverlap(OtherEntity) {
+    OnOverlap(OtherEntity) {
         if (OtherEntity instanceof Player) {
+
+            let NewGun = new WPN_TPattern();
+            OtherEntity.PickupItem(NewGun);
             this.Destroy();
         }
     }

@@ -1,15 +1,20 @@
+import { Entity } from "../internal";
 import World from "../world";
 
 
-class Weapon {
+export class Weapon extends Entity {
 
 
-    constructor() {
+    constructor(props) {
+
+        super(props);
 
         this.Period = 250;
         this.lastTimeFired = 0;
         this.Outer = null;
-        
+
+        this.Ammunition = 0;
+
     }
 
     /**
@@ -18,6 +23,7 @@ class Weapon {
      */
     SetOwner(NewOwner) {
         this.Outer = NewOwner;
+
     }
 
     /**
@@ -27,6 +33,7 @@ class Weapon {
     FireWeapon() {
         if (this.lastTimeFired + this.Period < World.GameTime) {
             this.HandleFireWeapon();
+            this.lastTimeFired = World.GameTime;
         }
     }
 
@@ -37,7 +44,13 @@ class Weapon {
     HandleFireWeapon() {
 
     }
+
+    Destroy() {
+        super.Destroy();
+        if (this.Outer) {
+            this.Outer.DropItem(this);
+        }
+    }
 }
 
 
-export default Weapon;

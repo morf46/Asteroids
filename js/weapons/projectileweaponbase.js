@@ -1,6 +1,5 @@
-import Weapon from "./weapon";
+import { Weapon,Projectile } from "../internal";
 import World from "../world";
-import Projectile from "../projectiles/projectile";
 import Vector2 from "../vector";
 import { getRandomfloat } from "../mathutils";
 
@@ -8,10 +7,10 @@ import { getRandomfloat } from "../mathutils";
 /**
  * Projectile shoots "Upwards"
  */
-class ProjectileWeaponBase extends Weapon {
+export class ProjectileWeaponBase extends Weapon {
 
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
 
 
 
@@ -20,6 +19,9 @@ class ProjectileWeaponBase extends Weapon {
 
         //Private shoot count
         this.InternalShootCount = 0;
+
+        this.Period = 100;
+
 
     }
 
@@ -33,7 +35,7 @@ class ProjectileWeaponBase extends Weapon {
                 location: this.Outer.Location,
                 velocity: new Vector2(0, getRandomfloat(-550, -450)).add(this.Outer.Velocity.clone().multiply(0.16)),
                 team: this.Outer.team
-                
+
             });
             P.team = this.Outer.team;
 
@@ -45,4 +47,3 @@ class ProjectileWeaponBase extends Weapon {
 
 }
 
-export default ProjectileWeaponBase;

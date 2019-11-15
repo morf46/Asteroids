@@ -33,7 +33,6 @@ class _GameMode {
 
                 this.SpawnNextEnemySet();
 
-
             }
         }
     }

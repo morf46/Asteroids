@@ -21,7 +21,7 @@ export class Asteroid extends Monster {
         this.HealthChromaScale = chroma.scale(["#fff", this.LowHealthColor]).mode('lab');
 
 
-        this.maxHealth = props.maxhealth || 70;
+        this.maxHealth = props.maxhealth || 35;
         this.health = this.maxHealth;
     }
 

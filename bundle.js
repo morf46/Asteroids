@@ -2350,8 +2350,7 @@
       _classCallCheck(this, _World);
 
       this.EntityList = [];
-      this.EntityListPostUpdate = [];
-      this.ParticleList = [];
+      this.PendingSpawns = [];
       this.collisions = new Collisions();
       this.collisionResults = this.collisions.createResult();
       this.GameTime = 0;
@@ -2370,36 +2369,17 @@
       value: function SpawnEntity(ClassToSpawn, props) {
         var newEntity = new ClassToSpawn(props);
         this.RegisterEntity(newEntity);
-        newEntity.BeginPlay();
         return newEntity;
       }
     }, {
       key: "RegisterEntity",
       value: function RegisterEntity(NewEntity) {
-        this.EntityList.push(NewEntity);
-
-        if (NewEntity.RegisterPostUpdate === true) {
-          this.EntityListPostUpdate.push(NewEntity);
-        }
+        this.PendingSpawns.push(NewEntity);
       }
     }, {
       key: "RegisterParticle",
       value: function RegisterParticle(NewParticle) {
-        this.ParticleList.push(NewParticle);
-      }
-    }, {
-      key: "UnregisterInactiveEntitys",
-      value: function UnregisterInactiveEntitys() {
-        console.log("GC run");
-        this.EntityList = this.EntityList.filter(function (x) {
-          return x.PendingDestroy === false;
-        });
-        this.EntityListPostUpdate = this.EntityListPostUpdate.filter(function (x) {
-          return x.PendingDestroy === false;
-        });
-        this.ParticleList = this.ParticleList.filter(function (x) {
-          return x.PendingDestroy === false;
-        });
+        this.RegisterEntity(NewParticle);
       }
     }, {
       key: "InitWorld",
@@ -2420,23 +2400,34 @@
     }, {
       key: "Update",
       value: function Update(delta) {
-        this.EntityList.forEach(function (entity) {
+        //push new spawns to list
+        for (var i = 0; i < this.PendingSpawns.length; i++) {
+          var newEntity = this.PendingSpawns[i];
+          this.EntityList.push(newEntity);
+          newEntity.BeginPlay();
+        } //clear list
+
+
+        this.PendingSpawns = [];
+        this.EntityList = this.EntityList.filter(function (entity) {
           if (!entity.PendingDestroy) {
             entity.update(delta);
+
+            if (entity.RegisterCollisonQuery === true) {
+              entity.QueryCollisions(delta);
+            }
+
+            entity.render(delta);
           }
+
+          return entity.PendingDestroy === false;
         });
       }
     }, {
-      key: "PostUpdate",
-      value: function PostUpdate(delta) {
+      key: "UpdateCollisions",
+      value: function UpdateCollisions(delta) {
         //Update Collision
-        this.collisions.update(); //POST update
-
-        this.EntityListPostUpdate.forEach(function (entity) {
-          if (!entity.PendingDestroy) {
-            entity.postUpdate(delta);
-          }
-        });
+        this.collisions.update();
       }
     }]);
 
@@ -2451,6 +2442,8 @@
     function Entity(props) {
       _classCallCheck(this, Entity);
 
+      props = props || {};
+      this.Outer = props.outer || null;
       this.SpawnLocation = props.location ? props.location.clone() : new Vector2(0, 0);
       this.Velocity = props.velocity ? props.velocity.clone() : new Vector2(0, 0);
       this.Location = this.SpawnLocation.clone();
@@ -2462,7 +2455,7 @@
       this.RootBody = null;
       this.vertexes = [];
       this.PendingDestroy = false;
-      this.RegisterPostUpdate = false;
+      this.RegisterCollisonQuery = false;
       this.team = props.team || 0;
       this.maxHealth = props.maxHealth || 0;
       this.health = props.health || this.maxHealth;
@@ -2478,9 +2471,6 @@
       key: "BeginPlay",
       value: function BeginPlay() {}
     }, {
-      key: "preUpdate",
-      value: function preUpdate(delta) {}
-    }, {
       key: "update",
       value: function update(delta) {
         this.Age = World.GameTime - this.spawnTime;
@@ -2492,18 +2482,13 @@
         }
 
         if (!this.IsInWorldBounds()) {
-          console.log("Out of Bounds: ", this);
+          //console.log("Out of Bounds: ", this);
           this.Destroy();
         }
       }
-      /**
-       * Runs after Update needs to be registered with RegisterPostUpdate = true
-       * @param {number} delta DeltaTime 
-       */
-
     }, {
-      key: "postUpdate",
-      value: function postUpdate(delta) {}
+      key: "QueryCollisions",
+      value: function QueryCollisions(delta) {}
       /**
        * Take damage 
        * @param {number} amount 
@@ -2663,8 +2648,8 @@
         this.RootBody.angle = this.Rotation;
       }
     }, {
-      key: "postUpdate",
-      value: function postUpdate(delta) {}
+      key: "QueryCollisions",
+      value: function QueryCollisions(delta) {}
     }, {
       key: "Destroy",
       value: function Destroy() {
@@ -2696,7 +2681,7 @@
     }, {
       key: "OnOverlap",
       value: function OnOverlap(OtherEntity) {
-        if (OtherEntity instanceof Player$1) {
+        if (OtherEntity instanceof Player) {
           OtherEntity.takeDamage(10);
           this.Destroy();
         }
@@ -5938,235 +5923,51 @@
   });
   var chroma_1 = chroma.chroma;
 
-  var colorScale={
-  	"jet":[{"index":0,"rgb":[0,0,131]},{"index":0.125,"rgb":[0,60,170]},{"index":0.375,"rgb":[5,255,255]},{"index":0.625,"rgb":[255,255,0]},{"index":0.875,"rgb":[250,0,0]},{"index":1,"rgb":[128,0,0]}],
+  var WPN_TPattern =
+  /*#__PURE__*/
+  function (_ProjectileWeaponBase) {
+    _inherits(WPN_TPattern, _ProjectileWeaponBase);
 
-  	"hsv":[{"index":0,"rgb":[255,0,0]},{"index":0.169,"rgb":[253,255,2]},{"index":0.173,"rgb":[247,255,2]},{"index":0.337,"rgb":[0,252,4]},{"index":0.341,"rgb":[0,252,10]},{"index":0.506,"rgb":[1,249,255]},{"index":0.671,"rgb":[2,0,253]},{"index":0.675,"rgb":[8,0,253]},{"index":0.839,"rgb":[255,0,251]},{"index":0.843,"rgb":[255,0,245]},{"index":1,"rgb":[255,0,6]}],
+    function WPN_TPattern(props) {
+      _classCallCheck(this, WPN_TPattern);
 
-  	"hot":[{"index":0,"rgb":[0,0,0]},{"index":0.3,"rgb":[230,0,0]},{"index":0.6,"rgb":[255,210,0]},{"index":1,"rgb":[255,255,255]}],
+      return _possibleConstructorReturn(this, _getPrototypeOf(WPN_TPattern).call(this, props));
+    }
 
-  	"cool":[{"index":0,"rgb":[0,255,255]},{"index":1,"rgb":[255,0,255]}],
+    _createClass(WPN_TPattern, [{
+      key: "HandleFireWeapon",
+      value: function HandleFireWeapon() {
+        if (this.ProjectileClass) {
+          for (var i = 0; i < 3; i++) {
+            var xMagnitude = 0;
+            var yMagnitude = -1;
 
-  	"spring":[{"index":0,"rgb":[255,0,255]},{"index":1,"rgb":[255,255,0]}],
+            switch (i) {
+              case 1:
+                xMagnitude = 1;
+                yMagnitude = 0;
+                break;
 
-  	"summer":[{"index":0,"rgb":[0,128,102]},{"index":1,"rgb":[255,255,102]}],
+              case 2:
+                xMagnitude = -1;
+                yMagnitude = 0;
+                break;
+            }
 
-  	"autumn":[{"index":0,"rgb":[255,0,0]},{"index":1,"rgb":[255,255,0]}],
-
-  	"winter":[{"index":0,"rgb":[0,0,255]},{"index":1,"rgb":[0,255,128]}],
-
-  	"bone":[{"index":0,"rgb":[0,0,0]},{"index":0.376,"rgb":[84,84,116]},{"index":0.753,"rgb":[169,200,200]},{"index":1,"rgb":[255,255,255]}],
-
-  	"copper":[{"index":0,"rgb":[0,0,0]},{"index":0.804,"rgb":[255,160,102]},{"index":1,"rgb":[255,199,127]}],
-
-  	"greys":[{"index":0,"rgb":[0,0,0]},{"index":1,"rgb":[255,255,255]}],
-
-  	"yignbu":[{"index":0,"rgb":[8,29,88]},{"index":0.125,"rgb":[37,52,148]},{"index":0.25,"rgb":[34,94,168]},{"index":0.375,"rgb":[29,145,192]},{"index":0.5,"rgb":[65,182,196]},{"index":0.625,"rgb":[127,205,187]},{"index":0.75,"rgb":[199,233,180]},{"index":0.875,"rgb":[237,248,217]},{"index":1,"rgb":[255,255,217]}],
-
-  	"greens":[{"index":0,"rgb":[0,68,27]},{"index":0.125,"rgb":[0,109,44]},{"index":0.25,"rgb":[35,139,69]},{"index":0.375,"rgb":[65,171,93]},{"index":0.5,"rgb":[116,196,118]},{"index":0.625,"rgb":[161,217,155]},{"index":0.75,"rgb":[199,233,192]},{"index":0.875,"rgb":[229,245,224]},{"index":1,"rgb":[247,252,245]}],
-
-  	"yiorrd":[{"index":0,"rgb":[128,0,38]},{"index":0.125,"rgb":[189,0,38]},{"index":0.25,"rgb":[227,26,28]},{"index":0.375,"rgb":[252,78,42]},{"index":0.5,"rgb":[253,141,60]},{"index":0.625,"rgb":[254,178,76]},{"index":0.75,"rgb":[254,217,118]},{"index":0.875,"rgb":[255,237,160]},{"index":1,"rgb":[255,255,204]}],
-
-  	"bluered":[{"index":0,"rgb":[0,0,255]},{"index":1,"rgb":[255,0,0]}],
-
-  	"rdbu":[{"index":0,"rgb":[5,10,172]},{"index":0.35,"rgb":[106,137,247]},{"index":0.5,"rgb":[190,190,190]},{"index":0.6,"rgb":[220,170,132]},{"index":0.7,"rgb":[230,145,90]},{"index":1,"rgb":[178,10,28]}],
-
-  	"picnic":[{"index":0,"rgb":[0,0,255]},{"index":0.1,"rgb":[51,153,255]},{"index":0.2,"rgb":[102,204,255]},{"index":0.3,"rgb":[153,204,255]},{"index":0.4,"rgb":[204,204,255]},{"index":0.5,"rgb":[255,255,255]},{"index":0.6,"rgb":[255,204,255]},{"index":0.7,"rgb":[255,153,255]},{"index":0.8,"rgb":[255,102,204]},{"index":0.9,"rgb":[255,102,102]},{"index":1,"rgb":[255,0,0]}],
-
-  	"rainbow":[{"index":0,"rgb":[150,0,90]},{"index":0.125,"rgb":[0,0,200]},{"index":0.25,"rgb":[0,25,255]},{"index":0.375,"rgb":[0,152,255]},{"index":0.5,"rgb":[44,255,150]},{"index":0.625,"rgb":[151,255,0]},{"index":0.75,"rgb":[255,234,0]},{"index":0.875,"rgb":[255,111,0]},{"index":1,"rgb":[255,0,0]}],
-
-  	"portland":[{"index":0,"rgb":[12,51,131]},{"index":0.25,"rgb":[10,136,186]},{"index":0.5,"rgb":[242,211,56]},{"index":0.75,"rgb":[242,143,56]},{"index":1,"rgb":[217,30,30]}],
-
-  	"blackbody":[{"index":0,"rgb":[0,0,0]},{"index":0.2,"rgb":[230,0,0]},{"index":0.4,"rgb":[230,210,0]},{"index":0.7,"rgb":[255,255,255]},{"index":1,"rgb":[160,200,255]}],
-
-  	"earth":[{"index":0,"rgb":[0,0,130]},{"index":0.1,"rgb":[0,180,180]},{"index":0.2,"rgb":[40,210,40]},{"index":0.4,"rgb":[230,230,50]},{"index":0.6,"rgb":[120,70,20]},{"index":1,"rgb":[255,255,255]}],
-
-  	"electric":[{"index":0,"rgb":[0,0,0]},{"index":0.15,"rgb":[30,0,100]},{"index":0.4,"rgb":[120,0,100]},{"index":0.6,"rgb":[160,90,0]},{"index":0.8,"rgb":[230,200,0]},{"index":1,"rgb":[255,250,220]}],
-
-  	"alpha": [{"index":0, "rgb": [255,255,255,0]},{"index":1, "rgb": [255,255,255,1]}],
-
-  	"viridis": [{"index":0,"rgb":[68,1,84]},{"index":0.13,"rgb":[71,44,122]},{"index":0.25,"rgb":[59,81,139]},{"index":0.38,"rgb":[44,113,142]},{"index":0.5,"rgb":[33,144,141]},{"index":0.63,"rgb":[39,173,129]},{"index":0.75,"rgb":[92,200,99]},{"index":0.88,"rgb":[170,220,50]},{"index":1,"rgb":[253,231,37]}],
-
-  	"inferno": [{"index":0,"rgb":[0,0,4]},{"index":0.13,"rgb":[31,12,72]},{"index":0.25,"rgb":[85,15,109]},{"index":0.38,"rgb":[136,34,106]},{"index":0.5,"rgb":[186,54,85]},{"index":0.63,"rgb":[227,89,51]},{"index":0.75,"rgb":[249,140,10]},{"index":0.88,"rgb":[249,201,50]},{"index":1,"rgb":[252,255,164]}],
-
-  	"magma": [{"index":0,"rgb":[0,0,4]},{"index":0.13,"rgb":[28,16,68]},{"index":0.25,"rgb":[79,18,123]},{"index":0.38,"rgb":[129,37,129]},{"index":0.5,"rgb":[181,54,122]},{"index":0.63,"rgb":[229,80,100]},{"index":0.75,"rgb":[251,135,97]},{"index":0.88,"rgb":[254,194,135]},{"index":1,"rgb":[252,253,191]}],
-
-  	"plasma": [{"index":0,"rgb":[13,8,135]},{"index":0.13,"rgb":[75,3,161]},{"index":0.25,"rgb":[125,3,168]},{"index":0.38,"rgb":[168,34,150]},{"index":0.5,"rgb":[203,70,121]},{"index":0.63,"rgb":[229,107,93]},{"index":0.75,"rgb":[248,148,65]},{"index":0.88,"rgb":[253,195,40]},{"index":1,"rgb":[240,249,33]}],
-
-  	"warm": [{"index":0,"rgb":[125,0,179]},{"index":0.13,"rgb":[172,0,187]},{"index":0.25,"rgb":[219,0,170]},{"index":0.38,"rgb":[255,0,130]},{"index":0.5,"rgb":[255,63,74]},{"index":0.63,"rgb":[255,123,0]},{"index":0.75,"rgb":[234,176,0]},{"index":0.88,"rgb":[190,228,0]},{"index":1,"rgb":[147,255,0]}],
-
-  	"cool": [{"index":0,"rgb":[125,0,179]},{"index":0.13,"rgb":[116,0,218]},{"index":0.25,"rgb":[98,74,237]},{"index":0.38,"rgb":[68,146,231]},{"index":0.5,"rgb":[0,204,197]},{"index":0.63,"rgb":[0,247,146]},{"index":0.75,"rgb":[0,255,88]},{"index":0.88,"rgb":[40,255,8]},{"index":1,"rgb":[147,255,0]}],
-
-  	"rainbow-soft": [{"index":0,"rgb":[125,0,179]},{"index":0.1,"rgb":[199,0,180]},{"index":0.2,"rgb":[255,0,121]},{"index":0.3,"rgb":[255,108,0]},{"index":0.4,"rgb":[222,194,0]},{"index":0.5,"rgb":[150,255,0]},{"index":0.6,"rgb":[0,255,55]},{"index":0.7,"rgb":[0,246,150]},{"index":0.8,"rgb":[50,167,222]},{"index":0.9,"rgb":[103,51,235]},{"index":1,"rgb":[124,0,186]}],
-
-  	"bathymetry": [{"index":0,"rgb":[40,26,44]},{"index":0.13,"rgb":[59,49,90]},{"index":0.25,"rgb":[64,76,139]},{"index":0.38,"rgb":[63,110,151]},{"index":0.5,"rgb":[72,142,158]},{"index":0.63,"rgb":[85,174,163]},{"index":0.75,"rgb":[120,206,163]},{"index":0.88,"rgb":[187,230,172]},{"index":1,"rgb":[253,254,204]}],
-
-  	"cdom": [{"index":0,"rgb":[47,15,62]},{"index":0.13,"rgb":[87,23,86]},{"index":0.25,"rgb":[130,28,99]},{"index":0.38,"rgb":[171,41,96]},{"index":0.5,"rgb":[206,67,86]},{"index":0.63,"rgb":[230,106,84]},{"index":0.75,"rgb":[242,149,103]},{"index":0.88,"rgb":[249,193,135]},{"index":1,"rgb":[254,237,176]}],
-
-  	"chlorophyll": [{"index":0,"rgb":[18,36,20]},{"index":0.13,"rgb":[25,63,41]},{"index":0.25,"rgb":[24,91,59]},{"index":0.38,"rgb":[13,119,72]},{"index":0.5,"rgb":[18,148,80]},{"index":0.63,"rgb":[80,173,89]},{"index":0.75,"rgb":[132,196,122]},{"index":0.88,"rgb":[175,221,162]},{"index":1,"rgb":[215,249,208]}],
-
-  	"density": [{"index":0,"rgb":[54,14,36]},{"index":0.13,"rgb":[89,23,80]},{"index":0.25,"rgb":[110,45,132]},{"index":0.38,"rgb":[120,77,178]},{"index":0.5,"rgb":[120,113,213]},{"index":0.63,"rgb":[115,151,228]},{"index":0.75,"rgb":[134,185,227]},{"index":0.88,"rgb":[177,214,227]},{"index":1,"rgb":[230,241,241]}],
-
-  	"freesurface-blue": [{"index":0,"rgb":[30,4,110]},{"index":0.13,"rgb":[47,14,176]},{"index":0.25,"rgb":[41,45,236]},{"index":0.38,"rgb":[25,99,212]},{"index":0.5,"rgb":[68,131,200]},{"index":0.63,"rgb":[114,156,197]},{"index":0.75,"rgb":[157,181,203]},{"index":0.88,"rgb":[200,208,216]},{"index":1,"rgb":[241,237,236]}],
-
-  	"freesurface-red": [{"index":0,"rgb":[60,9,18]},{"index":0.13,"rgb":[100,17,27]},{"index":0.25,"rgb":[142,20,29]},{"index":0.38,"rgb":[177,43,27]},{"index":0.5,"rgb":[192,87,63]},{"index":0.63,"rgb":[205,125,105]},{"index":0.75,"rgb":[216,162,148]},{"index":0.88,"rgb":[227,199,193]},{"index":1,"rgb":[241,237,236]}],
-
-  	"oxygen": [{"index":0,"rgb":[64,5,5]},{"index":0.13,"rgb":[106,6,15]},{"index":0.25,"rgb":[144,26,7]},{"index":0.38,"rgb":[168,64,3]},{"index":0.5,"rgb":[188,100,4]},{"index":0.63,"rgb":[206,136,11]},{"index":0.75,"rgb":[220,174,25]},{"index":0.88,"rgb":[231,215,44]},{"index":1,"rgb":[248,254,105]}],
-
-  	"par": [{"index":0,"rgb":[51,20,24]},{"index":0.13,"rgb":[90,32,35]},{"index":0.25,"rgb":[129,44,34]},{"index":0.38,"rgb":[159,68,25]},{"index":0.5,"rgb":[182,99,19]},{"index":0.63,"rgb":[199,134,22]},{"index":0.75,"rgb":[212,171,35]},{"index":0.88,"rgb":[221,210,54]},{"index":1,"rgb":[225,253,75]}],
-
-  	"phase": [{"index":0,"rgb":[145,105,18]},{"index":0.13,"rgb":[184,71,38]},{"index":0.25,"rgb":[186,58,115]},{"index":0.38,"rgb":[160,71,185]},{"index":0.5,"rgb":[110,97,218]},{"index":0.63,"rgb":[50,123,164]},{"index":0.75,"rgb":[31,131,110]},{"index":0.88,"rgb":[77,129,34]},{"index":1,"rgb":[145,105,18]}],
-
-  	"salinity": [{"index":0,"rgb":[42,24,108]},{"index":0.13,"rgb":[33,50,162]},{"index":0.25,"rgb":[15,90,145]},{"index":0.38,"rgb":[40,118,137]},{"index":0.5,"rgb":[59,146,135]},{"index":0.63,"rgb":[79,175,126]},{"index":0.75,"rgb":[120,203,104]},{"index":0.88,"rgb":[193,221,100]},{"index":1,"rgb":[253,239,154]}],
-
-  	"temperature": [{"index":0,"rgb":[4,35,51]},{"index":0.13,"rgb":[23,51,122]},{"index":0.25,"rgb":[85,59,157]},{"index":0.38,"rgb":[129,79,143]},{"index":0.5,"rgb":[175,95,130]},{"index":0.63,"rgb":[222,112,101]},{"index":0.75,"rgb":[249,146,66]},{"index":0.88,"rgb":[249,196,65]},{"index":1,"rgb":[232,250,91]}],
-
-  	"turbidity": [{"index":0,"rgb":[34,31,27]},{"index":0.13,"rgb":[65,50,41]},{"index":0.25,"rgb":[98,69,52]},{"index":0.38,"rgb":[131,89,57]},{"index":0.5,"rgb":[161,112,59]},{"index":0.63,"rgb":[185,140,66]},{"index":0.75,"rgb":[202,174,88]},{"index":0.88,"rgb":[216,209,126]},{"index":1,"rgb":[233,246,171]}],
-
-  	"velocity-blue": [{"index":0,"rgb":[17,32,64]},{"index":0.13,"rgb":[35,52,116]},{"index":0.25,"rgb":[29,81,156]},{"index":0.38,"rgb":[31,113,162]},{"index":0.5,"rgb":[50,144,169]},{"index":0.63,"rgb":[87,173,176]},{"index":0.75,"rgb":[149,196,189]},{"index":0.88,"rgb":[203,221,211]},{"index":1,"rgb":[254,251,230]}],
-
-  	"velocity-green": [{"index":0,"rgb":[23,35,19]},{"index":0.13,"rgb":[24,64,38]},{"index":0.25,"rgb":[11,95,45]},{"index":0.38,"rgb":[39,123,35]},{"index":0.5,"rgb":[95,146,12]},{"index":0.63,"rgb":[152,165,18]},{"index":0.75,"rgb":[201,186,69]},{"index":0.88,"rgb":[233,216,137]},{"index":1,"rgb":[255,253,205]}],
-
-  	"cubehelix": [{"index":0,"rgb":[0,0,0]},{"index":0.07,"rgb":[22,5,59]},{"index":0.13,"rgb":[60,4,105]},{"index":0.2,"rgb":[109,1,135]},{"index":0.27,"rgb":[161,0,147]},{"index":0.33,"rgb":[210,2,142]},{"index":0.4,"rgb":[251,11,123]},{"index":0.47,"rgb":[255,29,97]},{"index":0.53,"rgb":[255,54,69]},{"index":0.6,"rgb":[255,85,46]},{"index":0.67,"rgb":[255,120,34]},{"index":0.73,"rgb":[255,157,37]},{"index":0.8,"rgb":[241,191,57]},{"index":0.87,"rgb":[224,220,93]},{"index":0.93,"rgb":[218,241,142]},{"index":1,"rgb":[227,253,198]}]
-  };
-
-  function lerp$1(v0, v1, t) {
-      return v0*(1-t)+v1*t
-  }
-  var lerp_1 = lerp$1;
-
-  var colormap = createColormap;
-
-  function createColormap (spec) {
-      /*
-       * Default Options
-       */
-      var indicies, fromrgba, torgba,
-          nsteps, cmap, colormap, format,
-          nshades, colors, alpha, i;
-
-      if ( !spec ) spec = {};
-
-      nshades = (spec.nshades || 72) - 1;
-      format = spec.format || 'hex';
-
-      colormap = spec.colormap;
-      if (!colormap) colormap = 'jet';
-
-      if (typeof colormap === 'string') {
-          colormap = colormap.toLowerCase();
-
-          if (!colorScale[colormap]) {
-              throw Error(colormap + ' not a supported colorscale');
+            var P = this.World.SpawnEntity(this.ProjectileClass, {
+              location: this.Outer.Location,
+              velocity: new Vector2(getRandomfloat(450, 550) * xMagnitude, getRandomfloat(450, 550) * yMagnitude).add(this.Outer.Velocity.clone().multiply(0.16)),
+              team: this.Outer.team
+            });
+            P.team = this.Outer.team;
+            this.InternalShootCount++;
           }
-
-          cmap = colorScale[colormap];
-
-      } else if (Array.isArray(colormap)) {
-          cmap = colormap.slice();
-
-      } else {
-          throw Error('unsupported colormap option', colormap);
+        }
       }
+    }]);
 
-      if (cmap.length > nshades + 1) {
-          throw new Error(
-              colormap+' map requires nshades to be at least size '+cmap.length
-          );
-      }
-
-      if (!Array.isArray(spec.alpha)) {
-
-          if (typeof spec.alpha === 'number') {
-              alpha = [spec.alpha, spec.alpha];
-
-          } else {
-              alpha = [1, 1];
-          }
-
-      } else if (spec.alpha.length !== 2) {
-          alpha = [1, 1];
-
-      } else {
-          alpha = spec.alpha.slice();
-      }
-
-      // map index points from 0..1 to 0..n-1
-      indicies = cmap.map(function(c) {
-          return Math.round(c.index * nshades);
-      });
-
-      // Add alpha channel to the map
-      alpha[0] = Math.min(Math.max(alpha[0], 0), 1);
-      alpha[1] = Math.min(Math.max(alpha[1], 0), 1);
-
-      var steps = cmap.map(function(c, i) {
-          var index = cmap[i].index;
-
-          var rgba = cmap[i].rgb.slice();
-
-          // if user supplies their own map use it
-          if (rgba.length === 4 && rgba[3] >= 0 && rgba[3] <= 1) {
-              return rgba
-          }
-          rgba[3] = alpha[0] + (alpha[1] - alpha[0])*index;
-
-          return rgba
-      });
-
-
-      /*
-       * map increasing linear values between indicies to
-       * linear steps in colorvalues
-       */
-      var colors = [];
-      for (i = 0; i < indicies.length-1; ++i) {
-          nsteps = indicies[i+1] - indicies[i];
-          fromrgba = steps[i];
-          torgba = steps[i+1];
-
-          for (var j = 0; j < nsteps; j++) {
-              var amt = j / nsteps;
-              colors.push([
-                  Math.round(lerp_1(fromrgba[0], torgba[0], amt)),
-                  Math.round(lerp_1(fromrgba[1], torgba[1], amt)),
-                  Math.round(lerp_1(fromrgba[2], torgba[2], amt)),
-                  lerp_1(fromrgba[3], torgba[3], amt)
-              ]);
-          }
-      }
-
-      //add 1 step as last value
-      colors.push(cmap[cmap.length - 1].rgb.concat(alpha[1]));
-
-      if (format === 'hex') colors = colors.map( rgb2hex );
-      else if (format === 'rgbaString') colors = colors.map( rgbaStr );
-      else if (format === 'float') colors = colors.map( rgb2float );
-
-      return colors;
-  }
-  function rgb2float (rgba) {
-      return [
-          rgba[0] / 255,
-          rgba[1] / 255,
-          rgba[2] / 255,
-          rgba[3]
-      ]
-  }
-
-  function rgb2hex (rgba) {
-      var dig, hex = '#';
-      for (var i = 0; i < 3; ++i) {
-          dig = rgba[i];
-          dig = dig.toString(16);
-          hex += ('00' + dig).substr( dig.length );
-      }
-      return hex;
-  }
-
-  function rgbaStr (rgba) {
-      return 'rgba(' + rgba.join(',') + ')';
-  }
+    return WPN_TPattern;
+  }(ProjectileWeaponBase);
 
   var PowerUpBase =
   /*#__PURE__*/
@@ -6197,9 +5998,11 @@
         _get(_getPrototypeOf(PowerUpBase.prototype), "update", this).call(this, delta);
       }
     }, {
-      key: "OnCheckedOverlap",
-      value: function OnCheckedOverlap(OtherEntity) {
+      key: "OnOverlap",
+      value: function OnOverlap(OtherEntity) {
         if (OtherEntity instanceof Player) {
+          var NewGun = new WPN_TPattern();
+          OtherEntity.PickupItem(NewGun);
           this.Destroy();
         }
       }
@@ -6442,7 +6245,7 @@
       _this.BaseColor = _this.BaseChroma.hex();
       _this.LowHealthColor = "#F00";
       _this.HealthChromaScale = chroma.scale(["#fff", _this.LowHealthColor]).mode('lab');
-      _this.maxHealth = props.maxhealth || 70;
+      _this.maxHealth = props.maxhealth || 35;
       _this.health = _this.maxHealth;
       return _this;
     }
@@ -6565,15 +6368,182 @@
 
   var Key = new _Key();
 
+  var Player =
+  /*#__PURE__*/
+  function (_Monster) {
+    _inherits(Player, _Monster);
+
+    function Player(props) {
+      var _this;
+
+      _classCallCheck(this, Player);
+
+      _this = _possibleConstructorReturn(this, _getPrototypeOf(Player).call(this, props));
+      _this.RegisterCollisonQuery = true;
+      _this.team = 0;
+      _this.maxHealth = 100;
+      _this.health = _this.maxHealth;
+      _this.InputStrength = 250;
+      _this.weapon = null;
+      _this.Inventory = []; //start with 1 to avoid modulus 0
+
+      _this.PositionLevel = 1;
+      return _this;
+    }
+
+    _createClass(Player, [{
+      key: "BeginPlay",
+      value: function BeginPlay() {
+        var BaseWeapon = new ProjectileWeaponBase(); //let BaseWeapon = new WPN_TPattern();
+        //let BaseWeapon = new RainbowGun();
+
+        this.PickupItem(BaseWeapon);
+      }
+    }, {
+      key: "update",
+      value: function update(delta) {
+        this.Velocity = new Vector2(0, 0);
+
+        if (Key.isDown(Key.UP)) {
+          this.Velocity.addScaled(new Vector2(0, -1), this.InputStrength);
+        }
+
+        if (Key.isDown(Key.DOWN)) {
+          this.Velocity.addScaled(new Vector2(0, 1), this.InputStrength);
+        }
+
+        if (Key.isDown(Key.LEFT)) {
+          this.Velocity.addScaled(new Vector2(-1, 0), this.InputStrength);
+        }
+
+        if (Key.isDown(Key.RIGHT)) {
+          this.Velocity.addScaled(new Vector2(1, 0), this.InputStrength);
+        }
+
+        _get(_getPrototypeOf(Player.prototype), "update", this).call(this, delta);
+
+        if (Key.isDown(Key.CTRL)) {
+          if (this.weapon) {
+            this.weapon.FireWeapon();
+          }
+        }
+      }
+    }, {
+      key: "QueryCollisions",
+      value: function QueryCollisions(delta) {
+        if (!this.PendingDestroy) {
+          var potentials = this.RootBody.potentials();
+          var _iteratorNormalCompletion = true;
+          var _didIteratorError = false;
+          var _iteratorError = undefined;
+
+          try {
+            for (var _iterator = potentials[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+              var otherBody = _step.value;
+
+              if (this.RootBody.collides(otherBody, this.World.collisionResults)) {
+                if (this.team !== otherBody.Outer.team) {
+                  otherBody.Outer.OnOverlap(this);
+                }
+              }
+            }
+          } catch (err) {
+            _didIteratorError = true;
+            _iteratorError = err;
+          } finally {
+            try {
+              if (!_iteratorNormalCompletion && _iterator.return != null) {
+                _iterator.return();
+              }
+            } finally {
+              if (_didIteratorError) {
+                throw _iteratorError;
+              }
+            }
+          }
+        }
+      }
+    }, {
+      key: "PickupItem",
+      value: function PickupItem(newItem) {
+        this.Inventory.push(newItem);
+        newItem.SetOwner(this);
+        this.OnPickupInventory();
+      }
+    }, {
+      key: "DropItem",
+      value: function DropItem(itemToDrop) {
+        this.Inventory = this.Inventory.filter(function (item) {
+          return item !== itemToDrop;
+        });
+        this.OnDropInventory();
+      }
+    }, {
+      key: "OnPickupInventory",
+      value: function OnPickupInventory() {
+        this.OnWeaponPickup();
+      }
+    }, {
+      key: "OnDropInventory",
+      value: function OnDropInventory() {
+        this.OnWeaponPickup();
+      }
+    }, {
+      key: "OnWeaponPickup",
+      value: function OnWeaponPickup() {
+        //just pickup latest weapon
+        this.weapon = this.Inventory[this.Inventory.length - 1];
+      }
+    }, {
+      key: "takeDamage",
+      value: function takeDamage(amount) {
+        _get(_getPrototypeOf(Player.prototype), "takeDamage", this).call(this, amount);
+
+        console.log("player HP: " + this.health);
+      }
+    }, {
+      key: "CreateCollionBody",
+      value: function CreateCollionBody() {
+        return this.World.collisions.createPolygon(this.Location.x, this.Location.y, [[0, 0], [16, 32], [-16, 32]]);
+      }
+    }, {
+      key: "render",
+      value: function render(delta) {
+        var ctx = this.World.ctx;
+        ctx.save(); //module import for rollup
+
+        ctx.fillStyle = chroma('green').darken(Math.sin(this.Age * 0.002)).hex();
+        ctx.strokeStyle = '#f0f';
+        ctx.beginPath();
+        ctx.translate(this.Location.x, this.Location.y);
+        ctx.lineTo(16, 32);
+        ctx.lineTo(-16, 32);
+        ctx.lineTo(0, 0);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+      }
+    }]);
+
+    return Player;
+  }(Monster);
+
   var Weapon =
   /*#__PURE__*/
-  function () {
-    function Weapon() {
+  function (_Entity) {
+    _inherits(Weapon, _Entity);
+
+    function Weapon(props) {
+      var _this;
+
       _classCallCheck(this, Weapon);
 
-      this.Period = 250;
-      this.lastTimeFired = 0;
-      this.Outer = null;
+      _this = _possibleConstructorReturn(this, _getPrototypeOf(Weapon).call(this, props));
+      _this.Period = 250;
+      _this.lastTimeFired = 0;
+      _this.Outer = null;
+      _this.Ammunition = 0;
+      return _this;
     }
     /**
      * Set the new owner of this weapon.
@@ -6596,6 +6566,7 @@
       value: function FireWeapon() {
         if (this.lastTimeFired + this.Period < World.GameTime) {
           this.HandleFireWeapon();
+          this.lastTimeFired = World.GameTime;
         }
       }
       /**
@@ -6606,10 +6577,474 @@
     }, {
       key: "HandleFireWeapon",
       value: function HandleFireWeapon() {}
+    }, {
+      key: "Destroy",
+      value: function Destroy() {
+        _get(_getPrototypeOf(Weapon.prototype), "Destroy", this).call(this);
+
+        if (this.Outer) {
+          this.Outer.DropItem(this);
+        }
+      }
     }]);
 
     return Weapon;
-  }();
+  }(Entity);
+
+  /**
+   * Projectile shoots "Upwards"
+   */
+
+  var ProjectileWeaponBase =
+  /*#__PURE__*/
+  function (_Weapon) {
+    _inherits(ProjectileWeaponBase, _Weapon);
+
+    function ProjectileWeaponBase(props) {
+      var _this;
+
+      _classCallCheck(this, ProjectileWeaponBase);
+
+      _this = _possibleConstructorReturn(this, _getPrototypeOf(ProjectileWeaponBase).call(this, props));
+      _this.ProjectileClass = Projectile; //Private shoot count
+
+      _this.InternalShootCount = 0;
+      _this.Period = 100;
+      return _this;
+    }
+
+    _createClass(ProjectileWeaponBase, [{
+      key: "HandleFireWeapon",
+      value: function HandleFireWeapon() {
+        if (this.ProjectileClass) {
+          var P = World.SpawnEntity(this.ProjectileClass, {
+            location: this.Outer.Location,
+            velocity: new Vector2(0, getRandomfloat(-550, -450)).add(this.Outer.Velocity.clone().multiply(0.16)),
+            team: this.Outer.team
+          });
+          P.team = this.Outer.team;
+          this.InternalShootCount++;
+        }
+      }
+    }]);
+
+    return ProjectileWeaponBase;
+  }(Weapon);
+
+  var colorScale={
+  	"jet":[{"index":0,"rgb":[0,0,131]},{"index":0.125,"rgb":[0,60,170]},{"index":0.375,"rgb":[5,255,255]},{"index":0.625,"rgb":[255,255,0]},{"index":0.875,"rgb":[250,0,0]},{"index":1,"rgb":[128,0,0]}],
+
+  	"hsv":[{"index":0,"rgb":[255,0,0]},{"index":0.169,"rgb":[253,255,2]},{"index":0.173,"rgb":[247,255,2]},{"index":0.337,"rgb":[0,252,4]},{"index":0.341,"rgb":[0,252,10]},{"index":0.506,"rgb":[1,249,255]},{"index":0.671,"rgb":[2,0,253]},{"index":0.675,"rgb":[8,0,253]},{"index":0.839,"rgb":[255,0,251]},{"index":0.843,"rgb":[255,0,245]},{"index":1,"rgb":[255,0,6]}],
+
+  	"hot":[{"index":0,"rgb":[0,0,0]},{"index":0.3,"rgb":[230,0,0]},{"index":0.6,"rgb":[255,210,0]},{"index":1,"rgb":[255,255,255]}],
+
+  	"cool":[{"index":0,"rgb":[0,255,255]},{"index":1,"rgb":[255,0,255]}],
+
+  	"spring":[{"index":0,"rgb":[255,0,255]},{"index":1,"rgb":[255,255,0]}],
+
+  	"summer":[{"index":0,"rgb":[0,128,102]},{"index":1,"rgb":[255,255,102]}],
+
+  	"autumn":[{"index":0,"rgb":[255,0,0]},{"index":1,"rgb":[255,255,0]}],
+
+  	"winter":[{"index":0,"rgb":[0,0,255]},{"index":1,"rgb":[0,255,128]}],
+
+  	"bone":[{"index":0,"rgb":[0,0,0]},{"index":0.376,"rgb":[84,84,116]},{"index":0.753,"rgb":[169,200,200]},{"index":1,"rgb":[255,255,255]}],
+
+  	"copper":[{"index":0,"rgb":[0,0,0]},{"index":0.804,"rgb":[255,160,102]},{"index":1,"rgb":[255,199,127]}],
+
+  	"greys":[{"index":0,"rgb":[0,0,0]},{"index":1,"rgb":[255,255,255]}],
+
+  	"yignbu":[{"index":0,"rgb":[8,29,88]},{"index":0.125,"rgb":[37,52,148]},{"index":0.25,"rgb":[34,94,168]},{"index":0.375,"rgb":[29,145,192]},{"index":0.5,"rgb":[65,182,196]},{"index":0.625,"rgb":[127,205,187]},{"index":0.75,"rgb":[199,233,180]},{"index":0.875,"rgb":[237,248,217]},{"index":1,"rgb":[255,255,217]}],
+
+  	"greens":[{"index":0,"rgb":[0,68,27]},{"index":0.125,"rgb":[0,109,44]},{"index":0.25,"rgb":[35,139,69]},{"index":0.375,"rgb":[65,171,93]},{"index":0.5,"rgb":[116,196,118]},{"index":0.625,"rgb":[161,217,155]},{"index":0.75,"rgb":[199,233,192]},{"index":0.875,"rgb":[229,245,224]},{"index":1,"rgb":[247,252,245]}],
+
+  	"yiorrd":[{"index":0,"rgb":[128,0,38]},{"index":0.125,"rgb":[189,0,38]},{"index":0.25,"rgb":[227,26,28]},{"index":0.375,"rgb":[252,78,42]},{"index":0.5,"rgb":[253,141,60]},{"index":0.625,"rgb":[254,178,76]},{"index":0.75,"rgb":[254,217,118]},{"index":0.875,"rgb":[255,237,160]},{"index":1,"rgb":[255,255,204]}],
+
+  	"bluered":[{"index":0,"rgb":[0,0,255]},{"index":1,"rgb":[255,0,0]}],
+
+  	"rdbu":[{"index":0,"rgb":[5,10,172]},{"index":0.35,"rgb":[106,137,247]},{"index":0.5,"rgb":[190,190,190]},{"index":0.6,"rgb":[220,170,132]},{"index":0.7,"rgb":[230,145,90]},{"index":1,"rgb":[178,10,28]}],
+
+  	"picnic":[{"index":0,"rgb":[0,0,255]},{"index":0.1,"rgb":[51,153,255]},{"index":0.2,"rgb":[102,204,255]},{"index":0.3,"rgb":[153,204,255]},{"index":0.4,"rgb":[204,204,255]},{"index":0.5,"rgb":[255,255,255]},{"index":0.6,"rgb":[255,204,255]},{"index":0.7,"rgb":[255,153,255]},{"index":0.8,"rgb":[255,102,204]},{"index":0.9,"rgb":[255,102,102]},{"index":1,"rgb":[255,0,0]}],
+
+  	"rainbow":[{"index":0,"rgb":[150,0,90]},{"index":0.125,"rgb":[0,0,200]},{"index":0.25,"rgb":[0,25,255]},{"index":0.375,"rgb":[0,152,255]},{"index":0.5,"rgb":[44,255,150]},{"index":0.625,"rgb":[151,255,0]},{"index":0.75,"rgb":[255,234,0]},{"index":0.875,"rgb":[255,111,0]},{"index":1,"rgb":[255,0,0]}],
+
+  	"portland":[{"index":0,"rgb":[12,51,131]},{"index":0.25,"rgb":[10,136,186]},{"index":0.5,"rgb":[242,211,56]},{"index":0.75,"rgb":[242,143,56]},{"index":1,"rgb":[217,30,30]}],
+
+  	"blackbody":[{"index":0,"rgb":[0,0,0]},{"index":0.2,"rgb":[230,0,0]},{"index":0.4,"rgb":[230,210,0]},{"index":0.7,"rgb":[255,255,255]},{"index":1,"rgb":[160,200,255]}],
+
+  	"earth":[{"index":0,"rgb":[0,0,130]},{"index":0.1,"rgb":[0,180,180]},{"index":0.2,"rgb":[40,210,40]},{"index":0.4,"rgb":[230,230,50]},{"index":0.6,"rgb":[120,70,20]},{"index":1,"rgb":[255,255,255]}],
+
+  	"electric":[{"index":0,"rgb":[0,0,0]},{"index":0.15,"rgb":[30,0,100]},{"index":0.4,"rgb":[120,0,100]},{"index":0.6,"rgb":[160,90,0]},{"index":0.8,"rgb":[230,200,0]},{"index":1,"rgb":[255,250,220]}],
+
+  	"alpha": [{"index":0, "rgb": [255,255,255,0]},{"index":1, "rgb": [255,255,255,1]}],
+
+  	"viridis": [{"index":0,"rgb":[68,1,84]},{"index":0.13,"rgb":[71,44,122]},{"index":0.25,"rgb":[59,81,139]},{"index":0.38,"rgb":[44,113,142]},{"index":0.5,"rgb":[33,144,141]},{"index":0.63,"rgb":[39,173,129]},{"index":0.75,"rgb":[92,200,99]},{"index":0.88,"rgb":[170,220,50]},{"index":1,"rgb":[253,231,37]}],
+
+  	"inferno": [{"index":0,"rgb":[0,0,4]},{"index":0.13,"rgb":[31,12,72]},{"index":0.25,"rgb":[85,15,109]},{"index":0.38,"rgb":[136,34,106]},{"index":0.5,"rgb":[186,54,85]},{"index":0.63,"rgb":[227,89,51]},{"index":0.75,"rgb":[249,140,10]},{"index":0.88,"rgb":[249,201,50]},{"index":1,"rgb":[252,255,164]}],
+
+  	"magma": [{"index":0,"rgb":[0,0,4]},{"index":0.13,"rgb":[28,16,68]},{"index":0.25,"rgb":[79,18,123]},{"index":0.38,"rgb":[129,37,129]},{"index":0.5,"rgb":[181,54,122]},{"index":0.63,"rgb":[229,80,100]},{"index":0.75,"rgb":[251,135,97]},{"index":0.88,"rgb":[254,194,135]},{"index":1,"rgb":[252,253,191]}],
+
+  	"plasma": [{"index":0,"rgb":[13,8,135]},{"index":0.13,"rgb":[75,3,161]},{"index":0.25,"rgb":[125,3,168]},{"index":0.38,"rgb":[168,34,150]},{"index":0.5,"rgb":[203,70,121]},{"index":0.63,"rgb":[229,107,93]},{"index":0.75,"rgb":[248,148,65]},{"index":0.88,"rgb":[253,195,40]},{"index":1,"rgb":[240,249,33]}],
+
+  	"warm": [{"index":0,"rgb":[125,0,179]},{"index":0.13,"rgb":[172,0,187]},{"index":0.25,"rgb":[219,0,170]},{"index":0.38,"rgb":[255,0,130]},{"index":0.5,"rgb":[255,63,74]},{"index":0.63,"rgb":[255,123,0]},{"index":0.75,"rgb":[234,176,0]},{"index":0.88,"rgb":[190,228,0]},{"index":1,"rgb":[147,255,0]}],
+
+  	"cool": [{"index":0,"rgb":[125,0,179]},{"index":0.13,"rgb":[116,0,218]},{"index":0.25,"rgb":[98,74,237]},{"index":0.38,"rgb":[68,146,231]},{"index":0.5,"rgb":[0,204,197]},{"index":0.63,"rgb":[0,247,146]},{"index":0.75,"rgb":[0,255,88]},{"index":0.88,"rgb":[40,255,8]},{"index":1,"rgb":[147,255,0]}],
+
+  	"rainbow-soft": [{"index":0,"rgb":[125,0,179]},{"index":0.1,"rgb":[199,0,180]},{"index":0.2,"rgb":[255,0,121]},{"index":0.3,"rgb":[255,108,0]},{"index":0.4,"rgb":[222,194,0]},{"index":0.5,"rgb":[150,255,0]},{"index":0.6,"rgb":[0,255,55]},{"index":0.7,"rgb":[0,246,150]},{"index":0.8,"rgb":[50,167,222]},{"index":0.9,"rgb":[103,51,235]},{"index":1,"rgb":[124,0,186]}],
+
+  	"bathymetry": [{"index":0,"rgb":[40,26,44]},{"index":0.13,"rgb":[59,49,90]},{"index":0.25,"rgb":[64,76,139]},{"index":0.38,"rgb":[63,110,151]},{"index":0.5,"rgb":[72,142,158]},{"index":0.63,"rgb":[85,174,163]},{"index":0.75,"rgb":[120,206,163]},{"index":0.88,"rgb":[187,230,172]},{"index":1,"rgb":[253,254,204]}],
+
+  	"cdom": [{"index":0,"rgb":[47,15,62]},{"index":0.13,"rgb":[87,23,86]},{"index":0.25,"rgb":[130,28,99]},{"index":0.38,"rgb":[171,41,96]},{"index":0.5,"rgb":[206,67,86]},{"index":0.63,"rgb":[230,106,84]},{"index":0.75,"rgb":[242,149,103]},{"index":0.88,"rgb":[249,193,135]},{"index":1,"rgb":[254,237,176]}],
+
+  	"chlorophyll": [{"index":0,"rgb":[18,36,20]},{"index":0.13,"rgb":[25,63,41]},{"index":0.25,"rgb":[24,91,59]},{"index":0.38,"rgb":[13,119,72]},{"index":0.5,"rgb":[18,148,80]},{"index":0.63,"rgb":[80,173,89]},{"index":0.75,"rgb":[132,196,122]},{"index":0.88,"rgb":[175,221,162]},{"index":1,"rgb":[215,249,208]}],
+
+  	"density": [{"index":0,"rgb":[54,14,36]},{"index":0.13,"rgb":[89,23,80]},{"index":0.25,"rgb":[110,45,132]},{"index":0.38,"rgb":[120,77,178]},{"index":0.5,"rgb":[120,113,213]},{"index":0.63,"rgb":[115,151,228]},{"index":0.75,"rgb":[134,185,227]},{"index":0.88,"rgb":[177,214,227]},{"index":1,"rgb":[230,241,241]}],
+
+  	"freesurface-blue": [{"index":0,"rgb":[30,4,110]},{"index":0.13,"rgb":[47,14,176]},{"index":0.25,"rgb":[41,45,236]},{"index":0.38,"rgb":[25,99,212]},{"index":0.5,"rgb":[68,131,200]},{"index":0.63,"rgb":[114,156,197]},{"index":0.75,"rgb":[157,181,203]},{"index":0.88,"rgb":[200,208,216]},{"index":1,"rgb":[241,237,236]}],
+
+  	"freesurface-red": [{"index":0,"rgb":[60,9,18]},{"index":0.13,"rgb":[100,17,27]},{"index":0.25,"rgb":[142,20,29]},{"index":0.38,"rgb":[177,43,27]},{"index":0.5,"rgb":[192,87,63]},{"index":0.63,"rgb":[205,125,105]},{"index":0.75,"rgb":[216,162,148]},{"index":0.88,"rgb":[227,199,193]},{"index":1,"rgb":[241,237,236]}],
+
+  	"oxygen": [{"index":0,"rgb":[64,5,5]},{"index":0.13,"rgb":[106,6,15]},{"index":0.25,"rgb":[144,26,7]},{"index":0.38,"rgb":[168,64,3]},{"index":0.5,"rgb":[188,100,4]},{"index":0.63,"rgb":[206,136,11]},{"index":0.75,"rgb":[220,174,25]},{"index":0.88,"rgb":[231,215,44]},{"index":1,"rgb":[248,254,105]}],
+
+  	"par": [{"index":0,"rgb":[51,20,24]},{"index":0.13,"rgb":[90,32,35]},{"index":0.25,"rgb":[129,44,34]},{"index":0.38,"rgb":[159,68,25]},{"index":0.5,"rgb":[182,99,19]},{"index":0.63,"rgb":[199,134,22]},{"index":0.75,"rgb":[212,171,35]},{"index":0.88,"rgb":[221,210,54]},{"index":1,"rgb":[225,253,75]}],
+
+  	"phase": [{"index":0,"rgb":[145,105,18]},{"index":0.13,"rgb":[184,71,38]},{"index":0.25,"rgb":[186,58,115]},{"index":0.38,"rgb":[160,71,185]},{"index":0.5,"rgb":[110,97,218]},{"index":0.63,"rgb":[50,123,164]},{"index":0.75,"rgb":[31,131,110]},{"index":0.88,"rgb":[77,129,34]},{"index":1,"rgb":[145,105,18]}],
+
+  	"salinity": [{"index":0,"rgb":[42,24,108]},{"index":0.13,"rgb":[33,50,162]},{"index":0.25,"rgb":[15,90,145]},{"index":0.38,"rgb":[40,118,137]},{"index":0.5,"rgb":[59,146,135]},{"index":0.63,"rgb":[79,175,126]},{"index":0.75,"rgb":[120,203,104]},{"index":0.88,"rgb":[193,221,100]},{"index":1,"rgb":[253,239,154]}],
+
+  	"temperature": [{"index":0,"rgb":[4,35,51]},{"index":0.13,"rgb":[23,51,122]},{"index":0.25,"rgb":[85,59,157]},{"index":0.38,"rgb":[129,79,143]},{"index":0.5,"rgb":[175,95,130]},{"index":0.63,"rgb":[222,112,101]},{"index":0.75,"rgb":[249,146,66]},{"index":0.88,"rgb":[249,196,65]},{"index":1,"rgb":[232,250,91]}],
+
+  	"turbidity": [{"index":0,"rgb":[34,31,27]},{"index":0.13,"rgb":[65,50,41]},{"index":0.25,"rgb":[98,69,52]},{"index":0.38,"rgb":[131,89,57]},{"index":0.5,"rgb":[161,112,59]},{"index":0.63,"rgb":[185,140,66]},{"index":0.75,"rgb":[202,174,88]},{"index":0.88,"rgb":[216,209,126]},{"index":1,"rgb":[233,246,171]}],
+
+  	"velocity-blue": [{"index":0,"rgb":[17,32,64]},{"index":0.13,"rgb":[35,52,116]},{"index":0.25,"rgb":[29,81,156]},{"index":0.38,"rgb":[31,113,162]},{"index":0.5,"rgb":[50,144,169]},{"index":0.63,"rgb":[87,173,176]},{"index":0.75,"rgb":[149,196,189]},{"index":0.88,"rgb":[203,221,211]},{"index":1,"rgb":[254,251,230]}],
+
+  	"velocity-green": [{"index":0,"rgb":[23,35,19]},{"index":0.13,"rgb":[24,64,38]},{"index":0.25,"rgb":[11,95,45]},{"index":0.38,"rgb":[39,123,35]},{"index":0.5,"rgb":[95,146,12]},{"index":0.63,"rgb":[152,165,18]},{"index":0.75,"rgb":[201,186,69]},{"index":0.88,"rgb":[233,216,137]},{"index":1,"rgb":[255,253,205]}],
+
+  	"cubehelix": [{"index":0,"rgb":[0,0,0]},{"index":0.07,"rgb":[22,5,59]},{"index":0.13,"rgb":[60,4,105]},{"index":0.2,"rgb":[109,1,135]},{"index":0.27,"rgb":[161,0,147]},{"index":0.33,"rgb":[210,2,142]},{"index":0.4,"rgb":[251,11,123]},{"index":0.47,"rgb":[255,29,97]},{"index":0.53,"rgb":[255,54,69]},{"index":0.6,"rgb":[255,85,46]},{"index":0.67,"rgb":[255,120,34]},{"index":0.73,"rgb":[255,157,37]},{"index":0.8,"rgb":[241,191,57]},{"index":0.87,"rgb":[224,220,93]},{"index":0.93,"rgb":[218,241,142]},{"index":1,"rgb":[227,253,198]}]
+  };
+
+  function lerp$1(v0, v1, t) {
+      return v0*(1-t)+v1*t
+  }
+  var lerp_1 = lerp$1;
+
+  var colormap = createColormap;
+
+  function createColormap (spec) {
+      /*
+       * Default Options
+       */
+      var indicies, fromrgba, torgba,
+          nsteps, cmap, colormap, format,
+          nshades, colors, alpha, i;
+
+      if ( !spec ) spec = {};
+
+      nshades = (spec.nshades || 72) - 1;
+      format = spec.format || 'hex';
+
+      colormap = spec.colormap;
+      if (!colormap) colormap = 'jet';
+
+      if (typeof colormap === 'string') {
+          colormap = colormap.toLowerCase();
+
+          if (!colorScale[colormap]) {
+              throw Error(colormap + ' not a supported colorscale');
+          }
+
+          cmap = colorScale[colormap];
+
+      } else if (Array.isArray(colormap)) {
+          cmap = colormap.slice();
+
+      } else {
+          throw Error('unsupported colormap option', colormap);
+      }
+
+      if (cmap.length > nshades + 1) {
+          throw new Error(
+              colormap+' map requires nshades to be at least size '+cmap.length
+          );
+      }
+
+      if (!Array.isArray(spec.alpha)) {
+
+          if (typeof spec.alpha === 'number') {
+              alpha = [spec.alpha, spec.alpha];
+
+          } else {
+              alpha = [1, 1];
+          }
+
+      } else if (spec.alpha.length !== 2) {
+          alpha = [1, 1];
+
+      } else {
+          alpha = spec.alpha.slice();
+      }
+
+      // map index points from 0..1 to 0..n-1
+      indicies = cmap.map(function(c) {
+          return Math.round(c.index * nshades);
+      });
+
+      // Add alpha channel to the map
+      alpha[0] = Math.min(Math.max(alpha[0], 0), 1);
+      alpha[1] = Math.min(Math.max(alpha[1], 0), 1);
+
+      var steps = cmap.map(function(c, i) {
+          var index = cmap[i].index;
+
+          var rgba = cmap[i].rgb.slice();
+
+          // if user supplies their own map use it
+          if (rgba.length === 4 && rgba[3] >= 0 && rgba[3] <= 1) {
+              return rgba
+          }
+          rgba[3] = alpha[0] + (alpha[1] - alpha[0])*index;
+
+          return rgba
+      });
+
+
+      /*
+       * map increasing linear values between indicies to
+       * linear steps in colorvalues
+       */
+      var colors = [];
+      for (i = 0; i < indicies.length-1; ++i) {
+          nsteps = indicies[i+1] - indicies[i];
+          fromrgba = steps[i];
+          torgba = steps[i+1];
+
+          for (var j = 0; j < nsteps; j++) {
+              var amt = j / nsteps;
+              colors.push([
+                  Math.round(lerp_1(fromrgba[0], torgba[0], amt)),
+                  Math.round(lerp_1(fromrgba[1], torgba[1], amt)),
+                  Math.round(lerp_1(fromrgba[2], torgba[2], amt)),
+                  lerp_1(fromrgba[3], torgba[3], amt)
+              ]);
+          }
+      }
+
+      //add 1 step as last value
+      colors.push(cmap[cmap.length - 1].rgb.concat(alpha[1]));
+
+      if (format === 'hex') colors = colors.map( rgb2hex );
+      else if (format === 'rgbaString') colors = colors.map( rgbaStr );
+      else if (format === 'float') colors = colors.map( rgb2float );
+
+      return colors;
+  }
+  function rgb2float (rgba) {
+      return [
+          rgba[0] / 255,
+          rgba[1] / 255,
+          rgba[2] / 255,
+          rgba[3]
+      ]
+  }
+
+  function rgb2hex (rgba) {
+      var dig, hex = '#';
+      for (var i = 0; i < 3; ++i) {
+          dig = rgba[i];
+          dig = dig.toString(16);
+          hex += ('00' + dig).substr( dig.length );
+      }
+      return hex;
+  }
+
+  function rgbaStr (rgba) {
+      return 'rgba(' + rgba.join(',') + ')';
+  }
+
+  var Projectile =
+  /*#__PURE__*/
+  function (_Monster) {
+    _inherits(Projectile, _Monster);
+
+    function Projectile(props) {
+      var _this;
+
+      _classCallCheck(this, Projectile);
+
+      _this = _possibleConstructorReturn(this, _getPrototypeOf(Projectile).call(this, props));
+      _this.RegisterCollisonQuery = true;
+      _this.TimeToLife = 1200;
+      _this.ColorMap = colormap({
+        colormap: 'summer',
+        nshades: 20,
+        format: 'hex',
+        alpha: 1
+      });
+      _this.BaseColor = _this.ColorMap[0];
+      _this.ImpactFX = ParticleEmitter;
+      _this.DamageDealt = 5;
+      return _this;
+    }
+
+    _createClass(Projectile, [{
+      key: "CreateCollionBody",
+      value: function CreateCollionBody() {
+        return this.World.collisions.createCircle(this.Location.x, this.Location.y, 2);
+      }
+    }, {
+      key: "update",
+      value: function update(delta) {
+        _get(_getPrototypeOf(Projectile.prototype), "update", this).call(this, delta);
+
+        this.lerpChromaColor();
+      }
+    }, {
+      key: "QueryCollisions",
+      value: function QueryCollisions(delta) {
+        if (!this.PendingDestroy) {
+          var potentials = this.RootBody.potentials();
+          var _iteratorNormalCompletion = true;
+          var _didIteratorError = false;
+          var _iteratorError = undefined;
+
+          try {
+            for (var _iterator = potentials[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+              var otherBody = _step.value;
+
+              if (this.RootBody.collides(otherBody, this.World.collisionResults)) {
+                if (this.team !== otherBody.Outer.team) {
+                  otherBody.Outer.takeDamage(this.DamageDealt);
+                  var Direction = new Vector2(this.World.collisionResults.overlap_x, this.World.collisionResults.overlap_y).multiply(-1);
+                  this.SpawnImpactFX({
+                    direction: Direction
+                  });
+                  this.Destroy();
+                  break;
+                }
+              }
+            }
+          } catch (err) {
+            _didIteratorError = true;
+            _iteratorError = err;
+          } finally {
+            try {
+              if (!_iteratorNormalCompletion && _iterator.return != null) {
+                _iterator.return();
+              }
+            } finally {
+              if (_didIteratorError) {
+                throw _iteratorError;
+              }
+            }
+          }
+        }
+      }
+    }, {
+      key: "SpawnImpactFX",
+      value: function SpawnImpactFX(data) {
+        var FX = this.World.SpawnEntity(ParticleEmitter, {
+          location: this.Location,
+          direction: data.direction
+        });
+        FX.Activate();
+      }
+    }, {
+      key: "render",
+      value: function render(delta) {
+        var ctx = this.World.ctx;
+        ctx.save();
+        ctx.translate(this.Location.x, this.Location.y);
+        ctx.beginPath();
+        ctx.fillStyle = this.BaseColor;
+        ctx.arc(0, 0, 2, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.restore();
+      }
+    }]);
+
+    return Projectile;
+  }(Monster);
+
+  var ParticleEmitter =
+  /*#__PURE__*/
+  function (_Entity) {
+    _inherits(ParticleEmitter, _Entity);
+
+    function ParticleEmitter(props) {
+      var _this;
+
+      _classCallCheck(this, ParticleEmitter);
+
+      _this = _possibleConstructorReturn(this, _getPrototypeOf(ParticleEmitter).call(this, props));
+      _this.SpawnCount = 5;
+      _this.Direction = props.direction || new Vector2(0, 0);
+      _this.Location = props.location || new Vector2(0, 0);
+      _this.ParticleClass = props.ParticleClass || Particle; //BurstList [Time, Count], pre ordered by time ASC
+
+      _this.BurstList = [[0, 5]]; //Stored Burst list index
+
+      _this.BurstListIndex = 0;
+      _this.TimeToLife = props.timetolife || 1000;
+      _this.IsActive = false;
+      _this.Period = 0;
+      _this.LastTimeEmitted = 0;
+      return _this;
+    }
+
+    _createClass(ParticleEmitter, [{
+      key: "Activate",
+      value: function Activate() {
+        this.IsActive = true;
+      }
+    }, {
+      key: "Deactivate",
+      value: function Deactivate() {
+        this.IsActive = false;
+      }
+    }, {
+      key: "SpawnParticle",
+      value: function SpawnParticle() {
+        if (this.ParticleClass) {
+          for (var i = 0; i < this.SpawnCount; i++) {
+            var randomDirection = getRandomfloat(-0.2, 0.2);
+            var localVelocity = this.Direction.clone().rotate2D(randomDirection).multiply(getRandomfloat(200, 400));
+            var NewParticle = new this.ParticleClass({
+              location: this.Location,
+              velocity: localVelocity
+            });
+            World.RegisterParticle(NewParticle);
+          }
+        }
+      }
+    }, {
+      key: "update",
+      value: function update(delta) {
+        _get(_getPrototypeOf(ParticleEmitter.prototype), "update", this).call(this, delta);
+
+        if (this.IsActive) {
+          if (this.Period > 0) {
+            if (this.LastTimeEmitted + this.Period < this.World.GameTime) {
+              this.SpawnParticle();
+              this.LastTimeEmitted = this.World.GameTime;
+            }
+          }
+
+          if (this.BurstListHasValidEntry()) {
+            this.SpawnParticle();
+            this.BurstListIndex++;
+          }
+        }
+      }
+    }, {
+      key: "BurstListHasValidEntry",
+      value: function BurstListHasValidEntry() {
+        var TIME_INDEX = 0;
+        return this.BurstList.length > 0 && this.BurstListIndex < this.BurstList.length && this.Age > this.BurstList[this.BurstListIndex][TIME_INDEX];
+      }
+    }]);
+
+    return ParticleEmitter;
+  }(Entity);
 
   var Particle =
   /*#__PURE__*/
@@ -6657,371 +7092,6 @@
 
     return Particle;
   }(Entity);
-
-  var ParticleEmitter =
-  /*#__PURE__*/
-  function () {
-    function ParticleEmitter(props) {
-      _classCallCheck(this, ParticleEmitter);
-
-      this.SpawnCount = 5;
-      this.Direction = props.direction || new Vector2(0, 0);
-      this.Location = props.location || new Vector2(0, 0);
-    }
-
-    _createClass(ParticleEmitter, [{
-      key: "Activate",
-      value: function Activate() {
-        for (var i = 0; i < this.SpawnCount; i++) {
-          var randomDirection = getRandomfloat(-0.2, 0.2);
-          var localVelocity = this.Direction.clone().rotate2D(randomDirection).multiply(getRandomfloat(200, 400));
-          var NewParticle = new Particle({
-            location: this.Location,
-            velocity: localVelocity
-          });
-          World.RegisterParticle(NewParticle);
-        }
-      }
-    }]);
-
-    return ParticleEmitter;
-  }();
-
-  var Projectile =
-  /*#__PURE__*/
-  function (_Monster) {
-    _inherits(Projectile, _Monster);
-
-    function Projectile(props) {
-      var _this;
-
-      _classCallCheck(this, Projectile);
-
-      _this = _possibleConstructorReturn(this, _getPrototypeOf(Projectile).call(this, props));
-      _this.RegisterPostUpdate = true;
-      _this.TimeToLife = 1200;
-      _this.ColorMap = colormap({
-        colormap: 'summer',
-        nshades: 20,
-        format: 'hex',
-        alpha: 1
-      });
-      _this.BaseColor = _this.ColorMap[0];
-      _this.ImpactFX = ParticleEmitter;
-      _this.DamageDealt = 5;
-      return _this;
-    }
-
-    _createClass(Projectile, [{
-      key: "CreateCollionBody",
-      value: function CreateCollionBody() {
-        return this.World.collisions.createCircle(this.Location.x, this.Location.y, 2);
-      }
-    }, {
-      key: "update",
-      value: function update(delta) {
-        _get(_getPrototypeOf(Projectile.prototype), "update", this).call(this, delta);
-
-        this.lerpChromaColor();
-      }
-    }, {
-      key: "postUpdate",
-      value: function postUpdate(delta) {
-        if (!this.PendingDestroy) {
-          var potentials = this.RootBody.potentials();
-          var _iteratorNormalCompletion = true;
-          var _didIteratorError = false;
-          var _iteratorError = undefined;
-
-          try {
-            for (var _iterator = potentials[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-              var otherBody = _step.value;
-
-              if (this.RootBody.collides(otherBody, this.World.collisionResults)) {
-                if (this.team !== otherBody.Outer.team) {
-                  otherBody.Outer.takeDamage(this.DamageDealt);
-                  var Direction = new Vector2(this.World.collisionResults.overlap_x, this.World.collisionResults.overlap_y).multiply(-1);
-                  var FX = new ParticleEmitter({
-                    location: this.Location,
-                    direction: Direction
-                  });
-                  FX.Activate();
-                  this.Destroy();
-                  break;
-                }
-              }
-            }
-          } catch (err) {
-            _didIteratorError = true;
-            _iteratorError = err;
-          } finally {
-            try {
-              if (!_iteratorNormalCompletion && _iterator.return != null) {
-                _iterator.return();
-              }
-            } finally {
-              if (_didIteratorError) {
-                throw _iteratorError;
-              }
-            }
-          }
-        }
-      }
-    }, {
-      key: "render",
-      value: function render(delta) {
-        var ctx = this.World.ctx;
-        ctx.save();
-        ctx.translate(this.Location.x, this.Location.y);
-        ctx.beginPath();
-        ctx.fillStyle = this.BaseColor;
-        ctx.arc(0, 0, 2, 0, 2 * Math.PI);
-        ctx.fill();
-        ctx.restore();
-      }
-    }]);
-
-    return Projectile;
-  }(Monster);
-
-  /**
-   * Projectile shoots "Upwards"
-   */
-
-  var ProjectileWeaponBase =
-  /*#__PURE__*/
-  function (_Weapon) {
-    _inherits(ProjectileWeaponBase, _Weapon);
-
-    function ProjectileWeaponBase() {
-      var _this;
-
-      _classCallCheck(this, ProjectileWeaponBase);
-
-      _this = _possibleConstructorReturn(this, _getPrototypeOf(ProjectileWeaponBase).call(this));
-      _this.ProjectileClass = Projectile; //Private shoot count
-
-      _this.InternalShootCount = 0;
-      return _this;
-    }
-
-    _createClass(ProjectileWeaponBase, [{
-      key: "HandleFireWeapon",
-      value: function HandleFireWeapon() {
-        if (this.ProjectileClass) {
-          var P = World.SpawnEntity(this.ProjectileClass, {
-            location: this.Outer.Location,
-            velocity: new Vector2(0, getRandomfloat(-550, -450)).add(this.Outer.Velocity.clone().multiply(0.16)),
-            team: this.Outer.team
-          });
-          P.team = this.Outer.team;
-          this.InternalShootCount++;
-        }
-      }
-    }]);
-
-    return ProjectileWeaponBase;
-  }(Weapon);
-
-  var RainbowProjectile =
-  /*#__PURE__*/
-  function (_Projectile) {
-    _inherits(RainbowProjectile, _Projectile);
-
-    function RainbowProjectile(props) {
-      var _this;
-
-      _classCallCheck(this, RainbowProjectile);
-
-      _this = _possibleConstructorReturn(this, _getPrototypeOf(RainbowProjectile).call(this, props));
-      _this.RegisterPostUpdate = true;
-      _this.TimeToLife = 1200;
-      _this.ColorMap = colormap({
-        colormap: 'rainbow',
-        nshades: 30,
-        format: 'hex',
-        alpha: 1
-      });
-      _this.BaseColor = _this.ColorMap[0];
-      _this.DamageDealt = 5;
-      return _this;
-    }
-
-    _createClass(RainbowProjectile, [{
-      key: "update",
-      value: function update(delta) {
-        _get(_getPrototypeOf(RainbowProjectile.prototype), "update", this).call(this, delta);
-      }
-    }]);
-
-    return RainbowProjectile;
-  }(Projectile);
-
-  var RainbowGun =
-  /*#__PURE__*/
-  function (_ProjectileWeaponBase) {
-    _inherits(RainbowGun, _ProjectileWeaponBase);
-
-    function RainbowGun(props) {
-      var _this;
-
-      _classCallCheck(this, RainbowGun);
-
-      _this = _possibleConstructorReturn(this, _getPrototypeOf(RainbowGun).call(this, props));
-      _this.ProjectileClass = RainbowProjectile;
-      _this.Period = 1500;
-      return _this;
-    }
-
-    _createClass(RainbowGun, [{
-      key: "HandleFireWeapon",
-      value: function HandleFireWeapon() {
-        if (this.ProjectileClass) {
-          for (var i = 0; i < 2; i++) {
-            var localInverse = i === 0 ? 1 : -1;
-            var P = World.SpawnEntity(this.ProjectileClass, {
-              location: this.Outer.Location,
-              velocity: new Vector2(0, getRandomfloat(-450, -600)).addScaled(this.Outer.Velocity.clone(), 0.16),
-              team: this.Outer.team,
-              MovementComponent: SinusCurveMovementComponent,
-              MovementConfig: {
-                usespawnlocationdiff: true,
-                frequency: 30,
-                magnitude: getRandomfloat(10, 15) * localInverse
-              }
-            });
-            P.team = this.Outer.team;
-            this.InternalShootCount++;
-          }
-        }
-      }
-    }]);
-
-    return RainbowGun;
-  }(ProjectileWeaponBase);
-
-  var Player$1 =
-  /*#__PURE__*/
-  function (_Monster) {
-    _inherits(Player, _Monster);
-
-    function Player(props) {
-      var _this;
-
-      _classCallCheck(this, Player);
-
-      _this = _possibleConstructorReturn(this, _getPrototypeOf(Player).call(this, props));
-      _this.RegisterPostUpdate = true;
-      _this.team = 0;
-      _this.maxHealth = 100;
-      _this.health = _this.maxHealth;
-      _this.InputStrength = 250;
-      _this.weapon = new RainbowGun();
-
-      _this.weapon.SetOwner(_assertThisInitialized(_this)); //start with 1 to avoid modulus 0
-
-
-      _this.PositionLevel = 1;
-      return _this;
-    }
-
-    _createClass(Player, [{
-      key: "update",
-      value: function update(delta) {
-        this.Velocity = new Vector2(0, 0);
-
-        if (Key.isDown(Key.UP)) {
-          this.Velocity.addScaled(new Vector2(0, -1), this.InputStrength);
-        }
-
-        if (Key.isDown(Key.DOWN)) {
-          this.Velocity.addScaled(new Vector2(0, 1), this.InputStrength);
-        }
-
-        if (Key.isDown(Key.LEFT)) {
-          this.Velocity.addScaled(new Vector2(-1, 0), this.InputStrength);
-        }
-
-        if (Key.isDown(Key.RIGHT)) {
-          this.Velocity.addScaled(new Vector2(1, 0), this.InputStrength);
-        }
-
-        _get(_getPrototypeOf(Player.prototype), "update", this).call(this, delta);
-
-        if (Key.isDown(Key.CTRL)) {
-          if (this.weapon) {
-            this.weapon.FireWeapon();
-          }
-        }
-      }
-    }, {
-      key: "postUpdate",
-      value: function postUpdate(delta) {
-        if (!this.PendingDestroy) {
-          var potentials = this.RootBody.potentials();
-          var _iteratorNormalCompletion = true;
-          var _didIteratorError = false;
-          var _iteratorError = undefined;
-
-          try {
-            for (var _iterator = potentials[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-              var otherBody = _step.value;
-
-              if (this.RootBody.collides(otherBody, this.World.collisionResults)) {
-                if (this.team !== otherBody.Outer.team) {
-                  otherBody.Outer.OnOverlap(this);
-                }
-              }
-            }
-          } catch (err) {
-            _didIteratorError = true;
-            _iteratorError = err;
-          } finally {
-            try {
-              if (!_iteratorNormalCompletion && _iterator.return != null) {
-                _iterator.return();
-              }
-            } finally {
-              if (_didIteratorError) {
-                throw _iteratorError;
-              }
-            }
-          }
-        }
-      }
-    }, {
-      key: "takeDamage",
-      value: function takeDamage(amount) {
-        _get(_getPrototypeOf(Player.prototype), "takeDamage", this).call(this, amount);
-
-        console.log("player HP: " + this.health);
-      }
-    }, {
-      key: "CreateCollionBody",
-      value: function CreateCollionBody() {
-        return this.World.collisions.createPolygon(this.Location.x, this.Location.y, [[0, 0], [16, 32], [-16, 32]]);
-      }
-    }, {
-      key: "render",
-      value: function render(delta) {
-        var ctx = this.World.ctx;
-        ctx.save(); //module import for rollup
-
-        ctx.fillStyle = chroma('green').darken(Math.sin(this.Age * 0.002)).hex();
-        ctx.strokeStyle = '#f0f';
-        ctx.beginPath();
-        ctx.translate(this.Location.x, this.Location.y);
-        ctx.lineTo(16, 32);
-        ctx.lineTo(-16, 32);
-        ctx.lineTo(0, 0);
-        ctx.closePath();
-        ctx.fill();
-        ctx.restore();
-      }
-    }]);
-
-    return Player;
-  }(Monster);
 
   /**
    * Background star 
@@ -7080,7 +7150,6 @@
   var lastFrameTimeMs = 0;
   var maxFPS = 60;
   var delta = 0;
-  var lastTimeGC = 0;
 
   function GameLoop(TimeStamp) {
     World.UpdateGameTime(TimeStamp);
@@ -7090,33 +7159,17 @@
       return;
     }
 
-    if (lastTimeGC + 60000 < TimeStamp) {
-      lastTimeGC = TimeStamp;
-      World.UnregisterInactiveEntitys();
-    }
-
     delta = (TimeStamp - lastFrameTimeMs) / 1000;
-    lastFrameTimeMs = TimeStamp; //Update
-
-    GameMode.Update(delta);
-    World.Update(delta); //Post update
-
-    World.PostUpdate(delta); //Draw
+    lastFrameTimeMs = TimeStamp; //Draw
     //clear screen  CLS
 
     World.ctx.fillStyle = "#000";
-    World.ctx.fillRect(0, 0, 800, 600);
-    World.EntityList.forEach(function (entity) {
-      if (!entity.PendingDestroy) {
-        entity.render(delta);
-      }
-    });
-    World.ParticleList.forEach(function (particle) {
-      if (!particle.PendingDestroy) {
-        particle.update(delta);
-        particle.render(delta);
-      }
-    }); // Draw Debug collisons
+    World.ctx.fillRect(0, 0, 800, 600); //Update Collisions
+
+    World.UpdateCollisions(delta); //Update
+
+    GameMode.Update(delta);
+    World.Update(delta); // Draw Debug collisons
 
     requestAnimationFrame(GameLoop);
   }
@@ -7124,7 +7177,7 @@
   function InitGame() {
     InitStars(); //  World.SpawnEntity(Asteroid, { location: new Vector2(400, 300), maxhealth:10000500 })
 
-    var newPlayer = World.SpawnEntity(Player$1, {
+    var newPlayer = World.SpawnEntity(Player, {
       location: new Vector2(400, 500)
     });
     GameMode.RegisterPlayerPawn(newPlayer);
@@ -7159,8 +7212,10 @@
 
   document.addEventListener('DOMContentLoaded', function (event) {
     World.InitWorld();
+    WorldGlobal = World;
     InitGame();
     requestAnimationFrame(GameLoop);
   });
 
 }());
+//# sourceMappingURL=bundle.js.map
