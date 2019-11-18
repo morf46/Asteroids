@@ -49,6 +49,28 @@ function GameLoop(TimeStamp) {
 
 
 
+    // UI render
+    if (GameMode.PlayerPawn) {
+
+        const weapon = GameMode.PlayerPawn.weapon;
+        if (weapon && weapon.MaxAmmunition > 0) {
+
+            
+            const ctx = World.ctx;
+            ctx.save();
+            //module import for rollup
+            ctx.fillStyle = "#ff8000";
+            ctx.strokeStyle = '#f00';
+
+            ctx.translate(20, 500);
+
+            ctx.fillRect(0, 0, (weapon.Ammunition / weapon.MaxAmmunition) * 120, 16);
+
+            ctx.restore();
+        }
+
+    }
+
 
 
     // Draw Debug collisons
@@ -119,6 +141,7 @@ window.addEventListener('keydown', function (event) { Key.onKeydown(event); }, f
 document.addEventListener('DOMContentLoaded', (event) => {
     World.InitWorld();
     WorldGlobal = World;
+    RespawnHandle = GameMode.RespawnDEV;
     InitGame();
     requestAnimationFrame(GameLoop);
 });

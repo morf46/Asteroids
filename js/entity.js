@@ -11,7 +11,10 @@ export class Entity {
 
         props = props || {}
 
+        this.World = World;
+        this.ID = this.World.GetNextEntityID();
         this.Outer = props.outer || null;
+        this.ChildList = [];
         this.SpawnLocation = props.location ? props.location.clone() : new Vector2(0, 0);
         this.Velocity = props.velocity ? props.velocity.clone() : new Vector2(0, 0);
         this.Location = this.SpawnLocation.clone();
@@ -20,7 +23,7 @@ export class Entity {
 
         this.radius = 0;
 
-        this.World = World;
+
         this.RootBody = null;
         this.vertexes = [];
         this.PendingDestroy = false;
@@ -49,7 +52,7 @@ export class Entity {
 
     }
 
-    
+
 
     update(delta) {
 
@@ -65,7 +68,9 @@ export class Entity {
             //console.log("Out of Bounds: ", this);
             this.Destroy();
         }
-        
+
+
+
     }
 
 
@@ -89,6 +94,12 @@ export class Entity {
     Destroy() {
         this.PendingDestroy = true;
 
+        if (this.ChildList.length > 0) {
+            for (let i = 0; i < this.ChildList.length; i++) {
+                const child = this.ChildList[i];
+                child.Destroy();
+            }
+        }
     }
 
     render(delta) {
@@ -134,6 +145,27 @@ export class Entity {
                 Math.floor(lerp(0, this.ColorMap.length, factor))
             ];
         }
+    }
+
+
+    AttachToParent(NewOuter) {
+        this.Outer = NewOuter;
+        this.Outer.AttachChild(this);
+    }
+
+    AttachChild(NewChild) {
+        this.ChildList.push(NewChild);
+    }
+
+
+    /**
+     * Set new lifetime
+     * changes this.SpawnTime !
+     * @param {Number} NewLifetime The new lifetime in ms
+     */
+    SetLifeTime(NewLifetime) {
+        this.spawnTime = this.World.GameTime;
+        this.TimeToLife = NewLifetime;
     }
 
 

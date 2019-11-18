@@ -14,6 +14,11 @@ export class Weapon extends Entity {
         this.Outer = null;
 
         this.Ammunition = 0;
+        this.MaxAmmunition = 0;
+        this.MaxTimeToLife = 0;
+
+        //DrainAmmoPerUpdate
+        this.AmmunitionDrain = 0;
 
     }
 
@@ -22,8 +27,7 @@ export class Weapon extends Entity {
      * @param {Entity} NewOwner 
      */
     SetOwner(NewOwner) {
-        this.Outer = NewOwner;
-
+        this.AttachToParent(NewOwner);
     }
 
     /**
@@ -51,6 +55,21 @@ export class Weapon extends Entity {
             this.Outer.DropItem(this);
         }
     }
+
+    onStackInventory() {
+        this.Ammunition = this.MaxAmmunition;
+    }
+
+    update(delta) {
+        super.update(delta);
+        if (this.AmmunitionDrain > 0) {
+            this.Ammunition -= this.AmmunitionDrain * delta;
+        }
+        if (this.MaxAmmunition > 0 && this.Ammunition <= 0) {
+            this.Destroy();
+        }
+    }
+
 }
 
 

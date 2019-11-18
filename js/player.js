@@ -23,7 +23,7 @@ export class Player extends Monster {
         this.RegisterCollisonQuery = true;
         this.team = 0;
 
-        this.maxHealth = 100;
+        this.maxHealth = 100000;
         this.health = this.maxHealth;
 
         this.InputStrength = 250;
@@ -36,11 +36,11 @@ export class Player extends Monster {
     }
 
     BeginPlay() {
-        let BaseWeapon = new ProjectileWeaponBase();
+        //let BaseWeapon = new ProjectileWeaponBase();
         //let BaseWeapon = new WPN_TPattern();
 
         //let BaseWeapon = new RainbowGun();
-        this.PickupItem(BaseWeapon);
+        this.PickupItem(ProjectileWeaponBase);
     }
 
     update(delta) {
@@ -89,13 +89,20 @@ export class Player extends Monster {
         }
     }
 
-    PickupItem(newItem) {
-        this.Inventory.push(newItem);
-        newItem.SetOwner(this);
+    PickupItem(newItemClass) {
+        let newItem = this.World.SpawnEntity(newItemClass, {});
+        const FoundItem = this.Inventory.find(item => item.constructor.name === newItem.constructor.name);
+        if (FoundItem) {
+            FoundItem.onStackInventory();
+            newItem.Destroy();
+        } else {
+            this.Inventory.push(newItem);
+            newItem.SetOwner(this);
+        }
         this.OnPickupInventory();
     }
     DropItem(itemToDrop) {
-        this.Inventory = this.Inventory.filter(item => item !== itemToDrop);
+        this.Inventory = this.Inventory.filter(item => item.ID !== itemToDrop.ID);
         this.OnDropInventory();
     }
     OnPickupInventory() {

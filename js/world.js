@@ -13,7 +13,11 @@ class _World {
         this.collisionResults = this.collisions.createResult();
         this.GameTime = 0;
 
+        this.GlobalIDIncrement = 0;
+    }
 
+    GetNextEntityID() {
+        return ++this.GlobalIDIncrement;
     }
 
     /**

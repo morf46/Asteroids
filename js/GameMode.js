@@ -1,8 +1,10 @@
 import Vector2 from "./vector";
 import { SpawnEnemyLine, DefaultEnemyProps, SinusCurveDefaultProps } from "./GameplayStatics";
-import { Monster, Asteroid } from "./internal";
+import { Monster, Asteroid, Player } from "./internal";
 import { getRandomfloat, getRandomBoolWithWeight, getRandomBool, getRandomInt } from "./mathutils";
 import CosineCurveMovementComponent from "./Ai/CosineCurveMovement";
+import World from "./world";
+
 
 const SINE_VERCTICAL_DOWN = 1;
 const SINE_HORIZONTAL = 2;
@@ -16,9 +18,13 @@ class _GameMode {
         this.PlayerPawn = null;
 
     }
-
     RegisterPlayerPawn(InPlayerPawn) {
         this.PlayerPawn = InPlayerPawn;
+    }
+
+    RespawnDEV() {
+        var newPlayer = World.SpawnEntity(Player, { location: new Vector2(400, 500) })
+        this.RegisterPlayerPawn(newPlayer);
     }
 
     Update(delta) {

@@ -8,6 +8,11 @@ export class WPN_TPattern extends ProjectileWeaponBase {
 
     constructor(props) {
         super(props);
+
+
+        this.AmmunitionDrain = 1;
+        this.MaxAmmunition = 15;
+        this.Ammunition = this.MaxAmmunition;
     }
 
 

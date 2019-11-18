@@ -2354,17 +2354,23 @@
       this.collisions = new Collisions();
       this.collisionResults = this.collisions.createResult();
       this.GameTime = 0;
+      this.GlobalIDIncrement = 0;
     }
-    /**
-     * Spawns entity and registers it ot the world
-     * 
-     * @param {Class} ClassToSpawn 
-     * @param {Object} props 
-     * @return Spawned Entity
-     */
-
 
     _createClass(_World, [{
+      key: "GetNextEntityID",
+      value: function GetNextEntityID() {
+        return ++this.GlobalIDIncrement;
+      }
+      /**
+       * Spawns entity and registers it ot the world
+       * 
+       * @param {Class} ClassToSpawn 
+       * @param {Object} props 
+       * @return Spawned Entity
+       */
+
+    }, {
       key: "SpawnEntity",
       value: function SpawnEntity(ClassToSpawn, props) {
         var newEntity = new ClassToSpawn(props);
@@ -2443,7 +2449,10 @@
       _classCallCheck(this, Entity);
 
       props = props || {};
+      this.World = World;
+      this.ID = this.World.GetNextEntityID();
       this.Outer = props.outer || null;
+      this.ChildList = [];
       this.SpawnLocation = props.location ? props.location.clone() : new Vector2(0, 0);
       this.Velocity = props.velocity ? props.velocity.clone() : new Vector2(0, 0);
       this.Location = this.SpawnLocation.clone();
@@ -2451,7 +2460,6 @@
 
       this.Rotation = 0;
       this.radius = 0;
-      this.World = World;
       this.RootBody = null;
       this.vertexes = [];
       this.PendingDestroy = false;
@@ -2505,6 +2513,13 @@
       key: "Destroy",
       value: function Destroy() {
         this.PendingDestroy = true;
+
+        if (this.ChildList.length > 0) {
+          for (var i = 0; i < this.ChildList.length; i++) {
+            var child = this.ChildList[i];
+            child.Destroy();
+          }
+        }
       }
     }, {
       key: "render",
@@ -2543,6 +2558,29 @@
           var factor = this.Age / this.TimeToLife;
           this.BaseColor = this.ColorMap[Math.floor(lerp(0, this.ColorMap.length, factor))];
         }
+      }
+    }, {
+      key: "AttachToParent",
+      value: function AttachToParent(NewOuter) {
+        this.Outer = NewOuter;
+        this.Outer.AttachChild(this);
+      }
+    }, {
+      key: "AttachChild",
+      value: function AttachChild(NewChild) {
+        this.ChildList.push(NewChild);
+      }
+      /**
+       * Set new lifetime
+       * changes this.SpawnTime !
+       * @param {Number} NewLifetime The new lifetime in ms
+       */
+
+    }, {
+      key: "SetLifeTime",
+      value: function SetLifeTime(NewLifetime) {
+        this.spawnTime = this.World.GameTime;
+        this.TimeToLife = NewLifetime;
       }
     }]);
 
@@ -5923,52 +5961,6 @@
   });
   var chroma_1 = chroma.chroma;
 
-  var WPN_TPattern =
-  /*#__PURE__*/
-  function (_ProjectileWeaponBase) {
-    _inherits(WPN_TPattern, _ProjectileWeaponBase);
-
-    function WPN_TPattern(props) {
-      _classCallCheck(this, WPN_TPattern);
-
-      return _possibleConstructorReturn(this, _getPrototypeOf(WPN_TPattern).call(this, props));
-    }
-
-    _createClass(WPN_TPattern, [{
-      key: "HandleFireWeapon",
-      value: function HandleFireWeapon() {
-        if (this.ProjectileClass) {
-          for (var i = 0; i < 3; i++) {
-            var xMagnitude = 0;
-            var yMagnitude = -1;
-
-            switch (i) {
-              case 1:
-                xMagnitude = 1;
-                yMagnitude = 0;
-                break;
-
-              case 2:
-                xMagnitude = -1;
-                yMagnitude = 0;
-                break;
-            }
-
-            var P = this.World.SpawnEntity(this.ProjectileClass, {
-              location: this.Outer.Location,
-              velocity: new Vector2(getRandomfloat(450, 550) * xMagnitude, getRandomfloat(450, 550) * yMagnitude).add(this.Outer.Velocity.clone().multiply(0.16)),
-              team: this.Outer.team
-            });
-            P.team = this.Outer.team;
-            this.InternalShootCount++;
-          }
-        }
-      }
-    }]);
-
-    return WPN_TPattern;
-  }(ProjectileWeaponBase);
-
   var PowerUpBase =
   /*#__PURE__*/
   function (_Monster) {
@@ -6001,8 +5993,7 @@
       key: "OnOverlap",
       value: function OnOverlap(OtherEntity) {
         if (OtherEntity instanceof Player) {
-          var NewGun = new WPN_TPattern();
-          OtherEntity.PickupItem(NewGun);
+          OtherEntity.PickupItem(WPN_TPattern);
           this.Destroy();
         }
       }
@@ -6134,6 +6125,14 @@
       key: "RegisterPlayerPawn",
       value: function RegisterPlayerPawn(InPlayerPawn) {
         this.PlayerPawn = InPlayerPawn;
+      }
+    }, {
+      key: "RespawnDEV",
+      value: function RespawnDEV() {
+        var newPlayer = World.SpawnEntity(Player, {
+          location: new Vector2(400, 500)
+        });
+        this.RegisterPlayerPawn(newPlayer);
       }
     }, {
       key: "Update",
@@ -6381,7 +6380,7 @@
       _this = _possibleConstructorReturn(this, _getPrototypeOf(Player).call(this, props));
       _this.RegisterCollisonQuery = true;
       _this.team = 0;
-      _this.maxHealth = 100;
+      _this.maxHealth = 100000;
       _this.health = _this.maxHealth;
       _this.InputStrength = 250;
       _this.weapon = null;
@@ -6394,10 +6393,10 @@
     _createClass(Player, [{
       key: "BeginPlay",
       value: function BeginPlay() {
-        var BaseWeapon = new ProjectileWeaponBase(); //let BaseWeapon = new WPN_TPattern();
+        //let BaseWeapon = new ProjectileWeaponBase();
+        //let BaseWeapon = new WPN_TPattern();
         //let BaseWeapon = new RainbowGun();
-
-        this.PickupItem(BaseWeapon);
+        this.PickupItem(ProjectileWeaponBase);
       }
     }, {
       key: "update",
@@ -6465,16 +6464,27 @@
       }
     }, {
       key: "PickupItem",
-      value: function PickupItem(newItem) {
-        this.Inventory.push(newItem);
-        newItem.SetOwner(this);
+      value: function PickupItem(newItemClass) {
+        var newItem = this.World.SpawnEntity(newItemClass, {});
+        var FoundItem = this.Inventory.find(function (item) {
+          return item.constructor.name === newItem.constructor.name;
+        });
+
+        if (FoundItem) {
+          FoundItem.onStackInventory();
+          newItem.Destroy();
+        } else {
+          this.Inventory.push(newItem);
+          newItem.SetOwner(this);
+        }
+
         this.OnPickupInventory();
       }
     }, {
       key: "DropItem",
       value: function DropItem(itemToDrop) {
         this.Inventory = this.Inventory.filter(function (item) {
-          return item !== itemToDrop;
+          return item.ID !== itemToDrop.ID;
         });
         this.OnDropInventory();
       }
@@ -6543,6 +6553,10 @@
       _this.lastTimeFired = 0;
       _this.Outer = null;
       _this.Ammunition = 0;
+      _this.MaxAmmunition = 0;
+      _this.MaxTimeToLife = 0; //DrainAmmoPerUpdate
+
+      _this.AmmunitionDrain = 0;
       return _this;
     }
     /**
@@ -6554,7 +6568,7 @@
     _createClass(Weapon, [{
       key: "SetOwner",
       value: function SetOwner(NewOwner) {
-        this.Outer = NewOwner;
+        this.AttachToParent(NewOwner);
       }
       /**
        * basic pre weapon fire logic
@@ -6584,6 +6598,24 @@
 
         if (this.Outer) {
           this.Outer.DropItem(this);
+        }
+      }
+    }, {
+      key: "onStackInventory",
+      value: function onStackInventory() {
+        this.Ammunition = this.MaxAmmunition;
+      }
+    }, {
+      key: "update",
+      value: function update(delta) {
+        _get(_getPrototypeOf(Weapon.prototype), "update", this).call(this, delta);
+
+        if (this.AmmunitionDrain > 0) {
+          this.Ammunition -= this.AmmunitionDrain * delta;
+        }
+
+        if (this.MaxAmmunition > 0 && this.Ammunition <= 0) {
+          this.Destroy();
         }
       }
     }]);
@@ -6630,6 +6662,58 @@
 
     return ProjectileWeaponBase;
   }(Weapon);
+
+  var WPN_TPattern =
+  /*#__PURE__*/
+  function (_ProjectileWeaponBase) {
+    _inherits(WPN_TPattern, _ProjectileWeaponBase);
+
+    function WPN_TPattern(props) {
+      var _this;
+
+      _classCallCheck(this, WPN_TPattern);
+
+      _this = _possibleConstructorReturn(this, _getPrototypeOf(WPN_TPattern).call(this, props));
+      _this.AmmunitionDrain = 1;
+      _this.MaxAmmunition = 15;
+      _this.Ammunition = _this.MaxAmmunition;
+      return _this;
+    }
+
+    _createClass(WPN_TPattern, [{
+      key: "HandleFireWeapon",
+      value: function HandleFireWeapon() {
+        if (this.ProjectileClass) {
+          for (var i = 0; i < 3; i++) {
+            var xMagnitude = 0;
+            var yMagnitude = -1;
+
+            switch (i) {
+              case 1:
+                xMagnitude = 1;
+                yMagnitude = 0;
+                break;
+
+              case 2:
+                xMagnitude = -1;
+                yMagnitude = 0;
+                break;
+            }
+
+            var P = this.World.SpawnEntity(this.ProjectileClass, {
+              location: this.Outer.Location,
+              velocity: new Vector2(getRandomfloat(450, 550) * xMagnitude, getRandomfloat(450, 550) * yMagnitude).add(this.Outer.Velocity.clone().multiply(0.16)),
+              team: this.Outer.team
+            });
+            P.team = this.Outer.team;
+            this.InternalShootCount++;
+          }
+        }
+      }
+    }]);
+
+    return WPN_TPattern;
+  }(ProjectileWeaponBase);
 
   var colorScale={
   	"jet":[{"index":0,"rgb":[0,0,131]},{"index":0.125,"rgb":[0,60,170]},{"index":0.375,"rgb":[5,255,255]},{"index":0.625,"rgb":[255,255,0]},{"index":0.875,"rgb":[250,0,0]},{"index":1,"rgb":[128,0,0]}],
@@ -7169,7 +7253,22 @@
     World.UpdateCollisions(delta); //Update
 
     GameMode.Update(delta);
-    World.Update(delta); // Draw Debug collisons
+    World.Update(delta); // UI render
+
+    if (GameMode.PlayerPawn) {
+      var weapon = GameMode.PlayerPawn.weapon;
+
+      if (weapon && weapon.MaxAmmunition > 0) {
+        var ctx = World.ctx;
+        ctx.save(); //module import for rollup
+
+        ctx.fillStyle = "#ff8000";
+        ctx.strokeStyle = '#f00';
+        ctx.translate(20, 500);
+        ctx.fillRect(0, 0, weapon.Ammunition / weapon.MaxAmmunition * 120, 16);
+        ctx.restore();
+      }
+    } // Draw Debug collisons
 
     requestAnimationFrame(GameLoop);
   }
@@ -7213,6 +7312,7 @@
   document.addEventListener('DOMContentLoaded', function (event) {
     World.InitWorld();
     WorldGlobal = World;
+    RespawnHandle = GameMode.RespawnDEV;
     InitGame();
     requestAnimationFrame(GameLoop);
   });
