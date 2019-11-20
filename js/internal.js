@@ -1,9 +1,10 @@
 
 
 export * from './entity';
-export * from './monster';
+export * from './monsters/monster';
 export * from './monsters/asteroid';
-export * from './player';
+export * from './monsters/suicide';
+export * from './monsters/player';
 export * from './weapons/weapon';
 export * from './weapons/projectileweaponbase';
 export * from './weapons/rainbowgun';

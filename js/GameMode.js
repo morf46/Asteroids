@@ -1,14 +1,16 @@
-import Vector2 from "./vector";
+import Vector2 from "./lib/vector";
 import { SpawnEnemyLine, DefaultEnemyProps, SinusCurveDefaultProps } from "./GameplayStatics";
-import { Monster, Asteroid, Player } from "./internal";
-import { getRandomfloat, getRandomBoolWithWeight, getRandomBool, getRandomInt } from "./mathutils";
+import { Monster, Asteroid, Player, SuicideMonster } from "./internal";
+import { getRandomfloat, getRandomBoolWithWeight, getRandomBool, getRandomInt } from "./lib/mathutils";
 import CosineCurveMovementComponent from "./Ai/CosineCurveMovement";
 import World from "./world";
+
 
 
 const SINE_VERCTICAL_DOWN = 1;
 const SINE_HORIZONTAL = 2;
 const LINE_X = 3;
+const LINE_HORIZONTAL = 4;
 
 
 class _GameMode {
@@ -46,13 +48,14 @@ class _GameMode {
 
 
     SpawnNextEnemySet() {
-        let SetID = getRandomInt(1, 4);
+        const EnemyClass = Asteroid;
+        let SetID = getRandomInt(1, 5);
         switch (SetID) {
             case SINE_VERCTICAL_DOWN:
                 {
                     let OriginLocation = new Vector2(getRandomfloat(100, 700), -400);
                     let TargetLocation = new Vector2(OriginLocation.x, 0);
-                    SpawnEnemyLine(OriginLocation, TargetLocation, 40, Asteroid, SinusCurveDefaultProps);
+                    SpawnEnemyLine(OriginLocation, TargetLocation, 40, EnemyClass, SinusCurveDefaultProps);
                 }
                 break;
             case SINE_HORIZONTAL:
@@ -62,7 +65,7 @@ class _GameMode {
                     let OriginLocation = IsSpawnLeft ? new Vector2(-400, randomY) : new Vector2(1200, randomY);
                     let TargetLocation = IsSpawnLeft ? new Vector2(0, randomY) : new Vector2(800, randomY);
                     let LocalVelocity = IsSpawnLeft ? new Vector2(200, 0) : new Vector2(-200, 0)
-                    SpawnEnemyLine(OriginLocation, TargetLocation, 40, Asteroid, {
+                    SpawnEnemyLine(OriginLocation, TargetLocation, 40, EnemyClass, {
                         MovementComponent: CosineCurveMovementComponent, velocity: LocalVelocity
                     });
 
@@ -87,7 +90,15 @@ class _GameMode {
                         LocalVelocity = new Vector2(magnitudeX, magnitudeY);
                     }
 
-                    SpawnEnemyLine(OriginLocation, TargetLocation, 40, Asteroid, { velocity: LocalVelocity });
+                    SpawnEnemyLine(OriginLocation, TargetLocation, 40, EnemyClass, { velocity: LocalVelocity });
+                }
+                break;
+            case LINE_HORIZONTAL:
+                {
+                    let OriginLocation = new Vector2(0, 0);
+                    let TargetLocation = new Vector2(800, 0);
+                    let LocalVelocity = new Vector2(0, 200);
+                    SpawnEnemyLine(OriginLocation, TargetLocation, 80, EnemyClass, { velocity: LocalVelocity });
                 }
                 break;
             default:

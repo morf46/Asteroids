@@ -1,6 +1,6 @@
 import World from '../world';
-import Vector2 from '../vector';
-import { getRandomfloat } from "../mathutils";
+import Vector2 from '../lib/vector';
+import { getRandomfloat } from "../lib/mathutils";
 import SinusCurveMovementComponent from "../Ai/SinusCurveMovement";
 import { ProjectileWeaponBase,RainbowProjectile } from "../internal";
 

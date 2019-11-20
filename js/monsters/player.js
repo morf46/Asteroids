@@ -1,9 +1,8 @@
-import { Monster } from "./internal";
-import Vector2 from "./vector";
-import Key from "./input";
-import { getRandomfloat } from "./mathutils";
+import { Monster } from "../internal";
+import Vector2 from "../lib/vector";
+import Key from "../input";
 import chroma from 'chroma-js';
-import { ProjectileWeaponBase, RainbowGun, WPN_TPattern } from "./internal";
+import { ProjectileWeaponBase, RainbowGun, WPN_TPattern } from "../internal";
 
 
 

@@ -8,6 +8,7 @@ class _World {
 
     constructor() {
         this.EntityList = [];
+        this.CollisionQueryList = [];
         this.PendingSpawns = [];
         this.collisions = new Collisions();
         this.collisionResults = this.collisions.createResult();
@@ -35,6 +36,9 @@ class _World {
 
     RegisterEntity(NewEntity) {
         this.PendingSpawns.push(NewEntity);
+        if (NewEntity.RegisterCollisonQuery === true) {
+            this.CollisionQueryList.push(NewEntity);
+        }
     }
 
     RegisterParticle(NewParticle) {
@@ -74,13 +78,7 @@ class _World {
 
         this.EntityList = this.EntityList.filter(entity => {
             if (!entity.PendingDestroy) {
-
                 entity.update(delta);
-
-                if (entity.RegisterCollisonQuery === true) {
-                    entity.QueryCollisions(delta);
-                }
-
                 entity.render(delta);
             }
 
@@ -92,6 +90,14 @@ class _World {
     UpdateCollisions(delta) {
         //Update Collision
         this.collisions.update();
+        this.CollisionQueryList = this.CollisionQueryList.filter(entity => {
+            if (!entity.PendingDestroy) {
+                entity.QueryCollisions(delta);
+                
+            }
+            return entity.PendingDestroy === false;
+
+        });
     }
 
 }

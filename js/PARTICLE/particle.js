@@ -1,5 +1,5 @@
 import { Entity } from "../internal";
-import { getRandomfloat, lerp } from "../mathutils";
+import { getRandomfloat, lerp } from "../lib/mathutils";
 import colormap from 'colormap';
 
 
@@ -8,7 +8,7 @@ export class Particle extends Entity {
     constructor(props) {
         super(props);
         this.TimeToLife = getRandomfloat(250, 700);
-
+        
         this.ColorMap = colormap({
             colormap: 'winter',
             nshades: 20,

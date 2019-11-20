@@ -1,9 +1,10 @@
 import { Monster } from "../internal";
-import Vector2 from "../vector";
-import { getRandomfloat, getRandomBool, getRandomInt, getRandomBoolWithWeight } from "../mathutils";
+import Vector2 from "../lib/vector";
+import { getRandomfloat, getRandomBool, getRandomInt, getRandomBoolWithWeight } from "../lib/mathutils";
 import chroma from 'chroma-js';
 import PowerUpBase from "../powerups/powerupbase";
 import GameMode from "../GameMode";
+import colormap from 'colormap';
 
 
 
@@ -21,6 +22,14 @@ export class Asteroid extends Monster {
         this.HealthChromaScale = chroma.scale(["#fff", this.LowHealthColor]).mode('lab');
 
 
+        this.ColorMap = colormap({
+            colormap: 'turbidity',
+            nshades: 40,
+            format: 'hex',
+            alpha: 1
+        })
+        this.BaseColor = this.ColorMap[0];
+
         this.maxHealth = props.maxhealth || 35;
         this.health = this.maxHealth;
     }
@@ -30,6 +39,8 @@ export class Asteroid extends Monster {
         this.Rotation += this.rotationSpeed;
 
         super.update(delta);
+
+        this.lerpChromaColorLoop(delta, 350, this.ID / 2);
 
     }
 
@@ -62,7 +73,8 @@ export class Asteroid extends Monster {
 
     takeDamage(amount) {
         super.takeDamage(amount);
-        this.BaseColor = chroma.blend(this.BaseChroma.hex(), this.HealthChromaScale(this.health / this.maxHealth).hex(), 'multiply');;
+        //update with damage amount variable TODO
+        //this.BaseColor = chroma.blend(this.BaseChroma.hex(), this.HealthChromaScale(this.health / this.maxHealth).hex(), 'multiply');
     }
 
     Destroy() {

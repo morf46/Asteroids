@@ -1,6 +1,9 @@
-import Vector2 from "./vector"
+import Vector2 from "./lib/vector";
 import World from "./world";
-import { lerp } from './mathutils';
+import { lerp, getRandomInt } from './lib/mathutils';
+
+
+
 
 export class Entity {
 
@@ -136,7 +139,10 @@ export class Entity {
     }
 
 
-
+    /**
+     * Lerp chroma color by lifetime
+     * @param {Number} delta 
+     */
     lerpChromaColor(delta) {
         if (this.ColorMap && this.ColorMap.length > 0) {
 
@@ -144,6 +150,27 @@ export class Entity {
             this.BaseColor = this.ColorMap[
                 Math.floor(lerp(0, this.ColorMap.length, factor))
             ];
+        }
+    }
+
+    /**
+     * Lerp chroma color with by a sin curve
+     * @param {Number} delta 
+     * @param {Number} [Frequence] 
+     * @param {Number} [Phase] 
+     */
+    lerpChromaColorLoop(delta, Frequence, Phase) {
+        if (this.ColorMap && this.ColorMap.length > 0) {
+
+            const LocalFreq = Frequence || 200;
+            const LocalPhase = Phase || 0;
+
+            let factor = Math.sin((this.Age / LocalFreq) + LocalPhase);
+            
+            this.BaseColor = this.ColorMap[
+                Math.floor(lerp(0, this.ColorMap.length, factor))
+            ];
+            
         }
     }
 

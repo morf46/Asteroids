@@ -1,6 +1,6 @@
 import { ProjectileWeaponBase } from "../internal";
-import Vector2 from "../vector";
-import { getRandomfloat } from "../mathutils";
+import Vector2  from "../lib/vector";
+import { getRandomfloat } from "../lib/mathutils";
 
 
 

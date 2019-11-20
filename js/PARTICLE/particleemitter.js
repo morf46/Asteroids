@@ -1,6 +1,6 @@
-import Vector2 from "../vector";
+import Vector2  from "../lib/vector";
 import { Entity, Particle } from "../internal";
-import { getRandomfloat } from "../mathutils";
+import { getRandomfloat } from "../lib/mathutils";
 import World from "../world";
 
 

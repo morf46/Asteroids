@@ -1,7 +1,7 @@
 import { Weapon,Projectile } from "../internal";
 import World from "../world";
-import Vector2 from "../vector";
-import { getRandomfloat } from "../mathutils";
+import Vector2 from "../lib/vector";
+import { getRandomfloat } from "../lib/mathutils";
 
 
 /**

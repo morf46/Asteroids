@@ -1,7 +1,7 @@
 import colormap from 'colormap';
 import { P_Rainbow_Trail, Projectile, E_Rainbow_Trail } from '../internal';
-import Vector2 from '../vector';
-import { getRandomfloat } from '../mathutils';
+import Vector2 from '../lib/vector';
+
 
 
 export class RainbowProjectile extends Projectile {

@@ -1,8 +1,8 @@
-import Vector2 from './vector';
+import Vector2 from './lib/vector';
 import StarBackGround from './starbackground';
 import { Player } from './internal';
 import World from './world';
-import { getRandomfloat, getRandomInt } from './mathutils';
+import { getRandomfloat, getRandomInt } from './lib/mathutils';
 import Key from './input';
 import GameMode from './GameMode';
 import { SpawnEnemyLine, SCREEN_H, SCREEN_W, DefaultEnemyProps, SinusCurveDefaultProps } from './GameplayStatics';
@@ -49,13 +49,14 @@ function GameLoop(TimeStamp) {
 
 
 
+
     // UI render
     if (GameMode.PlayerPawn) {
 
         const weapon = GameMode.PlayerPawn.weapon;
         if (weapon && weapon.MaxAmmunition > 0) {
 
-            
+
             const ctx = World.ctx;
             ctx.save();
             //module import for rollup

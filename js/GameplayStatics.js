@@ -1,7 +1,6 @@
-import Vector2 from "./vector";
+import Vector2 from "./lib/vector";
 import {Monster} from "./internal";
 import World from "./world";
-import { getRandomfloat } from "./mathutils";
 import SinusCurveMovementComponent from "./Ai/SinusCurveMovement";
 
 

@@ -1,7 +1,6 @@
-import { Entity } from "./internal";
-import { Player } from "./internal";
-import Vector2 from "./vector";
-import MovementComponent from "./Ai/MovementComponent";
+import { Entity } from "../internal";
+import { Player } from "../internal";
+import MovementComponent from "../Ai/MovementComponent";
 
 
 

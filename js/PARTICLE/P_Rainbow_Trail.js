@@ -1,5 +1,5 @@
 import { Particle } from "../internal";
-import { getRandomfloat, lerp } from "../mathutils";
+import { getRandomfloat, lerp } from "../lib/mathutils";
 import colormap from 'colormap';
 
 

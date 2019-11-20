@@ -1,5 +1,5 @@
 
-import Vector2 from "../vector";
+import Vector2  from "../lib/vector";
 import MovementComponent from "./MovementComponent";
 
 

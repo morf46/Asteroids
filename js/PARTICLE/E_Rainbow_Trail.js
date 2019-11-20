@@ -1,6 +1,6 @@
-import Vector2 from "../vector";
+import Vector2  from "../lib/vector";
 import { Entity, ParticleEmitter, P_Rainbow_Trail } from "../internal";
-import { getRandomfloat } from '../mathutils';
+import { getRandomfloat }  from "../lib/mathutils";
 
 
 

@@ -5,52 +5,8 @@ import { radiansToDegrees } from "./mathutils";
 /******************************************************
  ************** Simple ES6 Vector2 Class  **************
  ******************************************************
- * Author: Starbeamrainbowlabs
- * Twitter: @SBRLabs
- * Email: feedback at starbeamrainbowlabs dot com
- * 
  * From https://gist.github.com/sbrl/69a8fa588865cacef9c0
  ******************************************************
- * Originally written for my 2D Graphics ACW at Hull
- * University.
- ******************************************************
- * Changelog
- ******************************************************
- * 19th December 2015:
-	* Added this changelog.
- * 28th December 2015:
-	* Rewrite tests with klud.js + Node.js
- * 30th January 2016:
-	* Tweak angleFrom function to make it work properly.
- * 31st January 2016:
-	* Add the moveTowards function.
-	* Add the minComponent getter.
-	* Add the maxComponent getter.
-	* Add the equalTo function.
-	* Tests still need to be written for all of the above.
- * 19th September 2016:
-	* Added Vector2 support to the multiply method.
- * 10th June 2017:
-	* Fixed a grammatical mistake in a comment.
-	* Added Vector2.fromBearing static method.
- * 21st October 2017:
- 	* Converted to ES6 module.
- 	* Added Vector2.zero and Vector2.one constants. Remember to clone them!
- * 4th August 2018: (#LOWREZJAM!)
- 	* Optimised equalTo()
- * 6th August 2018: (#LOWREZJAM again!)
- 	* Added round(), floor(), and ceil()
- * 7th August 2018: (moar #LOWREZJAM :D)
- 	* Added area() and snapTo(grid_size)
- * 10th August 2018: (even more #LOWREZJAM!)
- 	* Added Vector2 support to divide()
- * 12th June 2019:
- 	* Fixed limitTo() behaviour
- 	* Added setTo() that uses the old limitTo() behaviour
- 	* Squash a nasty bug in angleFrom()
- 	* Fix & update the test suite to cover new and bugfixed functionality
-	 * Squash another nasty bug in .minComponent and .maxComponent involving negative numbers
-	 
 	 MORF CHANGES:
 	 Add function - addScaled(v,s)
 	 Add function - Lerp(v,f)
@@ -61,6 +17,7 @@ import { radiansToDegrees } from "./mathutils";
 	 add function - Distance(v)
 	 add function - Rotate2d(r)
 	 add fucntion - getAngle()
+	 
  */
 
 class Vector2 {
@@ -434,6 +391,8 @@ class Vector2 {
 			return this.x;
 		return this.y;
 	}
+
+	
 }
 
 /**

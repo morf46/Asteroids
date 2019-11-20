@@ -1,6 +1,6 @@
 
 import { Monster, ParticleEmitter } from "../internal";
-import Vector2 from "../vector";
+import Vector2  from "../lib/vector";
 import colormap from 'colormap';
 
 
