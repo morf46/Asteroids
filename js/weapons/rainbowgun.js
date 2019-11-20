@@ -2,15 +2,14 @@ import World from '../world';
 import Vector2 from '../lib/vector';
 import { getRandomfloat } from "../lib/mathutils";
 import SinusCurveMovementComponent from "../Ai/SinusCurveMovement";
-import { ProjectileWeaponBase,RainbowProjectile } from "../internal";
+import { ProjectileWeaponBase, RainbowProjectile } from "../internal";
 
 
 export class RainbowGun extends ProjectileWeaponBase {
 
 
-    constructor(props) {
-        super(props);
-
+    Init(props) {
+        super.Init(props);
         this.ProjectileClass = RainbowProjectile;
 
         this.Ammunition = 100;

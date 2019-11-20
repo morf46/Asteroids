@@ -6,9 +6,8 @@ import Vector2 from '../lib/vector';
 
 export class RainbowProjectile extends Projectile {
 
-    constructor(props) {
-        super(props);
-
+    Init(props) {
+        super.Init(props);
         this.RegisterCollisonQuery = true;
 
         this.TimeToLife = 1200;
@@ -19,6 +18,8 @@ export class RainbowProjectile extends Projectile {
 
         this.FX = null;
     }
+
+
 
     BeginPlay() {
         this.FX = this.World.SpawnEntity(E_Rainbow_Trail, { ParticleClass: P_Rainbow_Trail, location: this.Location, direction: new Vector2(0, 1) });

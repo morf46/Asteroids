@@ -1,21 +1,19 @@
 import { ProjectileWeaponBase } from "../internal";
-import Vector2  from "../lib/vector";
+import Vector2 from "../lib/vector";
 import { getRandomfloat } from "../lib/mathutils";
 
 
 
 export class WPN_TPattern extends ProjectileWeaponBase {
 
-    constructor(props) {
-        super(props);
-
-
+    Init(props) {
+        super.Init(props);
         this.AmmunitionDrain = 1;
         this.MaxAmmunition = 15;
         this.Ammunition = this.MaxAmmunition;
     }
 
-
+    
     HandleFireWeapon() {
 
         if (this.ProjectileClass) {

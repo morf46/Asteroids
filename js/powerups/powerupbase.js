@@ -1,25 +1,17 @@
 import { Monster, Player, RainbowGun, WPN_TPattern } from "../internal";
 import Vector2 from "../lib/vector";
-import colormap from 'colormap';
+import chroma from 'chroma-js';
 
 class PowerUpBase extends Monster {
 
 
-    constructor(props) {
-        super(props);
+    Init(props) {
+
+        super.Init(props);
 
         this.TimeToLife = 60000;
         this.Velocity = new Vector2(0, 0);
-
-        this.ColorMap = colormap({
-            colormap: 'temperature',
-            nshades: 40,
-            format: 'hex',
-            alpha: 1
-        })
-        this.BaseColor = this.ColorMap[0];
-
-
+        this.BaseColor = "#ffa500";
 
     }
 
@@ -33,9 +25,9 @@ class PowerUpBase extends Monster {
 
 
     update(delta) {
-
         super.update(delta);
-        this.lerpChromaColorLoop(delta, 500);
+
+        this.BaseColor = chroma('#ffa500').darken(Math.sin(this.Age / 500)).hex();
     }
 
     OnOverlap(OtherEntity) {

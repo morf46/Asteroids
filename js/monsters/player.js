@@ -15,9 +15,11 @@ import { ProjectileWeaponBase, RainbowGun, WPN_TPattern } from "../internal";
 
 export class Player extends Monster {
 
-    constructor(props) {
 
-        super(props);
+    Init(props) {
+
+        super.Init(props);
+
 
         this.RegisterCollisonQuery = true;
         this.team = 0;

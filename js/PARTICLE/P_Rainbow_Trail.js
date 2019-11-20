@@ -5,8 +5,11 @@ import colormap from 'colormap';
 
 export class P_Rainbow_Trail extends Particle {
 
-    constructor(props) {
-        super(props);
+
+
+    Init(props) {
+        super.Init(props);
+
         this.TimeToLife = getRandomfloat(800, 1200);
 
         this.ColorMap = colormap({
@@ -26,7 +29,7 @@ export class P_Rainbow_Trail extends Particle {
         this.lerpChromaColor();
     }
 
-    
+
 
 
 

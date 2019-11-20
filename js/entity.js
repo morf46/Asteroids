@@ -12,6 +12,10 @@ export class Entity {
 
     constructor(props) {
 
+        this.Init(props);
+    }
+
+    Init(props) {
         props = props || {}
 
         this.World = World;
@@ -166,11 +170,11 @@ export class Entity {
             const LocalPhase = Phase || 0;
 
             let factor = Math.sin((this.Age / LocalFreq) + LocalPhase);
-            
+
             this.BaseColor = this.ColorMap[
                 Math.floor(lerp(0, this.ColorMap.length, factor))
             ];
-            
+
         }
     }
 

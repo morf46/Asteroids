@@ -1,4 +1,6 @@
 import Collisions from "./collisions/Collisions.mjs";
+import Pool from "./lib/Pool";
+import { Entity } from "./internal";
 
 
 
@@ -13,6 +15,8 @@ class _World {
         this.collisions = new Collisions();
         this.collisionResults = this.collisions.createResult();
         this.GameTime = 0;
+
+        this.EntityPool = new Pool(Entity);
 
         this.GlobalIDIncrement = 0;
     }
@@ -93,7 +97,7 @@ class _World {
         this.CollisionQueryList = this.CollisionQueryList.filter(entity => {
             if (!entity.PendingDestroy) {
                 entity.QueryCollisions(delta);
-                
+
             }
             return entity.PendingDestroy === false;
 

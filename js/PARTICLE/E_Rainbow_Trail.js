@@ -6,8 +6,9 @@ import { getRandomfloat }  from "../lib/mathutils";
 
 export class E_Rainbow_Trail extends ParticleEmitter {
 
-    constructor(props) {
-        super(props);
+
+    Init(props) {
+        super.Init(props);
 
         this.SpawnCount = 5;
         this.Direction = props.direction || new Vector2(0, 0);

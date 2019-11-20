@@ -5,10 +5,8 @@ import World from "../world";
 export class Weapon extends Entity {
 
 
-    constructor(props) {
-
-        super(props);
-
+    Init(props) {
+        super.Init(props);
         this.Period = 250;
         this.lastTimeFired = 0;
         this.Outer = null;
@@ -19,16 +17,16 @@ export class Weapon extends Entity {
 
         //DrainAmmoPerUpdate
         this.AmmunitionDrain = 0;
-
     }
 
     /**
      * Set the new owner of this weapon.
-     * @param {Entity} NewOwner 
-     */
+    * @param {Entity} NewOwner 
+    */
     SetOwner(NewOwner) {
         this.AttachToParent(NewOwner);
     }
+
 
     /**
      * basic pre weapon fire logic

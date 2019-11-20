@@ -5,8 +5,10 @@ import colormap from 'colormap';
 
 export class Particle extends Entity {
 
-    constructor(props) {
-        super(props);
+   
+
+    Init(props) {
+        super.Init(props);
         this.TimeToLife = getRandomfloat(250, 700);
         
         this.ColorMap = colormap({
@@ -16,7 +18,6 @@ export class Particle extends Entity {
             alpha: 1
         })
         this.BaseColor = this.ColorMap[0];
-        
     }
 
     update(delta) {

@@ -1,4 +1,4 @@
-import { Weapon,Projectile } from "../internal";
+import { Weapon, Projectile } from "../internal";
 import World from "../world";
 import Vector2 from "../lib/vector";
 import { getRandomfloat } from "../lib/mathutils";
@@ -9,11 +9,9 @@ import { getRandomfloat } from "../lib/mathutils";
  */
 export class ProjectileWeaponBase extends Weapon {
 
-    constructor(props) {
-        super(props);
+    Init(props){
 
-
-
+        super.Init(props);
         this.ProjectileClass = Projectile;
 
 
@@ -22,27 +20,28 @@ export class ProjectileWeaponBase extends Weapon {
 
         this.Period = 100;
 
-
     }
 
 
 
-    HandleFireWeapon() {
 
-        if (this.ProjectileClass) {
 
-            let P = World.SpawnEntity(this.ProjectileClass, {
-                location: this.Outer.Location,
-                velocity: new Vector2(0, getRandomfloat(-550, -450)).add(this.Outer.Velocity.clone().multiply(0.16)),
-                team: this.Outer.team
+HandleFireWeapon() {
 
-            });
-            P.team = this.Outer.team;
+    if (this.ProjectileClass) {
 
-            this.InternalShootCount++;
-        }
+        let P = World.SpawnEntity(this.ProjectileClass, {
+            location: this.Outer.Location,
+            velocity: new Vector2(0, getRandomfloat(-550, -450)).add(this.Outer.Velocity.clone().multiply(0.16)),
+            team: this.Outer.team
 
+        });
+        P.team = this.Outer.team;
+
+        this.InternalShootCount++;
     }
+
+}
 
 
 }

@@ -7,13 +7,10 @@ import colormap from 'colormap';
 
 export class SuicideMonster extends Monster {
 
-    constructor(props) {
 
-        super(props);
+    Init(props) {
 
-        this.BaseColor = "#f00";
-
-        this.target = GameMode.PlayerPawn;
+        super.Init(props);
 
         this.ColorMap = colormap({
             colormap: 'bluered',
@@ -22,9 +19,13 @@ export class SuicideMonster extends Monster {
             alpha: 1
         })
         this.BaseColor = this.ColorMap[0];
+        
 
-
+        this.target = GameMode.PlayerPawn;
+        
     }
+
+
 
     CreateMovementComponent() {
         return new HomingMovement({ Outer: this, target: GameMode.PlayerPawn });

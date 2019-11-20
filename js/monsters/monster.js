@@ -6,8 +6,12 @@ import MovementComponent from "../Ai/MovementComponent";
 
 export class Monster extends Entity {
 
-    constructor(props) {
-        super(props);
+
+
+    Init(props) {
+
+        super.Init(props);
+
         this.vertexes = this.CreateRandomPolygon();
         this.RootBody = this.CreateCollionBody();
         this.RootBody.Outer = this;
@@ -17,7 +21,6 @@ export class Monster extends Entity {
         this.health = this.maxHealth;
 
         this.MovementComponent = this.CreateMovementComponent(props);
-
     }
 
 

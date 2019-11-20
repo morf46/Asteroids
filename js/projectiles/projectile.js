@@ -1,14 +1,14 @@
 
 import { Monster, ParticleEmitter } from "../internal";
-import Vector2  from "../lib/vector";
+import Vector2 from "../lib/vector";
 import colormap from 'colormap';
 
 
 export class Projectile extends Monster {
 
-    constructor(props) {
-        super(props);
+    Init(props) {
 
+        super.Init(props);
 
         this.RegisterCollisonQuery = true;
 
@@ -27,6 +27,7 @@ export class Projectile extends Monster {
         this.DamageDealt = 5;
     }
 
+ 
     CreateCollionBody() {
         return this.World.collisions.createCircle(this.Location.x, this.Location.y, 2);
     }

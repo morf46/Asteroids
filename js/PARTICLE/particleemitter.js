@@ -1,4 +1,4 @@
-import Vector2  from "../lib/vector";
+import Vector2 from "../lib/vector";
 import { Entity, Particle } from "../internal";
 import { getRandomfloat } from "../lib/mathutils";
 import World from "../world";
@@ -7,8 +7,10 @@ import World from "../world";
 
 export class ParticleEmitter extends Entity {
 
-    constructor(props) {
-        super(props);
+  
+
+    Init(props) {
+        super.Init(props);
 
         this.SpawnCount = 5;
         this.Direction = props.direction || new Vector2(0, 0);
@@ -28,10 +30,8 @@ export class ParticleEmitter extends Entity {
         this.IsActive = false;
 
         this.Period = 0;
-        this.LastTimeEmitted=0;
+        this.LastTimeEmitted = 0;
     }
-
-
 
 
     Activate() {
@@ -60,27 +60,27 @@ export class ParticleEmitter extends Entity {
         super.update(delta);
 
         if (this.IsActive) {
-            if(this.Period>0){
-                if (this.LastTimeEmitted + this.Period < this.World.GameTime){
+            if (this.Period > 0) {
+                if (this.LastTimeEmitted + this.Period < this.World.GameTime) {
                     this.SpawnParticle();
                     this.LastTimeEmitted = this.World.GameTime;
                 }
             }
-   
+
             if (this.BurstListHasValidEntry()) {
                 this.SpawnParticle();
                 this.BurstListIndex++;
             }
         }
 
-        
+
     }
 
     BurstListHasValidEntry() {
         const TIME_INDEX = 0;
         const COUNT_INDEX = 1;
         return this.BurstList.length > 0
-            && this.BurstListIndex <this.BurstList.length 
+            && this.BurstListIndex < this.BurstList.length
             && this.Age > this.BurstList[this.BurstListIndex][TIME_INDEX]
     }
 

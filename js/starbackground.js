@@ -1,4 +1,4 @@
-import {Entity} from './internal';
+import { Entity } from './internal';
 import Vector2 from './lib/vector';
 import { getRandomfloat, lerp } from './lib/mathutils';
 import chroma from 'chroma-js';
@@ -10,12 +10,10 @@ import chroma from 'chroma-js';
  */
 class StarBackGround extends Entity {
 
-
-    constructor(props) {
-        super(props);
+    Init(props) {
+        super.Init(props);
         this.width = props.size;
         this.height = props.size;
-
     }
 
     BeginPlay() {
@@ -40,7 +38,7 @@ class StarBackGround extends Entity {
         const ctx = this.World.ctx;
         ctx.save();
         ctx.fillStyle = this.BaseColor;
-        
+
         ctx.translate(this.Location.x, this.Location.y);
         ctx.fillRect(-this.width / 2, -this.height / 2, this.width, this.height);
         ctx.restore();

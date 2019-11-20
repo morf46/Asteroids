@@ -10,8 +10,10 @@ import colormap from 'colormap';
 
 export class Asteroid extends Monster {
 
-    constructor(props) {
-        super(props);
+    Init(props) {
+
+        super.Init(props);
+
         //inverse rotation
         let inverse = getRandomBool() ? 1 : -1;
         this.rotationSpeed = getRandomfloat(0.01, 0.05) * inverse;
