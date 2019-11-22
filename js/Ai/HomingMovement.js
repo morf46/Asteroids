@@ -17,13 +17,13 @@ class HomingMovement extends MovementComponent {
     UpdateMovement(delta) {
         if (this.Outer) {
 
-            //HomingAcceleration = ((HomingTargetComponent->GetComponentLocation() - UpdatedComponent->GetComponentLocation()).GetSafeNormal() * HomingAccelerationMagnitude);
+            
             if (this.target) {
 
                 let OldVelocity = this.Outer.Velocity.clone();
-                let VectorAcceleration = this.target.Location.clone().subtract(this.Outer.Location).unitVector2.multiply(this.HomingAccelerationMagnitude);
+                let HomingAcceleration = this.target.Location.clone().subtract(this.Outer.Location).unitVector2.multiply(this.HomingAccelerationMagnitude);
 
-                this.Outer.Velocity = VectorAcceleration.multiply(delta).add(OldVelocity);
+                this.Outer.Velocity = HomingAcceleration.multiply(delta).add(OldVelocity);
 
                 this.Outer.Location.addScaled(this.Outer.Velocity.limitTo(this.MaxVelocity), delta);
 

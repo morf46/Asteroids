@@ -7,7 +7,7 @@ import World from "../world";
 
 export class ParticleEmitter extends Entity {
 
-  
+
 
     Init(props) {
         super.Init(props);
@@ -48,8 +48,7 @@ export class ParticleEmitter extends Entity {
 
                 let randomDirection = getRandomfloat(-0.2, 0.2);
                 let localVelocity = this.Direction.clone().rotate2D(randomDirection).multiply(getRandomfloat(200, 400));
-                let NewParticle = new this.ParticleClass({ location: this.Location, velocity: localVelocity });
-                World.RegisterParticle(NewParticle);
+                this.World.SpawnEntity(this.ParticleClass, { location: this.Location, velocity: localVelocity });
             }
         }
     }

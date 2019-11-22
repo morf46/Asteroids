@@ -1,8 +1,8 @@
 import Vector2 from "./lib/vector";
-import {Monster} from "./internal";
+import { Monster } from "./internal";
 import World from "./world";
 import SinusCurveMovementComponent from "./Ai/SinusCurveMovement";
-
+import colormap from 'colormap';
 
 
 export const SCREEN_W = 800;
@@ -13,6 +13,24 @@ export const DefaultEnemyProps = { velocity: new Vector2(0, 150) };
 export const SinusCurveDefaultProps = { MovementComponent: SinusCurveMovementComponent, velocity: new Vector2(0, 200) }
 
 
+export const AsteroidColormap = colormap({
+    colormap: 'turbidity',
+    nshades: 40,
+    format: 'hex',
+    alpha: 1
+});
+export const SuicideColormap = colormap({
+    colormap: 'bluered',
+    nshades: 40,
+    format: 'hex',
+    alpha: 1
+});
+export const ParticleBaseColormap = colormap({
+    colormap: 'winter',
+    nshades: 20,
+    format: 'hex',
+    alpha: 1
+});
 
 /**
  * Spawns Enemys in a Line

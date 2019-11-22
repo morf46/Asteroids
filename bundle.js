@@ -2303,37 +2303,48 @@
   var Pool =
   /*#__PURE__*/
   function () {
-    function Pool(PoolClass) {
+    function Pool() {
       _classCallCheck(this, Pool);
 
-      this.ClassToPool = PoolClass;
       this.metrics = {};
       this.clearMetrics();
-      this.poollist = [];
+      this.assocPoolList = {};
     }
-    /**
-     * Allocate Object 
-     * Creates one if list is empty
-     * @param {Object} props 
-     * @return {Object} Returns Object from pool
-     */
-
 
     _createClass(Pool, [{
+      key: "Init",
+      value: function Init() {
+        for (var i = 0; i < 100; i++) {
+          this.alloc(Asteroid, {});
+        }
+
+        for (var _i = 0; _i < 100; _i++) {
+          this.alloc(ProjectileWeaponBase, {});
+        }
+      }
+      /**
+       * Allocate Object 
+       * Creates one if list is empty
+       * @param {Object} props 
+       * @return {Object} Returns Object from pool
+       */
+
+    }, {
       key: "alloc",
-      value: function alloc(props) {
+      value: function alloc(ClassType, props) {
         var Obj;
 
-        if (this.poollist.length == 0) {
-          Obj = new this.ClassToPool();
+        if (!this.assocPoolList[ClassType.name] || this.assocPoolList[ClassType.name].length == 0) {
+          Obj = new ClassType(props);
           this.metrics.totalalloc++;
         } else {
-          Obj = this.poollist.pop();
+          Obj = this.assocPoolList[ClassType.name].pop();
           Obj.Init(props);
           Obj.PendingDestroy = false;
           this.metrics.totalfree--;
         }
 
+        this.printDebug();
         return Obj;
       }
       /**
@@ -2344,9 +2355,18 @@
     }, {
       key: "free",
       value: function free(obj) {
-        this.poollist.push(obj);
+        if (!this.assocPoolList[obj.constructor.name]) {
+          this.assocPoolList[obj.constructor.name] = [];
+        }
+
+        this.assocPoolList[obj.constructor.name].push(obj);
         this.metrics.totalfree++;
+        this.printDebug();
       }
+      /**
+       * Clear Pool
+       */
+
     }, {
       key: "collect",
       value: function collect() {
@@ -2359,6 +2379,23 @@
       value: function clearMetrics(allocated) {
         this.metrics.totalalloc = allocated || 0;
         this.metrics.totalfree = 0;
+      }
+    }, {
+      key: "printDebug",
+      value: function printDebug() {
+        var e = document.getElementById('debug');
+
+        while (e.firstChild) {
+          e.removeChild(e.firstChild);
+        }
+
+        for (var property in this.assocPoolList) {
+          if (this.assocPoolList.hasOwnProperty(property)) {
+            var p = document.createElement("p");
+            p.innerText = "".concat(property, " : ").concat(this.assocPoolList[property].length);
+            e.appendChild(p);
+          }
+        }
       }
     }]);
 
@@ -2377,7 +2414,7 @@
       this.collisions = new Collisions();
       this.collisionResults = this.collisions.createResult();
       this.GameTime = 0;
-      this.EntityPool = new Pool(Entity);
+      this.EntityPool = new Pool();
       this.GlobalIDIncrement = 0;
     }
 
@@ -2397,7 +2434,7 @@
     }, {
       key: "SpawnEntity",
       value: function SpawnEntity(ClassToSpawn, props) {
-        var newEntity = new ClassToSpawn(props);
+        var newEntity = this.EntityPool.alloc(ClassToSpawn, props);
         this.RegisterEntity(newEntity);
         return newEntity;
       }
@@ -2420,6 +2457,7 @@
       value: function InitWorld() {
         this.canvas = document.getElementById('mainCanvas');
         this.ctx = this.canvas.getContext('2d');
+        this.EntityPool.Init();
       }
       /**
        * updates game time
@@ -2555,6 +2593,8 @@
             child.Destroy();
           }
         }
+
+        this.World.EntityPool.free(this);
       }
     }, {
       key: "render",
@@ -6103,210 +6143,6 @@
     return SinusCurveMovementComponent;
   }(MovementComponent);
 
-  var SCREEN_W = 800;
-  var SCREEN_H = 600;
-  var DefaultEnemyProps = {
-    velocity: new Vector2(0, 150)
-  };
-  var SinusCurveDefaultProps = {
-    MovementComponent: SinusCurveMovementComponent,
-    velocity: new Vector2(0, 200)
-  };
-  /**
-   * Spawns Enemys in a Line
-   * 
-   * @param {Vector2} Location Origin location
-   * @param {Vector2} TargetLocation Direction vector 
-   * @param {Number} Padding Distance betweens spawns.
-   * @param {Class} ClassToSpawn The Class to Spawn. Defaults to Monster 
-   * @param {Object} InProps Properties passed to constructor
-   */
-
-  function SpawnEnemyLine(Location, TargetLocation, Padding) {
-    var ClassToSpawn = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : Monster;
-    var InProps = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : {};
-    var Dist = Location.Distance(TargetLocation);
-    var Count = Math.round(Dist / Padding);
-    var LocalLocation = Location.clone();
-
-    for (var i = 0; i < Count; i++) {
-      var LocalProps = {
-        location: LocalLocation
-      };
-      LocalProps = _objectSpread2({}, LocalProps, {}, InProps);
-      World.SpawnEntity(ClassToSpawn, LocalProps);
-      LocalLocation.moveTowards(TargetLocation, Padding);
-    }
-  }
-
-  /**
-   * X Axis Cosine Movement, Spawn y axis keept as offset
-   */
-
-  var CosineCurveMovementComponent =
-  /*#__PURE__*/
-  function (_MovementComponent) {
-    _inherits(CosineCurveMovementComponent, _MovementComponent);
-
-    function CosineCurveMovementComponent(props) {
-      var _this;
-
-      _classCallCheck(this, CosineCurveMovementComponent);
-
-      _this = _possibleConstructorReturn(this, _getPrototypeOf(CosineCurveMovementComponent).call(this, props));
-      _this.frequency = 100;
-      _this.magnitude = 90;
-      _this.OffsetY = _this.Outer.Location.y;
-      return _this;
-    }
-
-    _createClass(CosineCurveMovementComponent, [{
-      key: "UpdateMovement",
-      value: function UpdateMovement(delta) {
-        var LocalLocation = this.Outer.Location.clone();
-        LocalLocation.addScaled(this.Outer.Velocity, delta); //use y axis for sinus
-
-        this.Outer.Location = new Vector2(LocalLocation.x, Math.cos(LocalLocation.x / this.frequency) * this.magnitude + this.OffsetY);
-      }
-    }]);
-
-    return CosineCurveMovementComponent;
-  }(MovementComponent);
-
-  var SINE_VERCTICAL_DOWN = 1;
-  var SINE_HORIZONTAL = 2;
-  var LINE_X = 3;
-  var LINE_HORIZONTAL = 4;
-
-  var _GameMode =
-  /*#__PURE__*/
-  function () {
-    function _GameMode() {
-      _classCallCheck(this, _GameMode);
-
-      this.PlayerPawn = null;
-    }
-
-    _createClass(_GameMode, [{
-      key: "RegisterPlayerPawn",
-      value: function RegisterPlayerPawn(InPlayerPawn) {
-        this.PlayerPawn = InPlayerPawn;
-      }
-    }, {
-      key: "RespawnDEV",
-      value: function RespawnDEV() {
-        var newPlayer = World.SpawnEntity(Player, {
-          location: new Vector2(400, 500)
-        });
-        this.RegisterPlayerPawn(newPlayer);
-      }
-    }, {
-      key: "Update",
-      value: function Update(delta) {
-        if (this.PlayerPawn) {
-          this.PlayerPawn.PositionLevel += 1 * delta;
-
-          if (Math.floor(this.PlayerPawn.PositionLevel) % 3 === 0) {
-            //add 1 to avoid modulus 0
-            this.PlayerPawn.PositionLevel += 1;
-            this.SpawnNextEnemySet();
-          }
-        }
-      }
-    }, {
-      key: "SpawnNextEnemySet",
-      value: function SpawnNextEnemySet() {
-        var EnemyClass = Asteroid;
-        var SetID = getRandomInt(1, 5);
-
-        switch (SetID) {
-          case SINE_VERCTICAL_DOWN:
-            {
-              var OriginLocation = new Vector2(getRandomfloat(100, 700), -400);
-              var TargetLocation = new Vector2(OriginLocation.x, 0);
-              SpawnEnemyLine(OriginLocation, TargetLocation, 40, EnemyClass, SinusCurveDefaultProps);
-            }
-            break;
-
-          case SINE_HORIZONTAL:
-            {
-              var IsSpawnLeft = getRandomBool();
-              var randomY = getRandomfloat(100, 500);
-
-              var _OriginLocation = IsSpawnLeft ? new Vector2(-400, randomY) : new Vector2(1200, randomY);
-
-              var _TargetLocation = IsSpawnLeft ? new Vector2(0, randomY) : new Vector2(800, randomY);
-
-              var LocalVelocity = IsSpawnLeft ? new Vector2(200, 0) : new Vector2(-200, 0);
-              SpawnEnemyLine(_OriginLocation, _TargetLocation, 40, EnemyClass, {
-                MovementComponent: CosineCurveMovementComponent,
-                velocity: LocalVelocity
-              });
-            }
-            break;
-
-          case LINE_X:
-            {
-              var _IsSpawnLeft = getRandomBool();
-
-              var _randomY = getRandomfloat(-100, -400);
-
-              var _OriginLocation2, _TargetLocation2, _LocalVelocity;
-
-              var magnitudeX = getRandomfloat(100, 200);
-              var magnitudeY = getRandomfloat(100, 200);
-
-              if (_IsSpawnLeft) {
-                _OriginLocation2 = new Vector2(1200, _randomY);
-                _TargetLocation2 = new Vector2(_OriginLocation2.x - getRandomfloat(100, 400), _randomY + getRandomfloat(100, 300));
-                _LocalVelocity = new Vector2(magnitudeX * -1, magnitudeY);
-              } else {
-                _OriginLocation2 = new Vector2(-400, _randomY);
-                _TargetLocation2 = new Vector2(_OriginLocation2.x + getRandomfloat(100, 400), _randomY + getRandomfloat(100, 300));
-                _LocalVelocity = new Vector2(magnitudeX, magnitudeY);
-              }
-
-              SpawnEnemyLine(_OriginLocation2, _TargetLocation2, 40, EnemyClass, {
-                velocity: _LocalVelocity
-              });
-            }
-            break;
-
-          case LINE_HORIZONTAL:
-            {
-              var _OriginLocation3 = new Vector2(0, 0);
-
-              var _TargetLocation3 = new Vector2(800, 0);
-
-              var _LocalVelocity2 = new Vector2(0, 200);
-
-              SpawnEnemyLine(_OriginLocation3, _TargetLocation3, 80, EnemyClass, {
-                velocity: _LocalVelocity2
-              });
-            }
-            break;
-
-          default:
-            {
-              var _TargetLocation4 = new Vector2(400, 0);
-
-              _TargetLocation4.setDirection(getRandomInt(360, 180), 2000);
-
-              var b = getRandomBool();
-              console.log(b);
-              var LocalProps = b ? DefaultEnemyProps : SinusCurveDefaultProps;
-              SpawnEnemyLine(new Vector2(400, 0), _TargetLocation4, 20, Monster, LocalProps);
-            }
-            break;
-        }
-      }
-    }]);
-
-    return _GameMode;
-  }();
-
-  var GameMode = new _GameMode();
-
   var colorScale={
   	"jet":[{"index":0,"rgb":[0,0,131]},{"index":0.125,"rgb":[0,60,170]},{"index":0.375,"rgb":[5,255,255]},{"index":0.625,"rgb":[255,255,0]},{"index":0.875,"rgb":[250,0,0]},{"index":1,"rgb":[128,0,0]}],
 
@@ -6537,6 +6373,243 @@
       return 'rgba(' + rgba.join(',') + ')';
   }
 
+  var SCREEN_W = 800;
+  var SCREEN_H = 600;
+  var DefaultEnemyProps = {
+    velocity: new Vector2(0, 150)
+  };
+  var SinusCurveDefaultProps = {
+    MovementComponent: SinusCurveMovementComponent,
+    velocity: new Vector2(0, 200)
+  };
+  var AsteroidColormap = colormap({
+    colormap: 'turbidity',
+    nshades: 40,
+    format: 'hex',
+    alpha: 1
+  });
+  var SuicideColormap = colormap({
+    colormap: 'bluered',
+    nshades: 40,
+    format: 'hex',
+    alpha: 1
+  });
+  var ParticleBaseColormap = colormap({
+    colormap: 'winter',
+    nshades: 20,
+    format: 'hex',
+    alpha: 1
+  });
+  /**
+   * Spawns Enemys in a Line
+   * 
+   * @param {Vector2} Location Origin location
+   * @param {Vector2} TargetLocation Direction vector 
+   * @param {Number} Padding Distance betweens spawns.
+   * @param {Class} ClassToSpawn The Class to Spawn. Defaults to Monster 
+   * @param {Object} InProps Properties passed to constructor
+   */
+
+  function SpawnEnemyLine(Location, TargetLocation, Padding) {
+    var ClassToSpawn = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : Monster;
+    var InProps = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : {};
+    var Dist = Location.Distance(TargetLocation);
+    var Count = Math.round(Dist / Padding);
+    var LocalLocation = Location.clone();
+
+    for (var i = 0; i < Count; i++) {
+      var LocalProps = {
+        location: LocalLocation
+      };
+      LocalProps = _objectSpread2({}, LocalProps, {}, InProps);
+      World.SpawnEntity(ClassToSpawn, LocalProps);
+      LocalLocation.moveTowards(TargetLocation, Padding);
+    }
+  }
+
+  /**
+   * X Axis Cosine Movement, Spawn y axis keept as offset
+   */
+
+  var CosineCurveMovementComponent =
+  /*#__PURE__*/
+  function (_MovementComponent) {
+    _inherits(CosineCurveMovementComponent, _MovementComponent);
+
+    function CosineCurveMovementComponent(props) {
+      var _this;
+
+      _classCallCheck(this, CosineCurveMovementComponent);
+
+      _this = _possibleConstructorReturn(this, _getPrototypeOf(CosineCurveMovementComponent).call(this, props));
+      _this.frequency = 100;
+      _this.magnitude = 90;
+      _this.OffsetY = _this.Outer.Location.y;
+      return _this;
+    }
+
+    _createClass(CosineCurveMovementComponent, [{
+      key: "UpdateMovement",
+      value: function UpdateMovement(delta) {
+        var LocalLocation = this.Outer.Location.clone();
+        LocalLocation.addScaled(this.Outer.Velocity, delta); //use y axis for sinus
+
+        this.Outer.Location = new Vector2(LocalLocation.x, Math.cos(LocalLocation.x / this.frequency) * this.magnitude + this.OffsetY);
+      }
+    }]);
+
+    return CosineCurveMovementComponent;
+  }(MovementComponent);
+
+  var SINE_VERCTICAL_DOWN = 1;
+  var SINE_HORIZONTAL = 2;
+  var LINE_X = 3;
+  var LINE_HORIZONTAL = 4;
+  var SUICIDE_SPAWN = 5;
+
+  var _GameMode =
+  /*#__PURE__*/
+  function () {
+    function _GameMode() {
+      _classCallCheck(this, _GameMode);
+
+      this.PlayerPawn = null;
+    }
+
+    _createClass(_GameMode, [{
+      key: "RegisterPlayerPawn",
+      value: function RegisterPlayerPawn(InPlayerPawn) {
+        this.PlayerPawn = InPlayerPawn;
+      }
+    }, {
+      key: "RespawnDEV",
+      value: function RespawnDEV() {
+        var newPlayer = World.SpawnEntity(Player, {
+          location: new Vector2(400, 500)
+        });
+        this.RegisterPlayerPawn(newPlayer);
+      }
+    }, {
+      key: "Update",
+      value: function Update(delta) {
+        if (this.PlayerPawn) {
+          this.PlayerPawn.PositionLevel += 1 * delta;
+
+          if (Math.floor(this.PlayerPawn.PositionLevel) % 6 === 0) {
+            //add 1 to avoid modulus 0
+            this.PlayerPawn.PositionLevel += 1;
+            this.SpawnNextEnemySet();
+          }
+        }
+      }
+    }, {
+      key: "SpawnNextEnemySet",
+      value: function SpawnNextEnemySet() {
+        var EnemyClass = Asteroid;
+        var SetID = getRandomInt(1, 5);
+
+        switch (SetID) {
+          case SINE_VERCTICAL_DOWN:
+            {
+              var OriginLocation = new Vector2(getRandomfloat(100, 700), -400);
+              var TargetLocation = new Vector2(OriginLocation.x, 0);
+              SpawnEnemyLine(OriginLocation, TargetLocation, 40, EnemyClass, SinusCurveDefaultProps);
+            }
+            break;
+
+          case SINE_HORIZONTAL:
+            {
+              var IsSpawnLeft = getRandomBool();
+              var randomY = getRandomfloat(100, 500);
+
+              var _OriginLocation = IsSpawnLeft ? new Vector2(-400, randomY) : new Vector2(1200, randomY);
+
+              var _TargetLocation = IsSpawnLeft ? new Vector2(0, randomY) : new Vector2(800, randomY);
+
+              var LocalVelocity = IsSpawnLeft ? new Vector2(200, 0) : new Vector2(-200, 0);
+              SpawnEnemyLine(_OriginLocation, _TargetLocation, 40, EnemyClass, {
+                MovementComponent: CosineCurveMovementComponent,
+                velocity: LocalVelocity
+              });
+            }
+            break;
+
+          case LINE_X:
+            {
+              var _IsSpawnLeft = getRandomBool();
+
+              var _randomY = getRandomfloat(-100, -400);
+
+              var _OriginLocation2, _TargetLocation2, _LocalVelocity;
+
+              var magnitudeX = getRandomfloat(100, 200);
+              var magnitudeY = getRandomfloat(100, 200);
+
+              if (_IsSpawnLeft) {
+                _OriginLocation2 = new Vector2(1200, _randomY);
+                _TargetLocation2 = new Vector2(_OriginLocation2.x - getRandomfloat(100, 400), _randomY + getRandomfloat(100, 300));
+                _LocalVelocity = new Vector2(magnitudeX * -1, magnitudeY);
+              } else {
+                _OriginLocation2 = new Vector2(-400, _randomY);
+                _TargetLocation2 = new Vector2(_OriginLocation2.x + getRandomfloat(100, 400), _randomY + getRandomfloat(100, 300));
+                _LocalVelocity = new Vector2(magnitudeX, magnitudeY);
+              }
+
+              SpawnEnemyLine(_OriginLocation2, _TargetLocation2, 40, EnemyClass, {
+                velocity: _LocalVelocity
+              });
+            }
+            break;
+
+          case LINE_HORIZONTAL:
+            {
+              var _OriginLocation3 = new Vector2(0, 0);
+
+              var _TargetLocation3 = new Vector2(800, 0);
+
+              var _LocalVelocity2 = new Vector2(0, 200);
+
+              SpawnEnemyLine(_OriginLocation3, _TargetLocation3, 80, EnemyClass, {
+                velocity: _LocalVelocity2
+              });
+            }
+            break;
+
+          case SUICIDE_SPAWN:
+            {
+              var _OriginLocation4 = new Vector2(0, 0);
+
+              var _TargetLocation4 = new Vector2(800, 0);
+
+              var _LocalVelocity3 = new Vector2(0, 200);
+
+              SpawnEnemyLine(_OriginLocation4, _TargetLocation4, 300, SuicideMonster, {
+                velocity: _LocalVelocity3
+              });
+            }
+            break;
+
+          default:
+            {
+              var _TargetLocation5 = new Vector2(400, 0);
+
+              _TargetLocation5.setDirection(getRandomInt(360, 180), 2000);
+
+              var b = getRandomBool();
+              console.log(b);
+              var LocalProps = b ? DefaultEnemyProps : SinusCurveDefaultProps;
+              SpawnEnemyLine(new Vector2(400, 0), _TargetLocation5, 20, Monster, LocalProps);
+            }
+            break;
+        }
+      }
+    }]);
+
+    return _GameMode;
+  }();
+
+  var GameMode = new _GameMode();
+
   var Asteroid =
   /*#__PURE__*/
   function (_Monster) {
@@ -6560,14 +6633,9 @@
         this.BaseColor = this.BaseChroma.hex();
         this.LowHealthColor = "#F00";
         this.HealthChromaScale = chroma.scale(["#fff", this.LowHealthColor]).mode('lab');
-        this.ColorMap = colormap({
-          colormap: 'turbidity',
-          nshades: 40,
-          format: 'hex',
-          alpha: 1
-        });
+        this.ColorMap = AsteroidColormap;
         this.BaseColor = this.ColorMap[0];
-        this.maxHealth = props.maxhealth || 35;
+        this.maxHealth = props.maxhealth || 15;
         this.health = this.maxHealth;
       }
     }, {
@@ -6620,7 +6688,7 @@
       value: function Destroy() {
         _get(_getPrototypeOf(Asteroid.prototype), "Destroy", this).call(this);
 
-        var drop = getRandomBoolWithWeight(0.5);
+        var drop = getRandomBoolWithWeight(0.1);
 
         if (drop) {
           this.World.SpawnEntity(PowerUpBase, {
@@ -6651,6 +6719,89 @@
     }]);
 
     return Asteroid;
+  }(Monster);
+
+  var HomingMovement =
+  /*#__PURE__*/
+  function (_MovementComponent) {
+    _inherits(HomingMovement, _MovementComponent);
+
+    function HomingMovement(props) {
+      var _this;
+
+      _classCallCheck(this, HomingMovement);
+
+      _this = _possibleConstructorReturn(this, _getPrototypeOf(HomingMovement).call(this, props));
+      _this.target = props.target || null;
+      _this.HomingAccelerationMagnitude = 400;
+      _this.MaxVelocity = 200;
+      return _this;
+    }
+
+    _createClass(HomingMovement, [{
+      key: "UpdateMovement",
+      value: function UpdateMovement(delta) {
+        if (this.Outer) {
+          if (this.target) {
+            var OldVelocity = this.Outer.Velocity.clone();
+            var HomingAcceleration = this.target.Location.clone().subtract(this.Outer.Location).unitVector2.multiply(this.HomingAccelerationMagnitude);
+            this.Outer.Velocity = HomingAcceleration.multiply(delta).add(OldVelocity);
+            this.Outer.Location.addScaled(this.Outer.Velocity.limitTo(this.MaxVelocity), delta);
+          } else {
+            this.Outer.Location.addScaled(this.Outer.Velocity, delta);
+          }
+        }
+      }
+    }]);
+
+    return HomingMovement;
+  }(MovementComponent);
+
+  var SuicideMonster =
+  /*#__PURE__*/
+  function (_Monster) {
+    _inherits(SuicideMonster, _Monster);
+
+    function SuicideMonster() {
+      _classCallCheck(this, SuicideMonster);
+
+      return _possibleConstructorReturn(this, _getPrototypeOf(SuicideMonster).apply(this, arguments));
+    }
+
+    _createClass(SuicideMonster, [{
+      key: "Init",
+      value: function Init(props) {
+        _get(_getPrototypeOf(SuicideMonster.prototype), "Init", this).call(this, props);
+
+        this.ColorMap = SuicideColormap;
+        this.BaseColor = this.ColorMap[0];
+        this.target = GameMode.PlayerPawn;
+        this.TimeToLife = 15000;
+      }
+    }, {
+      key: "CreateMovementComponent",
+      value: function CreateMovementComponent() {
+        return new HomingMovement({
+          Outer: this,
+          target: GameMode.PlayerPawn
+        });
+      }
+    }, {
+      key: "CreateCollionBody",
+      value: function CreateCollionBody() {
+        this.radius = 20;
+        return this.World.collisions.createCircle(this.Location.x, this.Location.y, this.radius);
+      }
+    }, {
+      key: "update",
+      value: function update(delta) {
+        _get(_getPrototypeOf(SuicideMonster.prototype), "update", this).call(this, delta);
+
+        this.lerpChromaColorLoop(delta, 200, this.ID);
+      }
+    }]);
+
+    return SuicideMonster;
   }(Monster);
 
   var _Key =
@@ -6708,7 +6859,7 @@
 
         this.RegisterCollisonQuery = true;
         this.team = 0;
-        this.maxHealth = 100000;
+        this.maxHealth = 100;
         this.health = this.maxHealth;
         this.InputStrength = 250;
         this.weapon = null;
@@ -6834,8 +6985,6 @@
       key: "takeDamage",
       value: function takeDamage(amount) {
         _get(_getPrototypeOf(Player.prototype), "takeDamage", this).call(this, amount);
-
-        console.log("player HP: " + this.health);
       }
     }, {
       key: "CreateCollionBody",
@@ -7203,11 +7352,10 @@
           for (var i = 0; i < this.SpawnCount; i++) {
             var randomDirection = getRandomfloat(-0.2, 0.2);
             var localVelocity = this.Direction.clone().rotate2D(randomDirection).multiply(getRandomfloat(200, 400));
-            var NewParticle = new this.ParticleClass({
+            this.World.SpawnEntity(this.ParticleClass, {
               location: this.Location,
               velocity: localVelocity
             });
-            World.RegisterParticle(NewParticle);
           }
         }
       }
@@ -7258,12 +7406,7 @@
         _get(_getPrototypeOf(Particle.prototype), "Init", this).call(this, props);
 
         this.TimeToLife = getRandomfloat(250, 700);
-        this.ColorMap = colormap({
-          colormap: 'winter',
-          nshades: 20,
-          format: 'hex',
-          alpha: 1
-        });
+        this.ColorMap = ParticleBaseColormap;
         this.BaseColor = this.ColorMap[0];
       }
     }, {
@@ -7370,7 +7513,7 @@
     World.UpdateCollisions(delta); //Update
 
     GameMode.Update(delta);
-    World.Update(delta); // UI render
+    World.Update(delta); // UI render #TEMP TODO #
 
     if (GameMode.PlayerPawn) {
       var weapon = GameMode.PlayerPawn.weapon;
@@ -7381,9 +7524,27 @@
 
         ctx.fillStyle = "#ff8000";
         ctx.strokeStyle = '#f00';
-        ctx.translate(20, 500);
+        ctx.translate(20, 532);
         ctx.fillRect(0, 0, weapon.Ammunition / weapon.MaxAmmunition * 120, 16);
         ctx.restore();
+      }
+
+      var Pawn = GameMode.PlayerPawn;
+
+      if (Pawn && Pawn.health > 0) {
+        var _ctx = World.ctx;
+
+        _ctx.save(); //module import for rollup
+
+
+        _ctx.fillStyle = "#009933";
+        _ctx.strokeStyle = '#f00';
+
+        _ctx.translate(20, 500);
+
+        _ctx.fillRect(0, 0, Pawn.health / Pawn.maxHealth * 120, 16);
+
+        _ctx.restore();
       }
     } // Draw Debug collisons
 

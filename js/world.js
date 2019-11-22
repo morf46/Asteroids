@@ -16,7 +16,7 @@ class _World {
         this.collisionResults = this.collisions.createResult();
         this.GameTime = 0;
 
-        this.EntityPool = new Pool(Entity);
+        this.EntityPool = new Pool();
 
         this.GlobalIDIncrement = 0;
     }
@@ -33,7 +33,7 @@ class _World {
      * @return Spawned Entity
      */
     SpawnEntity(ClassToSpawn, props) {
-        let newEntity = new ClassToSpawn(props);
+        let newEntity = this.EntityPool.alloc(ClassToSpawn, props);
         this.RegisterEntity(newEntity);
         return newEntity;
     }
@@ -57,6 +57,7 @@ class _World {
         this.canvas = document.getElementById('mainCanvas');
         this.ctx = this.canvas.getContext('2d');
 
+        this.EntityPool.Init();
     }
 
     /**

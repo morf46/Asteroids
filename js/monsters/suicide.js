@@ -1,7 +1,7 @@
 import { Monster } from "../internal";
 import GameMode from "../GameMode";
 import HomingMovement from "../Ai/HomingMovement";
-import colormap from 'colormap';
+import { SuicideColormap } from "../GameplayStatics";
 
 
 
@@ -12,17 +12,11 @@ export class SuicideMonster extends Monster {
 
         super.Init(props);
 
-        this.ColorMap = colormap({
-            colormap: 'bluered',
-            nshades: 40,
-            format: 'hex',
-            alpha: 1
-        })
+        this.ColorMap = SuicideColormap;
         this.BaseColor = this.ColorMap[0];
-        
-
         this.target = GameMode.PlayerPawn;
-        
+
+        this.TimeToLife = 15000;
     }
 
 

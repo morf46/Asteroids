@@ -12,6 +12,7 @@ export class Monster extends Entity {
 
         super.Init(props);
 
+        
         this.vertexes = this.CreateRandomPolygon();
         this.RootBody = this.CreateCollionBody();
         this.RootBody.Outer = this;

@@ -11,7 +11,6 @@ export class Entity {
 
 
     constructor(props) {
-
         this.Init(props);
     }
 
@@ -99,6 +98,9 @@ export class Entity {
      * Prepare Destroy Entity 
      */
     Destroy() {
+
+
+
         this.PendingDestroy = true;
 
         if (this.ChildList.length > 0) {
@@ -107,6 +109,8 @@ export class Entity {
                 child.Destroy();
             }
         }
+
+        this.World.EntityPool.free(this);
     }
 
     render(delta) {

@@ -11,6 +11,8 @@ const SINE_VERCTICAL_DOWN = 1;
 const SINE_HORIZONTAL = 2;
 const LINE_X = 3;
 const LINE_HORIZONTAL = 4;
+const SUICIDE_SPAWN = 5;
+
 
 
 class _GameMode {
@@ -34,7 +36,7 @@ class _GameMode {
 
             this.PlayerPawn.PositionLevel += 1 * delta;
 
-            if (Math.floor(this.PlayerPawn.PositionLevel) % 3 === 0) {
+            if (Math.floor(this.PlayerPawn.PositionLevel) % 6 === 0) {
 
                 //add 1 to avoid modulus 0
                 this.PlayerPawn.PositionLevel += 1;
@@ -99,6 +101,14 @@ class _GameMode {
                     let TargetLocation = new Vector2(800, 0);
                     let LocalVelocity = new Vector2(0, 200);
                     SpawnEnemyLine(OriginLocation, TargetLocation, 80, EnemyClass, { velocity: LocalVelocity });
+                }
+                break;
+            case SUICIDE_SPAWN:
+                {
+                    let OriginLocation = new Vector2(0, 0);
+                    let TargetLocation = new Vector2(800, 0);
+                    let LocalVelocity = new Vector2(0, 200);
+                    SpawnEnemyLine(OriginLocation, TargetLocation, 300, SuicideMonster, { velocity: LocalVelocity });
                 }
                 break;
             default:

@@ -1,6 +1,7 @@
 import { Entity } from "../internal";
 import { getRandomfloat, lerp } from "../lib/mathutils";
-import colormap from 'colormap';
+import { ParticleBaseColormap } from "../GameplayStatics";
+
 
 
 export class Particle extends Entity {
@@ -11,12 +12,7 @@ export class Particle extends Entity {
         super.Init(props);
         this.TimeToLife = getRandomfloat(250, 700);
         
-        this.ColorMap = colormap({
-            colormap: 'winter',
-            nshades: 20,
-            format: 'hex',
-            alpha: 1
-        })
+        this.ColorMap = ParticleBaseColormap;
         this.BaseColor = this.ColorMap[0];
     }
 

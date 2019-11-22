@@ -50,7 +50,7 @@ function GameLoop(TimeStamp) {
 
 
 
-    // UI render
+    // UI render #TEMP TODO #
     if (GameMode.PlayerPawn) {
 
         const weapon = GameMode.PlayerPawn.weapon;
@@ -63,13 +63,29 @@ function GameLoop(TimeStamp) {
             ctx.fillStyle = "#ff8000";
             ctx.strokeStyle = '#f00';
 
-            ctx.translate(20, 500);
+            ctx.translate(20, 532);
 
             ctx.fillRect(0, 0, (weapon.Ammunition / weapon.MaxAmmunition) * 120, 16);
 
             ctx.restore();
         }
 
+        const Pawn = GameMode.PlayerPawn;
+        if (Pawn && Pawn.health > 0) {
+
+
+            const ctx = World.ctx;
+            ctx.save();
+            //module import for rollup
+            ctx.fillStyle = "#009933";
+            ctx.strokeStyle = '#f00';
+
+            ctx.translate(20, 500);
+
+            ctx.fillRect(0, 0, (Pawn.health / Pawn.maxHealth) * 120, 16);
+
+            ctx.restore();
+        }
     }
 
 

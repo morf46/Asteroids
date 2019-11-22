@@ -24,7 +24,7 @@ export class Player extends Monster {
         this.RegisterCollisonQuery = true;
         this.team = 0;
 
-        this.maxHealth = 100000;
+        this.maxHealth = 100;
         this.health = this.maxHealth;
 
         this.InputStrength = 250;
@@ -123,7 +123,7 @@ export class Player extends Monster {
 
         super.takeDamage(amount);
 
-        console.log("player HP: " + this.health);
+    
     }
 
     CreateCollionBody() {

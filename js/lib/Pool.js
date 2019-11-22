@@ -1,18 +1,30 @@
+import { Asteroid, ProjectileWeaponBase } from "../internal";
+
 
 
 
 class Pool {
 
-    constructor(PoolClass) {
-
-        this.ClassToPool = PoolClass;
+    constructor() {
 
         this.metrics = {}
         this.clearMetrics();
 
-        this.poollist = [];
+        this.assocPoolList = {};
+
     }
 
+    Init() {
+
+        for (let i = 0; i < 100; i++) {
+            this.alloc(Asteroid, {});
+        }
+
+        for (let i = 0; i < 100; i++) {
+            this.alloc(ProjectileWeaponBase, {});
+        }
+
+    }
 
     /**
      * Allocate Object 
@@ -20,24 +32,26 @@ class Pool {
      * @param {Object} props 
      * @return {Object} Returns Object from pool
      */
-    alloc(props) {
+    alloc(ClassType, props) {
         var Obj;
 
-        if (this.poollist.length == 0) {
+        if (!this.assocPoolList[ClassType.name] || this.assocPoolList[ClassType.name].length == 0) {
 
-            Obj = new this.ClassToPool();
+            Obj = new ClassType(props);
 
             this.metrics.totalalloc++;
 
         } else {
 
-            Obj = this.poollist.pop();
-
+            Obj = this.assocPoolList[ClassType.name].pop();
             Obj.Init(props);
+
             Obj.PendingDestroy = false;
 
             this.metrics.totalfree--;
         }
+
+        this.printDebug();
 
         return Obj;
     }
@@ -48,12 +62,18 @@ class Pool {
      */
     free(obj) {
 
-        this.poollist.push(obj);
+        if (!this.assocPoolList[obj.constructor.name]) {
+            this.assocPoolList[obj.constructor.name] = []
+        }
+        this.assocPoolList[obj.constructor.name].push(obj);
         this.metrics.totalfree++;
 
+        this.printDebug();
     }
 
-
+    /**
+     * Clear Pool
+     */
     collect() {
 
         this.poollist = [];
@@ -67,6 +87,20 @@ class Pool {
         this.metrics.totalalloc = allocated || 0;
         this.metrics.totalfree = 0;
 
+    }
+
+    printDebug() {
+        var e = document.getElementById('debug');
+        while (e.firstChild) {
+            e.removeChild(e.firstChild);
+        }
+        for (var property in this.assocPoolList) {
+            if (this.assocPoolList.hasOwnProperty(property)) {
+                var p = document.createElement("p");
+                p.innerText = `${property} : ${this.assocPoolList[property].length}` ;
+                e.appendChild(p);
+            }
+        }
     }
 
 

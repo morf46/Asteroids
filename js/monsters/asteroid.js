@@ -4,7 +4,7 @@ import { getRandomfloat, getRandomBool, getRandomInt, getRandomBoolWithWeight } 
 import chroma from 'chroma-js';
 import PowerUpBase from "../powerups/powerupbase";
 import GameMode from "../GameMode";
-import colormap from 'colormap';
+import { AsteroidColormap } from "../GameplayStatics";
 
 
 
@@ -24,15 +24,10 @@ export class Asteroid extends Monster {
         this.HealthChromaScale = chroma.scale(["#fff", this.LowHealthColor]).mode('lab');
 
 
-        this.ColorMap = colormap({
-            colormap: 'turbidity',
-            nshades: 40,
-            format: 'hex',
-            alpha: 1
-        })
+        this.ColorMap = AsteroidColormap;
         this.BaseColor = this.ColorMap[0];
 
-        this.maxHealth = props.maxhealth || 35;
+        this.maxHealth = props.maxhealth || 15;
         this.health = this.maxHealth;
     }
 
@@ -81,7 +76,7 @@ export class Asteroid extends Monster {
 
     Destroy() {
         super.Destroy();
-        let drop = getRandomBoolWithWeight(0.5);
+        let drop = getRandomBoolWithWeight(0.1);
         if (drop) {
             this.World.SpawnEntity(PowerUpBase, { location: this.Location.clone(), team: GameMode.PlayerPawn.team });
         }
