@@ -91,21 +91,20 @@ class Pool {
 
     printDebug() {
         var e = document.getElementById('debug');
-        while (e.firstChild) {
-            e.removeChild(e.firstChild);
-        }
-        for (var property in this.assocPoolList) {
-            if (this.assocPoolList.hasOwnProperty(property)) {
-                var p = document.createElement("p");
-                p.innerText = `${property} : ${this.assocPoolList[property].length}` ;
-                e.appendChild(p);
+        if (e){
+            while (e.firstChild) {
+                e.removeChild(e.firstChild);
+            }
+            for (var property in this.assocPoolList) {
+                if (this.assocPoolList.hasOwnProperty(property)) {
+                    var p = document.createElement("p");
+                    p.innerText = `${property} : ${this.assocPoolList[property].length}` ;
+                    e.appendChild(p);
+                }
             }
         }
     }
-
-
 }
-
 
 export default Pool;
 
