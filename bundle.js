@@ -2548,6 +2548,14 @@
       key: "InitWorld",
       value: function InitWorld() {
         this.canvas = document.getElementById('mainCanvas');
+
+        if (!this.canvas) {
+          this.canvas = document.createElement('canvas');
+          this.canvas.width = 800;
+          this.canvas.height = 600;
+          document.body.appendChild(this.canvas);
+        }
+
         this.ctx = this.canvas.getContext('2d');
         this.EntityPool.Init();
       }
@@ -6954,8 +6962,8 @@
       value: function BeginPlay() {
         //let BaseWeapon = new ProjectileWeaponBase();
         //let BaseWeapon = new WPN_TPattern();
-        //let BaseWeapon = new RainbowGun();
-        this.PickupItem(ProjectileWeaponBase);
+        // let BaseWeapon = new RainbowGun();
+        this.PickupItem(ProjectileWeaponBase); //     this.PickupItem(RainbowGun);
       }
     }, {
       key: "update",

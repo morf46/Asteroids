@@ -40,8 +40,9 @@ export class Player extends Monster {
         //let BaseWeapon = new ProjectileWeaponBase();
         //let BaseWeapon = new WPN_TPattern();
 
-        //let BaseWeapon = new RainbowGun();
+       // let BaseWeapon = new RainbowGun();
         this.PickupItem(ProjectileWeaponBase);
+   //     this.PickupItem(RainbowGun);
     }
 
     update(delta) {
