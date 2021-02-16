@@ -57,13 +57,13 @@
       var source = arguments[i] != null ? arguments[i] : {};
 
       if (i % 2) {
-        ownKeys(source, true).forEach(function (key) {
+        ownKeys(Object(source), true).forEach(function (key) {
           _defineProperty(target, key, source[key]);
         });
       } else if (Object.getOwnPropertyDescriptors) {
         Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
       } else {
-        ownKeys(source).forEach(function (key) {
+        ownKeys(Object(source)).forEach(function (key) {
           Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
         });
       }
@@ -103,6 +103,19 @@
     return _setPrototypeOf(o, p);
   }
 
+  function _isNativeReflectConstruct() {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+
+    try {
+      Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
   function _assertThisInitialized(self) {
     if (self === void 0) {
       throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
@@ -117,6 +130,25 @@
     }
 
     return _assertThisInitialized(self);
+  }
+
+  function _createSuper(Derived) {
+    var hasNativeReflectConstruct = _isNativeReflectConstruct();
+
+    return function _createSuperInternal() {
+      var Super = _getPrototypeOf(Derived),
+          result;
+
+      if (hasNativeReflectConstruct) {
+        var NewTarget = _getPrototypeOf(this).constructor;
+
+        result = Reflect.construct(Super, arguments, NewTarget);
+      } else {
+        result = Super.apply(this, arguments);
+      }
+
+      return _possibleConstructorReturn(this, result);
+    };
   }
 
   function _superPropBase(object, property) {
@@ -147,6 +179,80 @@
     }
 
     return _get(target, property, receiver || target);
+  }
+
+  function _unsupportedIterableToArray(o, minLen) {
+    if (!o) return;
+    if (typeof o === "string") return _arrayLikeToArray(o, minLen);
+    var n = Object.prototype.toString.call(o).slice(8, -1);
+    if (n === "Object" && o.constructor) n = o.constructor.name;
+    if (n === "Map" || n === "Set") return Array.from(o);
+    if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
+  }
+
+  function _arrayLikeToArray(arr, len) {
+    if (len == null || len > arr.length) len = arr.length;
+
+    for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i];
+
+    return arr2;
+  }
+
+  function _createForOfIteratorHelper(o, allowArrayLike) {
+    var it;
+
+    if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) {
+      if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") {
+        if (it) o = it;
+        var i = 0;
+
+        var F = function () {};
+
+        return {
+          s: F,
+          n: function () {
+            if (i >= o.length) return {
+              done: true
+            };
+            return {
+              done: false,
+              value: o[i++]
+            };
+          },
+          e: function (e) {
+            throw e;
+          },
+          f: F
+        };
+      }
+
+      throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+    }
+
+    var normalCompletion = true,
+        didErr = false,
+        err;
+    return {
+      s: function () {
+        it = o[Symbol.iterator]();
+      },
+      n: function () {
+        var step = it.next();
+        normalCompletion = step.done;
+        return step;
+      },
+      e: function (e) {
+        didErr = true;
+        err = e;
+      },
+      f: function () {
+        try {
+          if (!normalCompletion && it.return != null) it.return();
+        } finally {
+          if (didErr) throw err;
+        }
+      }
+    };
   }
 
   /**
@@ -243,9 +349,7 @@
   	 
    */
 
-  var Vector2 =
-  /*#__PURE__*/
-  function () {
+  var Vector2 = /*#__PURE__*/function () {
     // Constructor
     function Vector2(inX, inY) {
       _classCallCheck(this, Vector2);
@@ -352,26 +456,26 @@
       }
     }, {
       key: "Distance",
-
+      value:
       /**
        * Distance to other vector2
        * @param {Vector2} v 
        * @return {Number} distance
        */
-      value: function Distance(v) {
+      function Distance(v) {
         var dx = v.x - this.x;
         var dy = v.y - this.y;
         return Math.sqrt(dx * dx + dy * dy);
       }
     }, {
       key: "findLookAtRotation",
-
+      value:
       /**
        * Find a rotation to point at Target location.
        * @param {Vector2} v Vector2 to look at 
        * @return {Number} Angle in radians
        */
-      value: function findLookAtRotation(v) {
+      function findLookAtRotation(v) {
         cross = this.crossProduct(v);
         dot = this.dotProduct(v);
         return Math.atan2(cross, dot);
@@ -678,9 +782,7 @@
    * @private
    */
 
-  var BVHBranch =
-  /*#__PURE__*/
-  function () {
+  var BVHBranch = /*#__PURE__*/function () {
     /**
      * @constructor
      */
@@ -762,9 +864,7 @@
    * @private
    */
 
-  var BVH =
-  /*#__PURE__*/
-  function () {
+  var BVH = /*#__PURE__*/function () {
     /**
      * @constructor
      */
@@ -1601,9 +1701,7 @@
    * @protected
    */
 
-  var Body =
-  /*#__PURE__*/
-  function () {
+  var Body = /*#__PURE__*/function () {
     /**
      * @constructor
      * @param {Number} [x = 0] The starting X coordinate
@@ -1741,10 +1839,10 @@
    * @class
    */
 
-  var Circle =
-  /*#__PURE__*/
-  function (_Body) {
+  var Circle = /*#__PURE__*/function (_Body) {
     _inherits(Circle, _Body);
+
+    var _super = _createSuper(Circle);
 
     /**
      * @constructor
@@ -1765,7 +1863,7 @@
 
       _classCallCheck(this, Circle);
 
-      _this = _possibleConstructorReturn(this, _getPrototypeOf(Circle).call(this, x, y, padding));
+      _this = _super.call(this, x, y, padding);
       /**
        * @desc
        * @type {Number}
@@ -1805,10 +1903,10 @@
    * @class
    */
 
-  var Polygon =
-  /*#__PURE__*/
-  function (_Body) {
+  var Polygon = /*#__PURE__*/function (_Body) {
     _inherits(Polygon, _Body);
+
+    var _super = _createSuper(Polygon);
 
     /**
      * @constructor
@@ -1833,7 +1931,7 @@
 
       _classCallCheck(this, Polygon);
 
-      _this = _possibleConstructorReturn(this, _getPrototypeOf(Polygon).call(this, x, y, padding));
+      _this = _super.call(this, x, y, padding);
       /**
        * @desc The angle of the body in radians
        * @type {Number}
@@ -2059,10 +2157,10 @@
    * @class
    */
 
-  var Point =
-  /*#__PURE__*/
-  function (_Polygon) {
+  var Point = /*#__PURE__*/function (_Polygon) {
     _inherits(Point, _Polygon);
+
+    var _super = _createSuper(Point);
 
     /**
      * @constructor
@@ -2079,7 +2177,7 @@
 
       _classCallCheck(this, Point);
 
-      _this = _possibleConstructorReturn(this, _getPrototypeOf(Point).call(this, x, y, [[0, 0]], 0, 1, 1, padding));
+      _this = _super.call(this, x, y, [[0, 0]], 0, 1, 1, padding);
       /** @private */
 
       _this._point = true;
@@ -2095,9 +2193,7 @@
    * @class
    */
 
-  var Collisions =
-  /*#__PURE__*/
-  function () {
+  var Collisions = /*#__PURE__*/function () {
     /**
      * @constructor
      */
@@ -2195,12 +2291,12 @@
 
     }, {
       key: "insert",
-
+      value:
       /**
        * Inserts bodies into the collision system
        * @param {...Circle|...Polygon|...Point} bodies
        */
-      value: function insert() {
+      function insert() {
         for (var _len = arguments.length, bodies = new Array(_len), _key = 0; _key < _len; _key++) {
           bodies[_key] = arguments[_key];
         }
@@ -2300,9 +2396,7 @@
     return Collisions;
   }();
 
-  var Pool =
-  /*#__PURE__*/
-  function () {
+  var Pool = /*#__PURE__*/function () {
     function Pool() {
       _classCallCheck(this, Pool);
 
@@ -2402,9 +2496,7 @@
     return Pool;
   }();
 
-  var _World =
-  /*#__PURE__*/
-  function () {
+  var _World = /*#__PURE__*/function () {
     function _World() {
       _classCallCheck(this, _World);
 
@@ -2510,9 +2602,7 @@
 
   var World = new _World();
 
-  var Entity =
-  /*#__PURE__*/
-  function () {
+  var Entity = /*#__PURE__*/function () {
     function Entity(props) {
       _classCallCheck(this, Entity);
 
@@ -2687,9 +2777,7 @@
   /**
    * Basic Movement Component adds Velocity to Location scaled by delta.
    */
-  var MovementComponent =
-  /*#__PURE__*/
-  function () {
+  var MovementComponent = /*#__PURE__*/function () {
     function MovementComponent(props) {
       _classCallCheck(this, MovementComponent);
 
@@ -2708,15 +2796,15 @@
     return MovementComponent;
   }();
 
-  var Monster =
-  /*#__PURE__*/
-  function (_Entity) {
+  var Monster = /*#__PURE__*/function (_Entity) {
     _inherits(Monster, _Entity);
+
+    var _super = _createSuper(Monster);
 
     function Monster() {
       _classCallCheck(this, Monster);
 
-      return _possibleConstructorReturn(this, _getPrototypeOf(Monster).apply(this, arguments));
+      return _super.apply(this, arguments);
     }
 
     _createClass(Monster, [{
@@ -4884,7 +4972,7 @@
                   dh = hue1-(hue0+360);
               } else if (hue1 < hue0 && hue0 - hue1 > 180) {
                   dh = hue1+360-hue0;
-              } else{
+              } else {
                   dh = hue1 - hue0;
               }
               hue = hue0 + f * dh;
@@ -6061,15 +6149,15 @@
   });
   var chroma_1 = chroma.chroma;
 
-  var PowerUpBase =
-  /*#__PURE__*/
-  function (_Monster) {
+  var PowerUpBase = /*#__PURE__*/function (_Monster) {
     _inherits(PowerUpBase, _Monster);
+
+    var _super = _createSuper(PowerUpBase);
 
     function PowerUpBase() {
       _classCallCheck(this, PowerUpBase);
 
-      return _possibleConstructorReturn(this, _getPrototypeOf(PowerUpBase).apply(this, arguments));
+      return _super.apply(this, arguments);
     }
 
     _createClass(PowerUpBase, [{
@@ -6111,17 +6199,17 @@
    * Y Axis Sinus Movement, Spawn x axis keept as offset
    */
 
-  var SinusCurveMovementComponent =
-  /*#__PURE__*/
-  function (_MovementComponent) {
+  var SinusCurveMovementComponent = /*#__PURE__*/function (_MovementComponent) {
     _inherits(SinusCurveMovementComponent, _MovementComponent);
+
+    var _super = _createSuper(SinusCurveMovementComponent);
 
     function SinusCurveMovementComponent(props) {
       var _this;
 
       _classCallCheck(this, SinusCurveMovementComponent);
 
-      _this = _possibleConstructorReturn(this, _getPrototypeOf(SinusCurveMovementComponent).call(this, props));
+      _this = _super.call(this, props);
       _this.frequency = props.frequency || 100;
       _this.magnitude = props.magnitude || 90;
       _this.OffsetX = _this.Outer.Location.x;
@@ -6149,8 +6237,6 @@
   	"hsv":[{"index":0,"rgb":[255,0,0]},{"index":0.169,"rgb":[253,255,2]},{"index":0.173,"rgb":[247,255,2]},{"index":0.337,"rgb":[0,252,4]},{"index":0.341,"rgb":[0,252,10]},{"index":0.506,"rgb":[1,249,255]},{"index":0.671,"rgb":[2,0,253]},{"index":0.675,"rgb":[8,0,253]},{"index":0.839,"rgb":[255,0,251]},{"index":0.843,"rgb":[255,0,245]},{"index":1,"rgb":[255,0,6]}],
 
   	"hot":[{"index":0,"rgb":[0,0,0]},{"index":0.3,"rgb":[230,0,0]},{"index":0.6,"rgb":[255,210,0]},{"index":1,"rgb":[255,255,255]}],
-
-  	"cool":[{"index":0,"rgb":[0,255,255]},{"index":1,"rgb":[255,0,255]}],
 
   	"spring":[{"index":0,"rgb":[255,0,255]},{"index":1,"rgb":[255,255,0]}],
 
@@ -6421,7 +6507,7 @@
       var LocalProps = {
         location: LocalLocation
       };
-      LocalProps = _objectSpread2({}, LocalProps, {}, InProps);
+      LocalProps = _objectSpread2(_objectSpread2({}, LocalProps), InProps);
       World.SpawnEntity(ClassToSpawn, LocalProps);
       LocalLocation.moveTowards(TargetLocation, Padding);
     }
@@ -6431,17 +6517,17 @@
    * X Axis Cosine Movement, Spawn y axis keept as offset
    */
 
-  var CosineCurveMovementComponent =
-  /*#__PURE__*/
-  function (_MovementComponent) {
+  var CosineCurveMovementComponent = /*#__PURE__*/function (_MovementComponent) {
     _inherits(CosineCurveMovementComponent, _MovementComponent);
+
+    var _super = _createSuper(CosineCurveMovementComponent);
 
     function CosineCurveMovementComponent(props) {
       var _this;
 
       _classCallCheck(this, CosineCurveMovementComponent);
 
-      _this = _possibleConstructorReturn(this, _getPrototypeOf(CosineCurveMovementComponent).call(this, props));
+      _this = _super.call(this, props);
       _this.frequency = 100;
       _this.magnitude = 90;
       _this.OffsetY = _this.Outer.Location.y;
@@ -6467,9 +6553,7 @@
   var LINE_HORIZONTAL = 4;
   var SUICIDE_SPAWN = 5;
 
-  var _GameMode =
-  /*#__PURE__*/
-  function () {
+  var _GameMode = /*#__PURE__*/function () {
     function _GameMode() {
       _classCallCheck(this, _GameMode);
 
@@ -6610,15 +6694,15 @@
 
   var GameMode = new _GameMode();
 
-  var Asteroid =
-  /*#__PURE__*/
-  function (_Monster) {
+  var Asteroid = /*#__PURE__*/function (_Monster) {
     _inherits(Asteroid, _Monster);
+
+    var _super = _createSuper(Asteroid);
 
     function Asteroid() {
       _classCallCheck(this, Asteroid);
 
-      return _possibleConstructorReturn(this, _getPrototypeOf(Asteroid).apply(this, arguments));
+      return _super.apply(this, arguments);
     }
 
     _createClass(Asteroid, [{
@@ -6721,17 +6805,17 @@
     return Asteroid;
   }(Monster);
 
-  var HomingMovement =
-  /*#__PURE__*/
-  function (_MovementComponent) {
+  var HomingMovement = /*#__PURE__*/function (_MovementComponent) {
     _inherits(HomingMovement, _MovementComponent);
+
+    var _super = _createSuper(HomingMovement);
 
     function HomingMovement(props) {
       var _this;
 
       _classCallCheck(this, HomingMovement);
 
-      _this = _possibleConstructorReturn(this, _getPrototypeOf(HomingMovement).call(this, props));
+      _this = _super.call(this, props);
       _this.target = props.target || null;
       _this.HomingAccelerationMagnitude = 400;
       _this.MaxVelocity = 200;
@@ -6757,15 +6841,15 @@
     return HomingMovement;
   }(MovementComponent);
 
-  var SuicideMonster =
-  /*#__PURE__*/
-  function (_Monster) {
+  var SuicideMonster = /*#__PURE__*/function (_Monster) {
     _inherits(SuicideMonster, _Monster);
+
+    var _super = _createSuper(SuicideMonster);
 
     function SuicideMonster() {
       _classCallCheck(this, SuicideMonster);
 
-      return _possibleConstructorReturn(this, _getPrototypeOf(SuicideMonster).apply(this, arguments));
+      return _super.apply(this, arguments);
     }
 
     _createClass(SuicideMonster, [{
@@ -6804,9 +6888,7 @@
     return SuicideMonster;
   }(Monster);
 
-  var _Key =
-  /*#__PURE__*/
-  function () {
+  var _Key = /*#__PURE__*/function () {
     function _Key() {
       _classCallCheck(this, _Key);
 
@@ -6841,15 +6923,15 @@
 
   var Key = new _Key();
 
-  var Player =
-  /*#__PURE__*/
-  function (_Monster) {
+  var Player = /*#__PURE__*/function (_Monster) {
     _inherits(Player, _Monster);
+
+    var _super = _createSuper(Player);
 
     function Player() {
       _classCallCheck(this, Player);
 
-      return _possibleConstructorReturn(this, _getPrototypeOf(Player).apply(this, arguments));
+      return _super.apply(this, arguments);
     }
 
     _createClass(Player, [{
@@ -6909,12 +6991,12 @@
       value: function QueryCollisions(delta) {
         if (!this.PendingDestroy) {
           var potentials = this.RootBody.potentials();
-          var _iteratorNormalCompletion = true;
-          var _didIteratorError = false;
-          var _iteratorError = undefined;
+
+          var _iterator = _createForOfIteratorHelper(potentials),
+              _step;
 
           try {
-            for (var _iterator = potentials[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+            for (_iterator.s(); !(_step = _iterator.n()).done;) {
               var otherBody = _step.value;
 
               if (this.RootBody.collides(otherBody, this.World.collisionResults)) {
@@ -6924,18 +7006,9 @@
               }
             }
           } catch (err) {
-            _didIteratorError = true;
-            _iteratorError = err;
+            _iterator.e(err);
           } finally {
-            try {
-              if (!_iteratorNormalCompletion && _iterator.return != null) {
-                _iterator.return();
-              }
-            } finally {
-              if (_didIteratorError) {
-                throw _iteratorError;
-              }
-            }
+            _iterator.f();
           }
         }
       }
@@ -7013,15 +7086,15 @@
     return Player;
   }(Monster);
 
-  var Weapon =
-  /*#__PURE__*/
-  function (_Entity) {
+  var Weapon = /*#__PURE__*/function (_Entity) {
     _inherits(Weapon, _Entity);
+
+    var _super = _createSuper(Weapon);
 
     function Weapon() {
       _classCallCheck(this, Weapon);
 
-      return _possibleConstructorReturn(this, _getPrototypeOf(Weapon).apply(this, arguments));
+      return _super.apply(this, arguments);
     }
 
     _createClass(Weapon, [{
@@ -7105,15 +7178,15 @@
    * Projectile shoots "Upwards"
    */
 
-  var ProjectileWeaponBase =
-  /*#__PURE__*/
-  function (_Weapon) {
+  var ProjectileWeaponBase = /*#__PURE__*/function (_Weapon) {
     _inherits(ProjectileWeaponBase, _Weapon);
+
+    var _super = _createSuper(ProjectileWeaponBase);
 
     function ProjectileWeaponBase() {
       _classCallCheck(this, ProjectileWeaponBase);
 
-      return _possibleConstructorReturn(this, _getPrototypeOf(ProjectileWeaponBase).apply(this, arguments));
+      return _super.apply(this, arguments);
     }
 
     _createClass(ProjectileWeaponBase, [{
@@ -7144,15 +7217,15 @@
     return ProjectileWeaponBase;
   }(Weapon);
 
-  var WPN_TPattern =
-  /*#__PURE__*/
-  function (_ProjectileWeaponBase) {
+  var WPN_TPattern = /*#__PURE__*/function (_ProjectileWeaponBase) {
     _inherits(WPN_TPattern, _ProjectileWeaponBase);
+
+    var _super = _createSuper(WPN_TPattern);
 
     function WPN_TPattern() {
       _classCallCheck(this, WPN_TPattern);
 
-      return _possibleConstructorReturn(this, _getPrototypeOf(WPN_TPattern).apply(this, arguments));
+      return _super.apply(this, arguments);
     }
 
     _createClass(WPN_TPattern, [{
@@ -7199,15 +7272,15 @@
     return WPN_TPattern;
   }(ProjectileWeaponBase);
 
-  var Projectile =
-  /*#__PURE__*/
-  function (_Monster) {
+  var Projectile = /*#__PURE__*/function (_Monster) {
     _inherits(Projectile, _Monster);
+
+    var _super = _createSuper(Projectile);
 
     function Projectile() {
       _classCallCheck(this, Projectile);
 
-      return _possibleConstructorReturn(this, _getPrototypeOf(Projectile).apply(this, arguments));
+      return _super.apply(this, arguments);
     }
 
     _createClass(Projectile, [{
@@ -7244,12 +7317,12 @@
       value: function QueryCollisions(delta) {
         if (!this.PendingDestroy) {
           var potentials = this.RootBody.potentials();
-          var _iteratorNormalCompletion = true;
-          var _didIteratorError = false;
-          var _iteratorError = undefined;
+
+          var _iterator = _createForOfIteratorHelper(potentials),
+              _step;
 
           try {
-            for (var _iterator = potentials[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+            for (_iterator.s(); !(_step = _iterator.n()).done;) {
               var otherBody = _step.value;
 
               if (this.RootBody.collides(otherBody, this.World.collisionResults)) {
@@ -7265,18 +7338,9 @@
               }
             }
           } catch (err) {
-            _didIteratorError = true;
-            _iteratorError = err;
+            _iterator.e(err);
           } finally {
-            try {
-              if (!_iteratorNormalCompletion && _iterator.return != null) {
-                _iterator.return();
-              }
-            } finally {
-              if (_didIteratorError) {
-                throw _iteratorError;
-              }
-            }
+            _iterator.f();
           }
         }
       }
@@ -7306,15 +7370,15 @@
     return Projectile;
   }(Monster);
 
-  var ParticleEmitter =
-  /*#__PURE__*/
-  function (_Entity) {
+  var ParticleEmitter = /*#__PURE__*/function (_Entity) {
     _inherits(ParticleEmitter, _Entity);
+
+    var _super = _createSuper(ParticleEmitter);
 
     function ParticleEmitter() {
       _classCallCheck(this, ParticleEmitter);
 
-      return _possibleConstructorReturn(this, _getPrototypeOf(ParticleEmitter).apply(this, arguments));
+      return _super.apply(this, arguments);
     }
 
     _createClass(ParticleEmitter, [{
@@ -7389,15 +7453,15 @@
     return ParticleEmitter;
   }(Entity);
 
-  var Particle =
-  /*#__PURE__*/
-  function (_Entity) {
+  var Particle = /*#__PURE__*/function (_Entity) {
     _inherits(Particle, _Entity);
+
+    var _super = _createSuper(Particle);
 
     function Particle() {
       _classCallCheck(this, Particle);
 
-      return _possibleConstructorReturn(this, _getPrototypeOf(Particle).apply(this, arguments));
+      return _super.apply(this, arguments);
     }
 
     _createClass(Particle, [{
@@ -7439,15 +7503,15 @@
    * extra props size
    */
 
-  var StarBackGround =
-  /*#__PURE__*/
-  function (_Entity) {
+  var StarBackGround = /*#__PURE__*/function (_Entity) {
     _inherits(StarBackGround, _Entity);
+
+    var _super = _createSuper(StarBackGround);
 
     function StarBackGround() {
       _classCallCheck(this, StarBackGround);
 
-      return _possibleConstructorReturn(this, _getPrototypeOf(StarBackGround).apply(this, arguments));
+      return _super.apply(this, arguments);
     }
 
     _createClass(StarBackGround, [{
@@ -7596,4 +7660,3 @@
   });
 
 }());
-//# sourceMappingURL=bundle.js.map
