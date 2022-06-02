@@ -13,7 +13,7 @@ export class RainbowGun extends ProjectileWeaponBase {
         this.ProjectileClass = RainbowProjectile;
 
         this.Ammunition = 100;
-        this.Period = 500;
+        this.Period = 250;
     }
 
 

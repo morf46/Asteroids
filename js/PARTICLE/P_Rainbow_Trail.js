@@ -10,7 +10,7 @@ export class P_Rainbow_Trail extends Particle {
     Init(props) {
         super.Init(props);
 
-        this.TimeToLife = getRandomfloat(800, 1200);
+        this.TimeToLife = getRandomfloat(50,75);
 
         this.ColorMap = colormap({
             colormap: 'rainbow',

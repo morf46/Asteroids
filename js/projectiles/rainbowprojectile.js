@@ -17,6 +17,13 @@ export class RainbowProjectile extends Projectile {
         this.DamageDealt = 5;
 
         this.FX = null;
+
+        this.ColorMap = colormap({
+            colormap: 'rainbow',
+            nshades: 20,
+            format: 'hex',
+            alpha: 0.5
+        })
     }
 
 
@@ -31,6 +38,7 @@ export class RainbowProjectile extends Projectile {
         if (this.FX) {
             this.FX.Location = this.Location.clone();
         }
+        this.lerpChromaColor();
     }
 
 
