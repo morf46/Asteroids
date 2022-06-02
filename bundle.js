@@ -2479,15 +2479,17 @@
       value: function printDebug() {
         var e = document.getElementById('debug');
 
-        while (e.firstChild) {
-          e.removeChild(e.firstChild);
-        }
+        if (e) {
+          while (e.firstChild) {
+            e.removeChild(e.firstChild);
+          }
 
-        for (var property in this.assocPoolList) {
-          if (this.assocPoolList.hasOwnProperty(property)) {
-            var p = document.createElement("p");
-            p.innerText = "".concat(property, " : ").concat(this.assocPoolList[property].length);
-            e.appendChild(p);
+          for (var property in this.assocPoolList) {
+            if (this.assocPoolList.hasOwnProperty(property)) {
+              var p = document.createElement("p");
+              p.innerText = "".concat(property, " : ").concat(this.assocPoolList[property].length);
+              e.appendChild(p);
+            }
           }
         }
       }
@@ -6176,6 +6178,14 @@
         this.TimeToLife = 60000;
         this.Velocity = new Vector2(0, 0);
         this.BaseColor = "#ffa500";
+        this.DropClass = WPN_TPattern;
+        this.DropWeights = [{
+          Class: WPN_TPattern,
+          Weight: 1
+        }, {
+          Class: RainbowGun,
+          Weight: 1
+        }];
       }
     }, {
       key: "CreateCollionBody",
@@ -6191,10 +6201,29 @@
         this.BaseColor = chroma('#ffa500').darken(Math.sin(this.Age / 500)).hex();
       }
     }, {
+      key: "getDropClass",
+      value: function getDropClass() {
+        var totalWeight = this.DropWeights.reduce(function (acc, cur) {
+          return acc + cur.Weight;
+        }, 0);
+        var random = Math.random() * totalWeight;
+        var currentWeight = 0;
+
+        for (var i = 0; i < this.DropWeights.length; i++) {
+          currentWeight += this.DropWeights[i].Weight;
+
+          if (random < currentWeight) {
+            return this.DropWeights[i].Class;
+          }
+        }
+
+        return this.DropClass;
+      }
+    }, {
       key: "OnOverlap",
       value: function OnOverlap(OtherEntity) {
         if (OtherEntity instanceof Player) {
-          OtherEntity.PickupItem(WPN_TPattern);
+          OtherEntity.PickupItem(this.getDropClass());
           this.Destroy();
         }
       }
@@ -7225,6 +7254,59 @@
     return ProjectileWeaponBase;
   }(Weapon);
 
+  var RainbowGun = /*#__PURE__*/function (_ProjectileWeaponBase) {
+    _inherits(RainbowGun, _ProjectileWeaponBase);
+
+    var _super = _createSuper(RainbowGun);
+
+    function RainbowGun() {
+      _classCallCheck(this, RainbowGun);
+
+      return _super.apply(this, arguments);
+    }
+
+    _createClass(RainbowGun, [{
+      key: "Init",
+      value: function Init(props) {
+        _get(_getPrototypeOf(RainbowGun.prototype), "Init", this).call(this, props);
+
+        this.ProjectileClass = RainbowProjectile;
+        this.Ammunition = 100;
+        this.Period = 500;
+      }
+    }, {
+      key: "HandleFireWeapon",
+      value: function HandleFireWeapon() {
+        if (this.ProjectileClass) {
+          for (var i = 0; i < 2; i++) {
+            var localInverse = i === 0 ? 1 : -1;
+            var P = World.SpawnEntity(this.ProjectileClass, {
+              location: this.Outer.Location,
+              velocity: new Vector2(0, getRandomfloat(-450, -600)).addScaled(this.Outer.Velocity.clone(), 0.16),
+              team: this.Outer.team,
+              MovementComponent: SinusCurveMovementComponent,
+              MovementConfig: {
+                usespawnlocationdiff: true,
+                frequency: 30,
+                magnitude: getRandomfloat(10, 15) * localInverse
+              }
+            });
+            P.team = this.Outer.team;
+            this.InternalShootCount++;
+            this.Ammunition--;
+
+            if (this.Ammunition <= 0) {
+              this.Destroy();
+              break;
+            }
+          }
+        }
+      }
+    }]);
+
+    return RainbowGun;
+  }(ProjectileWeaponBase);
+
   var WPN_TPattern = /*#__PURE__*/function (_ProjectileWeaponBase) {
     _inherits(WPN_TPattern, _ProjectileWeaponBase);
 
@@ -7378,6 +7460,63 @@
     return Projectile;
   }(Monster);
 
+  var RainbowProjectile = /*#__PURE__*/function (_Projectile) {
+    _inherits(RainbowProjectile, _Projectile);
+
+    var _super = _createSuper(RainbowProjectile);
+
+    function RainbowProjectile() {
+      _classCallCheck(this, RainbowProjectile);
+
+      return _super.apply(this, arguments);
+    }
+
+    _createClass(RainbowProjectile, [{
+      key: "Init",
+      value: function Init(props) {
+        _get(_getPrototypeOf(RainbowProjectile.prototype), "Init", this).call(this, props);
+
+        this.RegisterCollisonQuery = true;
+        this.TimeToLife = 1200;
+        this.ColorMap = null;
+        this.BaseColor = "#220000";
+        this.DamageDealt = 5;
+        this.FX = null;
+      }
+    }, {
+      key: "BeginPlay",
+      value: function BeginPlay() {
+        this.FX = this.World.SpawnEntity(E_Rainbow_Trail, {
+          ParticleClass: P_Rainbow_Trail,
+          location: this.Location,
+          direction: new Vector2(0, 1)
+        });
+        this.FX.Activate();
+      }
+    }, {
+      key: "update",
+      value: function update(delta) {
+        _get(_getPrototypeOf(RainbowProjectile.prototype), "update", this).call(this, delta);
+
+        if (this.FX) {
+          this.FX.Location = this.Location.clone();
+        }
+      }
+    }, {
+      key: "Destroy",
+      value: function Destroy() {
+        _get(_getPrototypeOf(RainbowProjectile.prototype), "Destroy", this).call(this);
+
+        if (this.FX) {
+          this.FX.Deactivate();
+          this.FX.Destroy();
+        }
+      }
+    }]);
+
+    return RainbowProjectile;
+  }(Projectile);
+
   var ParticleEmitter = /*#__PURE__*/function (_Entity) {
     _inherits(ParticleEmitter, _Entity);
 
@@ -7461,6 +7600,52 @@
     return ParticleEmitter;
   }(Entity);
 
+  var E_Rainbow_Trail = /*#__PURE__*/function (_ParticleEmitter) {
+    _inherits(E_Rainbow_Trail, _ParticleEmitter);
+
+    var _super = _createSuper(E_Rainbow_Trail);
+
+    function E_Rainbow_Trail() {
+      _classCallCheck(this, E_Rainbow_Trail);
+
+      return _super.apply(this, arguments);
+    }
+
+    _createClass(E_Rainbow_Trail, [{
+      key: "Init",
+      value: function Init(props) {
+        _get(_getPrototypeOf(E_Rainbow_Trail.prototype), "Init", this).call(this, props);
+
+        this.SpawnCount = 5;
+        this.Direction = props.direction || new Vector2(0, 0);
+        this.Location = props.location || new Vector2(0, 0);
+        this.ParticleClass = props.ParticleClass || P_Rainbow_Trail;
+        this.BurstList = [];
+        this.BurstListIndex = 0;
+        this.TimeToLife = props.timetolife || 0;
+        this.IsActive = false;
+        this.Period = 50;
+      }
+    }, {
+      key: "SpawnParticle",
+      value: function SpawnParticle() {
+        if (this.ParticleClass) {
+          for (var i = 0; i < this.SpawnCount; i++) {
+            var randomDirection = getRandomfloat(-0.1, 0.1);
+            var localVelocity = this.Direction.clone().rotate2D(randomDirection).multiply(getRandomfloat(50, 70));
+            var NewParticle = new this.ParticleClass({
+              location: this.Location,
+              velocity: localVelocity
+            });
+            this.World.RegisterParticle(NewParticle);
+          }
+        }
+      }
+    }]);
+
+    return E_Rainbow_Trail;
+  }(ParticleEmitter);
+
   var Particle = /*#__PURE__*/function (_Entity) {
     _inherits(Particle, _Entity);
 
@@ -7505,6 +7690,56 @@
 
     return Particle;
   }(Entity);
+
+  var P_Rainbow_Trail = /*#__PURE__*/function (_Particle) {
+    _inherits(P_Rainbow_Trail, _Particle);
+
+    var _super = _createSuper(P_Rainbow_Trail);
+
+    function P_Rainbow_Trail() {
+      _classCallCheck(this, P_Rainbow_Trail);
+
+      return _super.apply(this, arguments);
+    }
+
+    _createClass(P_Rainbow_Trail, [{
+      key: "Init",
+      value: function Init(props) {
+        _get(_getPrototypeOf(P_Rainbow_Trail.prototype), "Init", this).call(this, props);
+
+        this.TimeToLife = getRandomfloat(800, 1200);
+        this.ColorMap = colormap({
+          colormap: 'rainbow',
+          nshades: 20,
+          format: 'hex',
+          alpha: 0.5
+        });
+        this.BaseColor = this.ColorMap[0];
+      }
+    }, {
+      key: "update",
+      value: function update(delta) {
+        _get(_getPrototypeOf(P_Rainbow_Trail.prototype), "update", this).call(this, delta);
+
+        this.Location.addScaled(this.Velocity, delta);
+        this.lerpChromaColor();
+      }
+    }, {
+      key: "render",
+      value: function render(delta) {
+        var ctx = this.World.ctx;
+        ctx.save();
+        ctx.translate(this.Location.x, this.Location.y);
+        ctx.beginPath();
+        ctx.fillStyle = this.BaseColor;
+        ctx.arc(0, 0, 2, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.restore();
+      }
+    }]);
+
+    return P_Rainbow_Trail;
+  }(Particle);
 
   /**
    * Background star 

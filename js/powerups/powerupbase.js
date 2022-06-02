@@ -12,7 +12,11 @@ class PowerUpBase extends Monster {
         this.TimeToLife = 60000;
         this.Velocity = new Vector2(0, 0);
         this.BaseColor = "#ffa500";
-
+        this.DropClass = WPN_TPattern;
+        this.DropWeights =[
+            {Class: WPN_TPattern, Weight: 1},
+            {Class: RainbowGun, Weight: 1},
+        ]
     }
 
     CreateCollionBody() {
@@ -30,10 +34,26 @@ class PowerUpBase extends Monster {
         this.BaseColor = chroma('#ffa500').darken(Math.sin(this.Age / 500)).hex();
     }
 
+    getDropClass() {
+
+        let totalWeight = this.DropWeights.reduce((acc, cur) => acc + cur.Weight, 0);
+        let random = Math.random() * totalWeight;
+        let currentWeight = 0;
+
+        for (let i = 0; i < this.DropWeights.length; i++) {
+            currentWeight += this.DropWeights[i].Weight;
+            if (random < currentWeight) {
+                return this.DropWeights[i].Class;
+            }
+        }
+
+        return this.DropClass;
+    }
+
     OnOverlap(OtherEntity) {
         if (OtherEntity instanceof Player) {
 
-            OtherEntity.PickupItem(WPN_TPattern);
+            OtherEntity.PickupItem(this.getDropClass());
             this.Destroy();
         }
     }
