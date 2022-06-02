@@ -7272,7 +7272,7 @@
 
         this.ProjectileClass = RainbowProjectile;
         this.Ammunition = 100;
-        this.Period = 500;
+        this.Period = 250;
       }
     }, {
       key: "HandleFireWeapon",
@@ -7482,6 +7482,12 @@
         this.BaseColor = "#220000";
         this.DamageDealt = 5;
         this.FX = null;
+        this.ColorMap = colormap({
+          colormap: 'rainbow',
+          nshades: 20,
+          format: 'hex',
+          alpha: 0.5
+        });
       }
     }, {
       key: "BeginPlay",
@@ -7501,6 +7507,8 @@
         if (this.FX) {
           this.FX.Location = this.Location.clone();
         }
+
+        this.lerpChromaColor();
       }
     }, {
       key: "Destroy",
@@ -7707,7 +7715,7 @@
       value: function Init(props) {
         _get(_getPrototypeOf(P_Rainbow_Trail.prototype), "Init", this).call(this, props);
 
-        this.TimeToLife = getRandomfloat(800, 1200);
+        this.TimeToLife = getRandomfloat(50, 75);
         this.ColorMap = colormap({
           colormap: 'rainbow',
           nshades: 20,
